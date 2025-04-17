@@ -3,14 +3,14 @@ import '../models/word_pair.dart';
 import '../services/database_service.dart';
 import '../widgets/word_card.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HistoryScreenState extends State<HistoryScreen> {
   int _currentIndex = 0;
   WordPair? _currentWord;
   List<Map<String, dynamic>> _studyHistory = [];
@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return InkWell(
                   onTap: () async {
                     await DatabaseService.instance
-                        .updateWordLevel(word['id'], level);
+                        .updateWordLevel(word['word_id'], level);
                     Navigator.of(context).pop();
                     _loadContent(); // Refresh the list
                   },
@@ -326,27 +326,49 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
-              Text(
-                "Today's Progress",
-                style: Theme.of(context).textTheme.titleMedium,
+              Row(
+                children: [
+                  Icon(
+                    Icons.emoji_events,
+                    color: Colors.amber[700],
+                    size: 32,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Today's Progress",
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                        Text(
+                          '${((_todayProgress / dailyWordGoal) * 100).round()}%',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: LinearProgressIndicator(
                   value: _todayProgress / dailyWordGoal,
-                  minHeight: 10,
-                  backgroundColor:
-                      Theme.of(context).colorScheme.primaryContainer,
+                  minHeight: 16,
+                  backgroundColor: Colors.grey[100],
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
+                    Colors.blue,
                   ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${_todayProgress.round()}/$dailyWordGoal words',
-                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           ),
@@ -385,41 +407,66 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Column(
-                children: [
-                  const Icon(Icons.star, color: Colors.amber, size: 32),
-                  const SizedBox(height: 8),
-                  Text(
-                    _studyHistory
-                        .where((word) => word['box_level'] >= 5)
-                        .length
-                        .toString(),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  Text(
-                    'Words Mastered',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              Container(
+                width: 150,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(Icons.star, color: Colors.amber, size: 32),
+                    const SizedBox(height: 8),
+                    Text(
+                      _studyHistory
+                          .where((word) => word['box_level'] >= 5)
+                          .length
+                          .toString(),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[800],
+                          ),
+                    ),
+                    Text(
+                      'Words Mastered',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                children: [
-                  const Icon(Icons.calendar_today,
-                      color: Colors.blue, size: 32),
-                  const SizedBox(height: 8),
-                  Text(
-                    '1',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  Text(
-                    'Day Streak',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              Container(
+                width: 150,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      color: Colors.blue,
+                      size: 32,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '1',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[800],
+                          ),
+                    ),
+                    Text(
+                      'Day Streak',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
