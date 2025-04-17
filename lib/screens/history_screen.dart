@@ -95,45 +95,79 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
 
     Future<void> _showLevelSelector(Map<String, dynamic> word) async {
-      final levels = List.generate(6, (index) => index);
+      final levels = [
+        {'level': 0, 'text': 'Unknown'},
+        {'level': 1, 'text': 'Level 1'},
+        {'level': 2, 'text': 'Level 2'},
+        {'level': 3, 'text': 'Level 3'},
+        {'level': 4, 'text': 'Level 4'},
+        {'level': 5, 'text': 'Known'},
+      ];
       final currentLevel = word['box_level'] as int;
+
+      print('Debug - word map: $word'); // Debug print
 
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Change level for "${word['french_word']}"'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                word['french_word'],
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                word['spanish_word'],
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.blue,
+                ),
+              ),
+            ],
+          ),
           content: SingleChildScrollView(
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: levels.map((level) {
-                final isSelected = level == currentLevel;
-                return InkWell(
-                  onTap: () async {
-                    await DatabaseService.instance
-                        .updateWordLevel(word['word_id'], level);
-                    Navigator.of(context).pop();
-                    _loadContent(); // Refresh the list
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'Level $level',
-                      style: TextStyle(
+                final isSelected = level['level'] == currentLevel;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: InkWell(
+                    onTap: () async {
+                      final wordId = word['word_id'] as int;
+                      print(
+                          'Debug - Updating word $wordId to level ${level['level']}'); // Debug print
+                      await DatabaseService.instance
+                          .updateWordLevel(wordId, level['level'] as int);
+                      Navigator.of(context).pop();
+                      _loadContent();
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      decoration: BoxDecoration(
                         color: isSelected
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : Theme.of(context).colorScheme.onPrimaryContainer,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                            ? Colors.blue
+                            : Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        level['text'] as String,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.blue,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.w500,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -141,6 +175,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
               }).toList(),
             ),
           ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
         ),
       );
     }
@@ -151,7 +189,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         padding: const EdgeInsets.only(
           left: 16,
           right: 16,
-          top: 60, // Extra padding for phone status bar
+          top: 60,
           bottom: 16,
         ),
         itemCount: _studyHistory.length + 1,
@@ -163,8 +201,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 children: [
                   Icon(
                     Icons.visibility,
+                    color: Colors.blue,
                     size: 32,
-                    color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -181,7 +219,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         '${_studyHistory.length} words',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w500,
                                 ),
                       ),
                     ],
@@ -192,6 +231,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
           }
 
           final word = _studyHistory[index - 1];
+          String levelText = 'Unknown';
+          if (word['box_level'] == 1) {
+            levelText = 'Level 1';
+          } else if (word['box_level'] == 2) {
+            levelText = 'Level 2';
+          } else if (word['box_level'] == 3) {
+            levelText = 'Level 3';
+          } else if (word['box_level'] == 4) {
+            levelText = 'Level 4';
+          } else if (word['box_level'] >= 5) {
+            levelText = 'Known';
+          }
+
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             child: InkWell(
@@ -202,36 +254,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                word['french_word'],
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          word['french_word'],
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                word['spanish_word'],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          word['spanish_word'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            color: Colors.blue,
                           ),
                         ),
                       ],
@@ -241,28 +279,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Last seen: ${_getTimeAgo(word['timestamp'])}',
+                          'Last seen ${_getTimeAgo(word['timestamp'])}',
                           style: TextStyle(
-                            color: Colors.grey[500],
+                            color: Colors.grey[600],
                             fontSize: 12,
                           ),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: 12,
+                            vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).colorScheme.primaryContainer,
+                            color: Colors.blue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            'Level ${word['box_level']}',
+                            levelText,
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
+                              color: Colors.blue,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -321,56 +356,63 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Column(
       children: [
-        const SizedBox(height: 40),
+        const SizedBox(height: 60),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.emoji_events,
-                    color: Colors.amber[700],
-                    size: 32,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Today's Progress",
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                        Text(
-                          '${((_todayProgress / dailyWordGoal) * 100).round()}%',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ],
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 24),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.emoji_events,
+                      color: Colors.amber[700],
+                      size: 32,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Today's Progress",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          Text(
+                            '${((_todayProgress / dailyWordGoal) * 100).round()}%',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: _todayProgress / dailyWordGoal,
+                    minHeight: 16,
+                    backgroundColor: Colors.grey[100],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: LinearProgressIndicator(
-                  value: _todayProgress / dailyWordGoal,
-                  minHeight: 16,
-                  backgroundColor: Colors.grey[100],
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.blue,
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 32),

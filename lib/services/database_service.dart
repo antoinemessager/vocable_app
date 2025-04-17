@@ -215,7 +215,11 @@ class DatabaseService {
         FROM user_progress
       )
       SELECT 
-        v.*,
+        v.id as word_id,
+        v.french_word,
+        v.spanish_word,
+        v.french_context,
+        v.spanish_context,
         lp.box_level,
         lp.timestamp
       FROM LatestProgress lp
@@ -223,7 +227,8 @@ class DatabaseService {
       WHERE lp.rn = 1
         AND lp.nb_entries >= 2
       ORDER BY lp.timestamp DESC
-    ''');
+      LIMIT ?
+    ''', [count]);
   }
 
   // Update a word's level manually
