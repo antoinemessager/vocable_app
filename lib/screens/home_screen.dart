@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/word_pair.dart';
 import '../services/database_service.dart';
 import '../widgets/word_card.dart';
-import '../services/preferences_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _studyHistory = [];
   bool _isLoading = true;
   double _todayProgress = 0.0;
-  late int _dailyWordGoal;
+  final int dailyWordGoal = 10;
 
   @override
   void initState() {
@@ -26,22 +25,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadContent() async {
     try {
-      setState(() => _isLoading = true);
-      _dailyWordGoal = await PreferencesService.instance.getDailyWordGoal();
+      setState(() {
+        _isLoading = true;
+      });
+
       final nextWord = await DatabaseService.instance.getNextWordForReview();
       final studyHistory =
           await DatabaseService.instance.getLastStudiedWords(10);
-      final progress = await DatabaseService.instance.getTodayProgress();
+      final todayProgress = await DatabaseService.instance.getTodayProgress();
 
       setState(() {
         _currentWord = nextWord;
         _studyHistory = studyHistory;
-        _todayProgress = progress;
+        _todayProgress = todayProgress;
         _isLoading = false;
       });
     } catch (e) {
       print('Error loading content: $e');
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -120,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                           ),
                           Text(
-                            '${((_todayProgress / _dailyWordGoal) * 100).round()}%',
+                            '${((_todayProgress / dailyWordGoal) * 100).round()}%',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -138,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
-                    value: _todayProgress / _dailyWordGoal,
+                    value: _todayProgress / dailyWordGoal,
                     minHeight: 16,
                     backgroundColor: Colors.grey[100],
                     valueColor: AlwaysStoppedAnimation<Color>(

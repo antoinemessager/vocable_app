@@ -9,7 +9,6 @@ void main() async {
 
   // Initialize the database
   await DatabaseService.instance.database;
-  await PreferencesService.instance.init();
 
   runApp(const VocableApp());
 }
