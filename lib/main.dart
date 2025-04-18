@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/main_screen.dart';
 import 'services/database_service.dart';
+import 'services/preferences_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize the database
   await DatabaseService.instance.database;
+  await PreferencesService.instance.init();
 
   runApp(const VocableApp());
 }

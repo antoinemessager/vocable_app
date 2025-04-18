@@ -11,8 +11,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
   final _pageController = PageController();
+  int _currentIndex = 0;
 
   @override
   void dispose() {
@@ -26,6 +26,7 @@ class _MainScreenState extends State<MainScreen> {
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (index) => setState(() => _currentIndex = index),
         children: const [
           HomeScreen(),
           HistoryScreen(),
@@ -36,10 +37,8 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
+          setState(() => _currentIndex = index);
           _pageController.jumpToPage(index);
-          setState(() {
-            _currentIndex = index;
-          });
         },
         destinations: const [
           NavigationDestination(

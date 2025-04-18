@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../widgets/daily_goal_dialog.dart';
+import '../services/preferences_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -8,10 +10,29 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final int dailyWordGoal = 10;
+  late int dailyWordGoal;
+
+  @override
+  void initState() {
+    super.initState();
+    dailyWordGoal = PreferencesService.instance.getDailyWordGoal();
+  }
+
+  Future<void> _showDailyGoalDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) => DailyGoalDialog(
+        initialGoal: dailyWordGoal,
+        onGoalChanged: (newGoal) async {
+          await PreferencesService.instance.setDailyWordGoal(newGoal);
+          setState(() => dailyWordGoal = newGoal);
+        },
+      ),
+    );
+  }
 
   Widget _buildSettingItem(String title, IconData icon,
-      {required VoidCallback onTap}) {
+      {required VoidCallback onTap, String? subtitle}) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -21,24 +42,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: Colors.grey.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: Colors.grey[700],
+                color: Colors.grey,
                 size: 24,
               ),
             ),
             const SizedBox(width: 16),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodyLarge,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.black,
+                        ),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey,
+                          ),
+                    ),
+                ],
+              ),
             ),
-            const Spacer(),
             Icon(
               Icons.chevron_right,
-              color: Colors.grey[400],
+              color: Colors.grey,
             ),
           ],
         ),
@@ -49,63 +85,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+      padding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 60,
+        bottom: 16,
+      ),
       children: [
-        // Daily Learning Goal
-        Text(
-          'Daily Learning Goal',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+        Container(
+          margin: const EdgeInsets.only(bottom: 24),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.settings,
+                color: Colors.blue,
+                size: 32,
               ),
-        ),
-        const SizedBox(height: 12),
-        InkWell(
-          onTap: () {
-            // TODO: Implement goal adjustment
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                    shape: BoxShape.circle,
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Settings',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
                   ),
-                  child: const Icon(
-                    Icons.flag_outlined,
-                    color: Colors.blue,
+                  Text(
+                    'Customize your experience',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  '$dailyWordGoal words per day',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const Spacer(),
-                const Icon(
-                  Icons.edit,
-                  color: Colors.blue,
-                  size: 20,
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 32),
-
-        // Other Settings
+        _buildSettingItem(
+          'Daily Learning Goal',
+          Icons.flag_outlined,
+          subtitle: '$dailyWordGoal words per day',
+          onTap: _showDailyGoalDialog,
+        ),
         _buildSettingItem(
           'Notifications',
           Icons.notifications_outlined,
           onTap: () {
             // TODO: Implement notifications settings
+          },
+        ),
+        _buildSettingItem(
+          'Edit Profile',
+          Icons.person_outline,
+          onTap: () {
+            // TODO: Implement profile editing
           },
         ),
         _buildSettingItem(
