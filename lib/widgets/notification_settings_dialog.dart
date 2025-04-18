@@ -39,22 +39,33 @@ class _NotificationSettingsDialogState
     });
   }
 
-  Future<void> _updateNotificationSettings() async {
-    if (_notificationsEnabled) {
-      final bool granted = await _notificationService.requestPermissions();
-      if (!granted) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Notification permissions are required')),
-        );
-        return;
-      }
-      await _notificationService.initialize();
-    } else {
-      await _notificationService.cancelAllNotifications();
-    }
+  Future<void> _toggleNotifications(bool value) async {
+    setState(() {
+      _notificationsEnabled = value;
+    });
+    await _preferencesService.setEnableNotifications(value);
 
+    if (value) {
+      final bool granted = await _notificationService.requestPermission();
+      if (!granted) {
+        setState(() {
+          _notificationsEnabled = false;
+        });
+        await _preferencesService.setEnableNotifications(false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Notification permissions are required'),
+            ),
+          );
+        }
+      }
+    } else {
+      await _notificationService.cancelNotification(1);
+    }
+  }
+
+  Future<void> _updateNotificationSettings() async {
     await _preferencesService.setEnableNotifications(_notificationsEnabled);
     await _preferencesService.setShowBadge(_showBadge);
     await _preferencesService.setNotificationTime(_notificationTime);
@@ -69,18 +80,21 @@ class _NotificationSettingsDialogState
         _notificationTime.minute,
       );
 
-      await _notificationService.scheduleNotification(
-        id: 1,
-        title: 'Time to Learn!',
-        body: 'Ready to learn some new words today?',
-        scheduledDate: scheduledTime.isAfter(now)
-            ? scheduledTime
-            : scheduledTime.add(const Duration(days: 1)),
-      );
+      if (scheduledTime.isAfter(now)) {
+        await _notificationService.scheduleNotification(
+          id: 1,
+          title: 'Time to Learn!',
+          body: 'Don\'t forget to learn your daily words',
+          scheduledDate: scheduledTime,
+        );
+      }
+    } else {
+      await _notificationService.cancelNotification(1);
     }
 
-    if (!mounted) return;
-    Navigator.of(context).pop();
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _selectTime() async {
@@ -106,11 +120,7 @@ class _NotificationSettingsDialogState
           SwitchListTile(
             title: const Text('Enable Notifications'),
             value: _notificationsEnabled,
-            onChanged: (bool value) {
-              setState(() {
-                _notificationsEnabled = value;
-              });
-            },
+            onChanged: _toggleNotifications,
           ),
           if (_notificationsEnabled) ...[
             SwitchListTile(

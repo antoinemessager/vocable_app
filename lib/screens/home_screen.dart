@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/word_pair.dart';
 import '../services/database_service.dart';
+import '../services/notification_service.dart';
+import '../services/preferences_service.dart';
 import '../widgets/word_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,12 +17,42 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _studyHistory = [];
   bool _isLoading = true;
   double _todayProgress = 0.0;
-  final int dailyWordGoal = 10;
+  int _dailyWordGoal = 10;
+  final NotificationService _notificationService = NotificationService();
+  final PreferencesService _preferencesService = PreferencesService();
 
   @override
   void initState() {
     super.initState();
     _loadContent();
+    _checkAndScheduleNotification();
+  }
+
+  Future<void> _checkAndScheduleNotification() async {
+    await _preferencesService.initialize();
+    final bool notificationsEnabled =
+        await _preferencesService.getEnableNotifications();
+    if (!notificationsEnabled) return;
+
+    final TimeOfDay notificationTime =
+        await _preferencesService.getNotificationTime();
+    final now = DateTime.now();
+    final scheduledTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      notificationTime.hour,
+      notificationTime.minute,
+    );
+
+    if (scheduledTime.isAfter(now)) {
+      await _notificationService.scheduleNotification(
+        id: 1,
+        title: 'Time to Learn!',
+        body: 'Don\'t forget to learn your daily words',
+        scheduledDate: scheduledTime,
+      );
+    }
   }
 
   Future<void> _loadContent() async {
@@ -29,6 +61,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = true;
       });
 
+      await _preferencesService.initialize();
+      _dailyWordGoal = await _preferencesService.getDailyWordGoal();
       final nextWord = await DatabaseService.instance.getNextWordForReview();
       final studyHistory =
           await DatabaseService.instance.getLastStudiedWords(10);
@@ -57,6 +91,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
+
+    final bool hasCompletedDailyGoal = _todayProgress >= _dailyWordGoal;
 
     if (_currentWord == null) {
       return Center(
@@ -123,12 +159,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                           ),
                           Text(
-                            '${((_todayProgress / dailyWordGoal) * 100).round()}%',
+                            '${((_todayProgress / _dailyWordGoal) * 100).round()}%',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
                                 ?.copyWith(
-                                  color: Colors.blue,
+                                  color: hasCompletedDailyGoal
+                                      ? Colors.green
+                                      : Colors.blue,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -141,11 +179,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
-                    value: _todayProgress / dailyWordGoal,
+                    value: _todayProgress / _dailyWordGoal,
                     minHeight: 16,
                     backgroundColor: Colors.grey[100],
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.blue,
+                      hasCompletedDailyGoal ? Colors.green : Colors.blue,
                     ),
                   ),
                 ),

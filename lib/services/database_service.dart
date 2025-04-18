@@ -204,7 +204,7 @@ class DatabaseService {
   Future<List<Map<String, dynamic>>> getLastStudiedWords(int count) async {
     final db = await database;
 
-    return await db.rawQuery('''
+    final List<Map<String, dynamic>> results = await db.rawQuery('''
       WITH LatestProgress AS (
         SELECT 
           word_id,
@@ -229,6 +229,18 @@ class DatabaseService {
       ORDER BY lp.timestamp DESC
       LIMIT ?
     ''', [count]);
+
+    return results.map((row) {
+      return {
+        'word_id': row['word_id'] as int,
+        'french_word': row['french_word'] as String,
+        'spanish_word': row['spanish_word'] as String,
+        'french_context': row['french_context'] as String,
+        'spanish_context': row['spanish_context'] as String,
+        'box_level': row['box_level'] as int,
+        'timestamp': row['timestamp'] as String,
+      };
+    }).toList();
   }
 
   // Update a word's level manually

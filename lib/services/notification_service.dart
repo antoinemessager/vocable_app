@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:flutter/material.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -31,6 +32,24 @@ class NotificationService {
       },
     );
 
+    // Configure notification channel for Android
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'vocable_channel',
+      'Vocable Notifications',
+      description: 'Notifications for daily word learning reminders',
+      importance: Importance.high,
+      enableLights: true,
+      enableVibration: true,
+      playSound: true,
+      showBadge: true,
+    );
+
+    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
+    await androidImplementation?.createNotificationChannel(channel);
+
     tz.initializeTimeZones();
 
     _isInitialized = true;
@@ -57,6 +76,21 @@ class NotificationService {
           importance: Importance.high,
           priority: Priority.high,
           showWhen: true,
+          enableLights: true,
+          enableVibration: true,
+          playSound: true,
+          color: Colors.blue,
+          ledColor: Colors.blue,
+          ledOnMs: 1000,
+          ledOffMs: 500,
+          styleInformation: BigTextStyleInformation(
+            '',
+            htmlFormatBigText: true,
+            contentTitle: 'Time to Learn!',
+            htmlFormatContentTitle: true,
+            summaryText: 'Don\'t forget to learn your daily words',
+            htmlFormatSummaryText: true,
+          ),
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -70,19 +104,11 @@ class NotificationService {
     await _flutterLocalNotificationsPlugin.cancel(id);
   }
 
-  Future<void> cancelAllNotifications() async {
-    await _flutterLocalNotificationsPlugin.cancelAll();
-  }
-
-  Future<bool> requestPermissions() async {
-    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-
-    if (androidImplementation == null) return false;
-
-    final bool? granted =
-        await androidImplementation.requestNotificationsPermission();
-    return granted ?? false;
+  Future<bool> requestPermission() async {
+    final bool? result = await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+    return result ?? false;
   }
 }

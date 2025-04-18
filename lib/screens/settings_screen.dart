@@ -111,11 +111,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
       body: ListView(
+        padding: const EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 60,
+          bottom: 16,
+        ),
         children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 24),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.settings,
+                  color: Colors.blue,
+                  size: 32,
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Settings',
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                    ),
+                    Text(
+                      'Customize your experience',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           ListTile(
             title: const Text('Daily Word Goal'),
             subtitle: Text('$_dailyWordGoal words per day'),
@@ -132,7 +168,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Help Center'),
             leading: const Icon(Icons.help),
             onTap: () {
-              Navigator.pushNamed(context, '/help');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HelpCenterScreen(),
+                ),
+              );
             },
           ),
         ],
