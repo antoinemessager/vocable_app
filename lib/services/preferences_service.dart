@@ -19,51 +19,34 @@ class PreferencesService {
   }
 
   static const String _dailyWordGoalKey = 'daily_word_goal';
-  static const String _enableNotificationsKey = 'enable_notifications';
-  static const String _showBadgeKey = 'show_badge';
-  static const String _showLockScreenKey = 'show_lock_screen';
-  static const String _notificationTimeHourKey = 'notification_time_hour';
-  static const String _notificationTimeMinuteKey = 'notification_time_minute';
+  static const String _notificationsEnabledKey = 'notifications_enabled';
+  static const String _notificationTimeKey = 'notification_time';
 
   Future<int> getDailyWordGoal() async {
+    await initialize();
     return _prefs.getInt(_dailyWordGoalKey) ?? 5;
   }
 
   Future<void> setDailyWordGoal(int goal) async {
+    await initialize();
     await _prefs.setInt(_dailyWordGoalKey, goal);
   }
 
-  Future<bool> getEnableNotifications() async {
-    return _prefs.getBool(_enableNotificationsKey) ?? false;
+  Future<bool> getNotificationsEnabled() async {
+    await initialize();
+    return _prefs.getBool(_notificationsEnabledKey) ?? false;
   }
 
-  Future<void> setEnableNotifications(bool value) async {
-    await _prefs.setBool(_enableNotificationsKey, value);
+  Future<void> setNotificationsEnabled(bool enabled) async {
+    await initialize();
+    await _prefs.setBool(_notificationsEnabledKey, enabled);
   }
 
-  Future<bool> getShowBadge() async {
-    return _prefs.getBool(_showBadgeKey) ?? true;
-  }
-
-  Future<void> setShowBadge(bool value) async {
-    await _prefs.setBool(_showBadgeKey, value);
-  }
-
-  Future<bool> getShowLockScreen() async {
-    return _prefs.getBool(_showLockScreenKey) ?? true;
-  }
-
-  Future<void> setShowLockScreen(bool value) async {
-    await _prefs.setBool(_showLockScreenKey, value);
-  }
-
-  Future<TimeOfDay> getNotificationTime() async {
-    final String? timeStr = _prefs.getString('notificationTime');
-    if (timeStr == null) {
-      return const TimeOfDay(hour: 9, minute: 0); // Default to 9:00 AM
-    }
-
-    final List<String> parts = timeStr.split(':');
+  Future<TimeOfDay?> getNotificationTime() async {
+    await initialize();
+    final timeString = _prefs.getString(_notificationTimeKey);
+    if (timeString == null) return null;
+    final parts = timeString.split(':');
     return TimeOfDay(
       hour: int.parse(parts[0]),
       minute: int.parse(parts[1]),
@@ -71,6 +54,8 @@ class PreferencesService {
   }
 
   Future<void> setNotificationTime(TimeOfDay time) async {
-    await _prefs.setString('notificationTime', '${time.hour}:${time.minute}');
+    await initialize();
+    final timeString = '${time.hour}:${time.minute}';
+    await _prefs.setString(_notificationTimeKey, timeString);
   }
 }

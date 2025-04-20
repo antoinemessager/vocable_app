@@ -1,12 +1,15 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'background_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+  final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
+  final BackgroundService _backgroundService = BackgroundService();
   bool _isInitialized = false;
 
   factory NotificationService() {
@@ -18,97 +21,74 @@ class NotificationService {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
+    tz.initializeTimeZones();
+
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-
-    await _flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse:
-          (NotificationResponse notificationResponse) {
-        // Handle notification tap
-      },
+    const DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
     );
 
-    // Configure notification channel for Android
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
+
+    await _notifications.initialize(initializationSettings);
+    await _backgroundService.initialize();
+    _isInitialized = true;
+
+    // Configure le canal de notification Android
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'vocable_channel',
       'Vocable Notifications',
-      description: 'Notifications for daily word learning reminders',
-      importance: Importance.high,
-      enableLights: true,
-      enableVibration: true,
+      description: 'Notifications for vocabulary learning',
+      importance: Importance.max,
       playSound: true,
+      enableVibration: true,
       showBadge: true,
     );
 
-    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-
-    await androidImplementation?.createNotificationChannel(channel);
-
-    tz.initializeTimeZones();
-
-    _isInitialized = true;
+    await _notifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
   }
 
-  Future<void> scheduleNotification({
-    required int id,
-    required String title,
-    required String body,
-    required DateTime scheduledDate,
-  }) async {
-    if (!_isInitialized) await initialize();
+  Future<void> scheduleDailyNotification(TimeOfDay time) async {
+    await initialize();
 
-    await _flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      tz.TZDateTime.from(scheduledDate, tz.local),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'vocable_channel',
-          'Vocable Notifications',
-          channelDescription: 'Notifications for daily word learning reminders',
-          importance: Importance.high,
-          priority: Priority.high,
-          showWhen: true,
-          enableLights: true,
-          enableVibration: true,
-          playSound: true,
-          color: Colors.blue,
-          ledColor: Colors.blue,
-          ledOnMs: 1000,
-          ledOffMs: 500,
-          styleInformation: BigTextStyleInformation(
-            '',
-            htmlFormatBigText: true,
-            contentTitle: 'Time to Learn!',
-            htmlFormatContentTitle: true,
-            summaryText: 'Don\'t forget to learn your daily words',
-            htmlFormatSummaryText: true,
-          ),
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+    // Annule toutes les notifications existantes
+    await cancelAllNotifications();
+
+    // Enregistre l'heure de notification dans les préférences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('notification_time', '${time.hour}:${time.minute}');
+
+    // Programme une notification de test immédiate
+    const AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+      'vocable_channel',
+      'Vocable Notifications',
+      channelDescription: 'Notifications for vocabulary learning',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      showWhen: true,
+      fullScreenIntent: true,
+      ongoing: true,
+      autoCancel: false,
+      styleInformation: DefaultStyleInformation(true, true),
     );
   }
 
-  Future<void> cancelNotification(int id) async {
-    await _flutterLocalNotificationsPlugin.cancel(id);
-  }
-
-  Future<bool> requestPermission() async {
-    final bool? result = await _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
-    return result ?? false;
+  Future<void> cancelAllNotifications() async {
+    await _notifications.cancelAll();
   }
 }

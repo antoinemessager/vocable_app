@@ -26,7 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await _preferencesService.initialize();
     final int dailyWordGoal = await _preferencesService.getDailyWordGoal();
     final bool notificationsEnabled =
-        await _preferencesService.getEnableNotifications();
+        await _preferencesService.getNotificationsEnabled();
 
     setState(() {
       _dailyWordGoal = dailyWordGoal;
@@ -159,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: _showDailyGoalDialog,
           ),
           ListTile(
-            title: const Text('Notification Settings'),
+            title: const Text('Notifications'),
             subtitle: Text(_notificationsEnabled ? 'Enabled' : 'Disabled'),
             leading: const Icon(Icons.notifications),
             onTap: _showNotificationSettings,

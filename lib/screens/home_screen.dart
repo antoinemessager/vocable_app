@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/word_pair.dart';
 import '../services/database_service.dart';
-import '../services/notification_service.dart';
 import '../services/preferences_service.dart';
 import '../widgets/word_card.dart';
 
@@ -18,41 +17,12 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   double _todayProgress = 0.0;
   int _dailyWordGoal = 10;
-  final NotificationService _notificationService = NotificationService();
   final PreferencesService _preferencesService = PreferencesService();
 
   @override
   void initState() {
     super.initState();
     _loadContent();
-    _checkAndScheduleNotification();
-  }
-
-  Future<void> _checkAndScheduleNotification() async {
-    await _preferencesService.initialize();
-    final bool notificationsEnabled =
-        await _preferencesService.getEnableNotifications();
-    if (!notificationsEnabled) return;
-
-    final TimeOfDay notificationTime =
-        await _preferencesService.getNotificationTime();
-    final now = DateTime.now();
-    final scheduledTime = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      notificationTime.hour,
-      notificationTime.minute,
-    );
-
-    if (scheduledTime.isAfter(now)) {
-      await _notificationService.scheduleNotification(
-        id: 1,
-        title: 'Time to Learn!',
-        body: 'Don\'t forget to learn your daily words',
-        scheduledDate: scheduledTime,
-      );
-    }
   }
 
   Future<void> _loadContent() async {
