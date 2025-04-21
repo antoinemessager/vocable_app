@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/background_service.dart';
+import '../services/notification_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationSettingsDialog extends StatefulWidget {
   const NotificationSettingsDialog({super.key});
@@ -12,71 +13,84 @@ class NotificationSettingsDialog extends StatefulWidget {
 
 class _NotificationSettingsDialogState
     extends State<NotificationSettingsDialog> {
-  bool _enableNotifications = false;
-  final BackgroundService _backgroundService = BackgroundService();
+  bool _notificationsEnabled = false;
+  final _prefs = SharedPreferences.getInstance();
+  final _notificationService = NotificationService();
+  List<PendingNotificationRequest> _pendingNotifications = [];
 
   @override
   void initState() {
     super.initState();
-    print('NotificationSettingsDialog: initState called');
     _loadPreferences();
+    _loadPendingNotifications();
   }
 
   Future<void> _loadPreferences() async {
-    print('NotificationSettingsDialog: Loading preferences...');
-    final prefs = await SharedPreferences.getInstance();
-    final enabled = prefs.getBool('notifications_enabled') ?? false;
-    print('NotificationSettingsDialog: Current notification state: $enabled');
+    final prefs = await _prefs;
     setState(() {
-      _enableNotifications = enabled;
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? false;
+    });
+  }
+
+  Future<void> _loadPendingNotifications() async {
+    final notifications = await _notificationService.getPendingNotifications();
+    setState(() {
+      _pendingNotifications = notifications;
     });
   }
 
   Future<void> _toggleNotifications(bool value) async {
-    print('NotificationSettingsDialog: Toggling notifications to: $value');
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefs;
     await prefs.setBool('notifications_enabled', value);
-    print('NotificationSettingsDialog: Preferences updated');
-
     setState(() {
-      _enableNotifications = value;
+      _notificationsEnabled = value;
     });
 
     if (value) {
-      print('NotificationSettingsDialog: Starting background service...');
-      await _backgroundService.startService();
-      print('NotificationSettingsDialog: Background service started');
+      await _notificationService.sendTestNotification();
+      // Si les notifications sont activées, on programme une notification de test dans 10 secondes
+      await _notificationService.scheduleNotificationIn10Seconds();
+      // Et on programme aussi la notification quotidienne
+      await _notificationService.scheduleDailyNotifications();
     } else {
-      print('NotificationSettingsDialog: Stopping background service...');
-      await _backgroundService.stopService();
-      print('NotificationSettingsDialog: Background service stopped');
-      print('NotificationSettingsDialog: Clearing all notifications...');
-      await _backgroundService.clearAllNotifications();
-      print('NotificationSettingsDialog: All notifications cleared');
+      // Si les notifications sont désactivées, on annule toutes les notifications
+      await _notificationService.cancelAllNotifications();
     }
+    await _loadPendingNotifications();
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Notification Settings'),
+      title: const Text('Paramètres des notifications'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           SwitchListTile(
-            title: const Text('Enable Notifications'),
-            value: _enableNotifications,
+            title: const Text('Activer les notifications'),
+            subtitle:
+                const Text('Recevez une notification quotidienne à 10:31'),
+            value: _notificationsEnabled,
             onChanged: _toggleNotifications,
           ),
+          const SizedBox(height: 16),
+          if (_pendingNotifications.isNotEmpty) ...[
+            const Text('Notifications en attente :',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            ..._pendingNotifications.map((notification) => ListTile(
+                  title: Text(notification.title ?? 'Sans titre'),
+                  subtitle: Text(notification.body ?? 'Sans contenu'),
+                  trailing: Text('ID: ${notification.id}'),
+                )),
+          ] else
+            const Text('Aucune notification en attente'),
         ],
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            print('NotificationSettingsDialog: Dialog closed');
-            Navigator.of(context).pop();
-          },
-          child: const Text('Close'),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Fermer'),
         ),
       ],
     );

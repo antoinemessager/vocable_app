@@ -234,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: Column(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.calendar_today,
                       color: Colors.blue,
                       size: 28,

@@ -15,7 +15,7 @@ class UserProfile {
     this.wordsMastered = 0,
     DateTime? lastActivity,
     this.proficiencyLevel = 0,
-  }) : this.lastActivity = lastActivity ?? DateTime.now();
+  }) : lastActivity = lastActivity ?? DateTime.now();
 
   // Check if the streak is still valid
   bool isStreakValid() {
