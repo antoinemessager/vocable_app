@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
+import 'progress_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -30,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
         children: const [
           HomeScreen(),
           HistoryScreen(),
-          Center(child: Text('Progress')),
+          ProgressScreen(),
           SettingsScreen(),
         ],
       ),

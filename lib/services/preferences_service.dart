@@ -21,6 +21,7 @@ class PreferencesService {
   static const String _dailyWordGoalKey = 'daily_word_goal';
   static const String _notificationsEnabledKey = 'notifications_enabled';
   static const String _notificationTimeKey = 'notification_time';
+  static const String _previousProgressKey = 'previous_progress';
 
   Future<int> getDailyWordGoal() async {
     await initialize();
@@ -57,5 +58,27 @@ class PreferencesService {
     await initialize();
     final timeString = '${time.hour}:${time.minute}';
     await _prefs.setString(_notificationTimeKey, timeString);
+  }
+
+  Future<DateTime?> getLastStreakAnimationDate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final dateString = prefs.getString('last_streak_animation_date');
+    if (dateString == null) return null;
+    return DateTime.parse(dateString);
+  }
+
+  Future<void> setLastStreakAnimationDate(DateTime date) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_streak_animation_date', date.toIso8601String());
+  }
+
+  Future<double> getPreviousProgress() async {
+    await initialize();
+    return _prefs.getDouble(_previousProgressKey) ?? 0.0;
+  }
+
+  Future<void> setPreviousProgress(double progress) async {
+    await initialize();
+    await _prefs.setDouble(_previousProgressKey, progress);
   }
 }

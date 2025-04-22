@@ -4,6 +4,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/word_pair.dart';
 import '../models/word_progress.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._init();
@@ -296,5 +297,198 @@ class DatabaseService {
 
     // Calculate progress (difference in number of words learned)
     return (currentCount - startCount).toDouble() / 5;
+  }
+
+  Future<int> getWordLevel(int wordId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'user_progress',
+      where: 'word_id = ?',
+      whereArgs: [wordId],
+      orderBy: 'timestamp DESC',
+      limit: 1,
+    );
+
+    if (maps.isEmpty) {
+      return 0;
+    }
+
+    return maps.first['box_level'] as int;
+  }
+
+  Future<int> getDayStreak() async {
+    final db = await database;
+    final now = DateTime.now();
+    int streak = 0;
+    final prefs = await SharedPreferences.getInstance();
+    final dailyGoal = prefs.getInt('daily_word_goal') ?? 5;
+
+    for (int i = 0;; i++) {
+      final date = now.subtract(Duration(days: i));
+      final startOfDay = DateTime(date.year, date.month, date.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      final result = await db.rawQuery('''
+        WITH DayProgress AS (
+          SELECT 
+            word_id,
+            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as start_sum,
+            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as end_sum
+          FROM user_progress
+          WHERE word_id IN (
+            SELECT DISTINCT word_id
+            FROM user_progress
+            WHERE timestamp >= ? AND timestamp < ?
+          )
+          GROUP BY word_id
+        )
+        SELECT COALESCE(SUM(end_sum - start_sum) / 5.0, 0) as words_learned
+        FROM DayProgress
+      ''', [
+        startOfDay.toIso8601String(),
+        endOfDay.toIso8601String(),
+        startOfDay.toIso8601String(),
+        endOfDay.toIso8601String()
+      ]);
+
+      final wordsLearned = (result.first['words_learned'] as num).toDouble();
+
+      if (wordsLearned >= dailyGoal) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  Future<int> getTotalMasteredWords() async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT word_id, box_level
+        FROM user_progress
+        WHERE (word_id, timestamp) IN (
+          SELECT word_id, MAX(timestamp)
+          FROM user_progress
+          GROUP BY word_id
+        )
+      )
+      SELECT COUNT(*) as count
+      FROM LatestProgress
+      WHERE box_level >= 5
+    ''');
+    return result.first['count'] as int;
+  }
+
+  Future<int> getTotalStudiedWords() async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT COUNT(DISTINCT word_id) as count
+      FROM user_progress
+      GROUP BY word_id
+      HAVING COUNT(*) >= 2
+    ''');
+    return result.first['count'] as int;
+  }
+
+  Future<int> getWordsInProgress() async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT word_id, box_level
+        FROM user_progress
+        WHERE (word_id, timestamp) IN (
+          SELECT word_id, MAX(timestamp)
+          FROM user_progress
+          GROUP BY word_id
+        )
+      ),
+      StudiedWords AS (
+        SELECT word_id
+        FROM user_progress
+        GROUP BY word_id
+        HAVING COUNT(*) >= 2
+      )
+      SELECT COUNT(*) as count
+      FROM LatestProgress lp
+      JOIN StudiedWords sw ON lp.word_id = sw.word_id
+      WHERE lp.box_level < 5
+    ''');
+    return result.first['count'] as int;
+  }
+
+  Future<List<double>> getLastSevenDaysProgress() async {
+    final db = await database;
+    List<double> progress = [];
+    final now = DateTime.now();
+
+    for (int i = 6; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final startOfDay = DateTime(date.year, date.month, date.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      final result = await db.rawQuery('''
+        WITH ProgressDiff AS (
+          SELECT 
+            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as start_sum,
+            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as end_sum
+          FROM user_progress
+          WHERE word_id IN (
+            SELECT DISTINCT word_id
+            FROM user_progress
+            WHERE timestamp >= ? AND timestamp < ?
+          )
+        )
+        SELECT (end_sum - start_sum) / 5.0 as progress
+        FROM ProgressDiff
+      ''', [
+        startOfDay.toIso8601String(),
+        endOfDay.toIso8601String(),
+        startOfDay.toIso8601String(),
+        endOfDay.toIso8601String()
+      ]);
+
+      progress.add((result.first['progress'] as num?)?.toDouble() ?? 0.0);
+    }
+
+    return progress;
+  }
+
+  Future<Map<String, double>> getCEFRProgress() async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT word_id, box_level
+        FROM user_progress
+        WHERE (word_id, timestamp) IN (
+          SELECT word_id, MAX(timestamp)
+          FROM user_progress
+          GROUP BY word_id
+        )
+      ),
+      CEFRCounts AS (
+        SELECT
+          SUM(CASE WHEN word_id BETWEEN 1 AND 250 AND box_level >= 5 THEN 1 ELSE 0 END) as a1_count,
+          SUM(CASE WHEN word_id BETWEEN 251 AND 750 AND box_level >= 5 THEN 1 ELSE 0 END) as a2_count,
+          SUM(CASE WHEN word_id BETWEEN 751 AND 1500 AND box_level >= 5 THEN 1 ELSE 0 END) as b1_count,
+          SUM(CASE WHEN word_id BETWEEN 1501 AND 2750 AND box_level >= 5 THEN 1 ELSE 0 END) as b2_count,
+          SUM(CASE WHEN word_id BETWEEN 2751 AND 5000 AND box_level >= 5 THEN 1 ELSE 0 END) as c1_count,
+          SUM(CASE WHEN word_id BETWEEN 5001 AND 10000 AND box_level >= 5 THEN 1 ELSE 0 END) as c2_count
+        FROM LatestProgress
+      )
+      SELECT * FROM CEFRCounts
+    ''');
+
+    final counts = result.first;
+    return {
+      'A1': (counts['a1_count'] as int) / 250.0,
+      'A2': (counts['a2_count'] as int) / 500.0,
+      'B1': (counts['b1_count'] as int) / 750.0,
+      'B2': (counts['b2_count'] as int) / 1250.0,
+      'C1': (counts['c1_count'] as int) / 2250.0,
+      'C2': (counts['c2_count'] as int) / 5000.0,
+    };
   }
 }
