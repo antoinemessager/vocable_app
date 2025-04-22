@@ -491,4 +491,17 @@ class DatabaseService {
       'C2': (counts['c2_count'] as int) / 5000.0,
     };
   }
+
+  Future<List<Map<String, dynamic>>> getAssessmentWords() async {
+    final db = await database;
+    // Sélectionner des mots de différents niveaux pour l'évaluation
+    return await db.rawQuery('''
+      SELECT id as word_id, french_word, spanish_word
+      FROM vocabulary
+      WHERE id IN (
+        71, 77, 89, 93, 95, 104, 122, 127, 132, 135, 139, 154, 164, 176, 180, 197, 211, 233, 236, 260, 279, 311, 335, 353, 437, 443, 461, 492, 539, 586, 628, 685, 749, 804, 890, 956, 1029, 1127, 1218, 1317, 1441, 1560, 1686, 1831, 1993, 2165, 2355, 2545, 2780, 3000
+      )
+      ORDER BY id
+    ''');
+  }
 }

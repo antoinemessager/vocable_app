@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'screens/main_screen.dart';
+import 'screens/onboarding/welcome_screen.dart';
 import 'services/database_service.dart';
 
 void main() async {
@@ -49,7 +49,7 @@ class VocableApp extends StatelessWidget {
         ),
         appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       ),
-      home: const MainScreen(),
+      home: const WelcomeScreen(),
     );
   }
 }
