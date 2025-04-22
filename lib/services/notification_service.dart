@@ -1,8 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter/material.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'dart:typed_data';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -141,95 +139,6 @@ class NotificationService {
 
   Future<void> cancelAllNotifications() async {
     await _notifications.cancelAll();
-  }
-
-  Future<void> scheduleNotificationAt1027() async {
-    print('=== Scheduling notification for 10:38 ===');
-
-    if (!_isInitialized) {
-      print('Service not initialized, initializing now...');
-      await initialize();
-    }
-
-    final hasPermissions = await checkAndroidPermissions();
-    if (!hasPermissions) {
-      print('Permissions not granted, cannot schedule notification');
-      return;
-    }
-
-    try {
-      // Get current date and timezone info
-      final now = tz.TZDateTime.now(tz.local);
-      print('Current time: ${now.toString()}');
-      print('Current timezone: ${tz.local.name}');
-
-      // Create scheduled time for 10:38
-      var scheduledTime = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        10, // hour
-        48, // minute
-      );
-      print('Initial scheduled time: ${scheduledTime.toString()}');
-
-      // If the time has already passed today, schedule for tomorrow
-      if (scheduledTime.isBefore(now)) {
-        scheduledTime = scheduledTime.add(const Duration(days: 1));
-        print(
-            'Time has passed, rescheduling for tomorrow: ${scheduledTime.toString()}');
-      }
-
-      // First cancel any existing notification with the same ID
-      await _notifications.cancel(1038);
-      print('Cancelled any existing notification with ID 1038');
-
-      print('Creating notification details...');
-      const AndroidNotificationDetails androidDetails =
-          AndroidNotificationDetails(
-        'vocable_channel',
-        'Vocable Notifications',
-        channelDescription: 'Notifications for vocabulary learning',
-        importance: Importance.max,
-        priority: Priority.high,
-        playSound: true,
-        enableVibration: true,
-        showWhen: true,
-        fullScreenIntent: true,
-        ongoing: false,
-        autoCancel: true,
-        styleInformation: const DefaultStyleInformation(true, true),
-      );
-
-      print('Scheduling notification for ${scheduledTime.toString()}...');
-
-      await _notifications.zonedSchedule(
-        1038, // Unique ID for this notification
-        'Time to Learn!',
-        'It\'s time to practice your vocabulary!',
-        scheduledTime,
-        NotificationDetails(android: androidDetails),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-        payload: 'daily_reminder',
-      );
-
-      // Verify the notification was scheduled
-      final pendingNotifications =
-          await _notifications.pendingNotificationRequests();
-      print('Pending notifications: ${pendingNotifications.length}');
-      for (var notification in pendingNotifications) {
-        print(
-            'Pending notification: ID=${notification.id}, Title=${notification.title}');
-      }
-
-      print('Notification scheduled successfully');
-    } catch (e, stackTrace) {
-      print('Error scheduling notification: $e');
-      print('Stack trace: $stackTrace');
-    }
-    print('=== Notification scheduling completed ===');
   }
 
   tz.TZDateTime _nextInstanceOfTime(DateTime now, {int secondsToAdd = 0}) {

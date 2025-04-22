@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/daily_goal_dialog.dart';
-import '../widgets/notification_settings_dialog.dart';
 import '../services/preferences_service.dart';
 import 'help_center_screen.dart';
+import 'daily_goal_screen.dart';
+import 'notification_time_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -35,24 +35,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _showDailyGoalDialog() async {
-    await showDialog<void>(
-      context: context,
-      builder: (BuildContext context) => DailyGoalDialog(
-        initialGoal: _dailyWordGoal,
-        onGoalChanged: (int newGoal) async {
-          await _preferencesService.setDailyWordGoal(newGoal);
-          setState(() {
-            _dailyWordGoal = newGoal;
-          });
-        },
+    final result = await Navigator.of(context).push<int>(
+      MaterialPageRoute(
+        builder: (context) => const DailyGoalScreen(),
       ),
     );
+
+    if (result != null) {
+      setState(() {
+        _dailyWordGoal = result;
+      });
+    }
   }
 
   Future<void> _showNotificationSettings() async {
-    await showDialog<void>(
-      context: context,
-      builder: (BuildContext context) => const NotificationSettingsDialog(),
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const NotificationTimeScreen(),
+      ),
     );
     await _loadPreferences();
   }
