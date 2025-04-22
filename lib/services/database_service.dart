@@ -201,10 +201,11 @@ class DatabaseService {
   }
 
   // Get all words that have been seen at least twice
-  Future<List<Map<String, dynamic>>> getLastStudiedWords(int count) async {
+  Future<List<Map<String, dynamic>>> getLastStudiedWords() async {
     final db = await database;
 
-    final List<Map<String, dynamic>> results = await db.rawQuery('''
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      '''
       WITH LatestProgress AS (
         SELECT 
           word_id,
@@ -227,8 +228,8 @@ class DatabaseService {
       WHERE lp.rn = 1
         AND lp.nb_entries >= 2
       ORDER BY lp.timestamp DESC
-      LIMIT ?
-    ''', [count]);
+    ''',
+    );
 
     return results.map((row) {
       return {

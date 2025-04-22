@@ -23,11 +23,16 @@ class HistoryScreenState extends State<HistoryScreen>
     _loadContent();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadContent();
+  }
+
   Future<void> _loadContent() async {
     try {
       setState(() => _isLoading = true);
-      final studyHistory =
-          await DatabaseService.instance.getLastStudiedWords(10);
+      final studyHistory = await DatabaseService.instance.getLastStudiedWords();
       setState(() {
         _studyHistory = studyHistory;
         _isLoading = false;

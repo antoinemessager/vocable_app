@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/preferences_service.dart';
+import '../widgets/too_easy_settings_dialog.dart';
 import 'help_center_screen.dart';
 import 'daily_goal_screen.dart';
 import 'notification_time_screen.dart';
@@ -15,6 +17,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final PreferencesService _preferencesService = PreferencesService();
   int _dailyWordGoal = 5;
   bool _notificationsEnabled = false;
+  bool _showTooEasyDialog = true;
 
   @override
   void initState() {
@@ -27,10 +30,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final int dailyWordGoal = await _preferencesService.getDailyWordGoal();
     final bool notificationsEnabled =
         await _preferencesService.getNotificationsEnabled();
+    final prefs = await SharedPreferences.getInstance();
+    final hideDialog = prefs.getBool('hide_too_easy_dialog') ?? false;
 
     setState(() {
       _dailyWordGoal = dailyWordGoal;
       _notificationsEnabled = notificationsEnabled;
+      _showTooEasyDialog = !hideDialog;
     });
   }
 
@@ -124,6 +130,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               );
             },
+          ),
+          ListTile(
+            title: const Text('Too Easy Confirmation'),
+            subtitle: Text(_showTooEasyDialog ? 'Enabled' : 'Disabled'),
+            leading: const Icon(Icons.warning_amber_rounded),
+            onTap: () => TooEasySettingsDialog.show(context)
+                .then((_) => _loadPreferences()),
           ),
         ],
       ),

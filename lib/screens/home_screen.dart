@@ -3,6 +3,8 @@ import '../models/word_pair.dart';
 import '../services/database_service.dart';
 import '../services/preferences_service.dart';
 import '../widgets/word_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/too_easy_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,8 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await _preferencesService.initialize();
       _dailyWordGoal = await _preferencesService.getDailyWordGoal();
       final nextWord = await DatabaseService.instance.getNextWordForReview();
-      final studyHistory =
-          await DatabaseService.instance.getLastStudiedWords(10);
+      final studyHistory = await DatabaseService.instance.getLastStudiedWords();
       final todayProgress = await DatabaseService.instance.getTodayProgress();
 
       setState(() {
@@ -178,11 +179,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       _getNextWord();
                     },
                     onTooEasy: () async {
-                      await DatabaseService.instance.recordProgress(
-                        _currentWord!.word_id,
-                        isTooEasy: true,
-                      );
-                      _getNextWord();
+                      final prefs = await SharedPreferences.getInstance();
+                      final hideDialog =
+                          prefs.getBool('hide_too_easy_dialog') ?? false;
+
+                      if (hideDialog) {
+                        await DatabaseService.instance.recordProgress(
+                          _currentWord!.word_id,
+                          isTooEasy: true,
+                        );
+                        _getNextWord();
+                        return;
+                      }
+
+                      final confirmed = await TooEasyDialog.show(context);
+
+                      if (confirmed == true) {
+                        await DatabaseService.instance.recordProgress(
+                          _currentWord!.word_id,
+                          isTooEasy: true,
+                        );
+                        _getNextWord();
+                      }
                     },
                   ),
                 ],
@@ -199,8 +217,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 120,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
@@ -229,8 +254,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 120,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
