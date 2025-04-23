@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/preferences_service.dart';
-import 'assessment_screen.dart';
+import 'notification_onboarding_screen.dart';
 
 class OnboardingDailyGoalScreen extends StatefulWidget {
   const OnboardingDailyGoalScreen({super.key});
@@ -17,8 +17,8 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
   String _getEstimatedTime(int words) {
     // On estime environ 2 minutes par mot
     final minutes = words;
-    final max_minutes = (minutes * 1.5).round();
-    return '$minutes - $max_minutes minutes par jour';
+    final maxMinutes = (minutes * 1.5).round();
+    return '$minutes - $maxMinutes minutes par jour';
   }
 
   @override
@@ -73,7 +73,8 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
                     if (mounted) {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const AssessmentScreen(),
+                          builder: (context) =>
+                              const NotificationOnboardingScreen(),
                         ),
                       );
                     }

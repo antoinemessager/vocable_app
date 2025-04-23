@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/preferences_service.dart';
-import '../widgets/too_easy_settings_dialog.dart';
+import '../../services/preferences_service.dart';
+import '../../widgets/too_easy_settings_dialog.dart';
 import 'help_center_screen.dart';
-import 'daily_goal_screen.dart';
-import 'notification_time_screen.dart';
+import 'settings_daily_goal_screen.dart';
+import 'settings_notification_time_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -26,7 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadPreferences() async {
-    await _preferencesService.initialize();
+    //await _preferencesService.initialize();
     final int dailyWordGoal = await _preferencesService.getDailyWordGoal();
     final bool notificationsEnabled =
         await _preferencesService.getNotificationsEnabled();

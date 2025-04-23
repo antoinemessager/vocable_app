@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/database_service.dart';
+import '../../services/preferences_service.dart';
 import '../main_screen.dart';
+import 'notification_onboarding_screen.dart';
 
 class AssessmentScreen extends StatefulWidget {
   const AssessmentScreen({super.key});
@@ -13,78 +15,22 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
   int _currentWordIndex = 0;
   bool _showTranslation = false;
   String _currentLevel = 'A1';
-  int _seenCount = 0;
+  int _errCount = 0;
   bool _showingConclusion = false;
   String _finalLevel = 'A1';
-  bool _hasAnsweredNo = false;
-
-  final Map<String, List<Map<String, String>>> _wordsByLevel = {
-    'A1': [
-      {'french': 'aussi', 'spanish': 'también', 'rank': '53'},
-      {'french': 'jour', 'spanish': 'día', 'rank': '71'},
-      {'french': 'mettre', 'spanish': 'poner', 'rank': '77'},
-      {'french': 'rester', 'spanish': 'quedar', 'rank': '89'},
-      {'french': 'porter', 'spanish': 'llevar', 'rank': '93'},
-      {'french': 'rien', 'spanish': 'nada', 'rank': '95'},
-      {'french': 'appeler', 'spanish': 'llamar', 'rank': '104'},
-      {'french': 'prendre', 'spanish': 'tomar', 'rank': '122'},
-      {'french': 'femme', 'spanish': 'mujer', 'rank': '127'},
-      {'french': 'ensuite', 'spanish': 'luego', 'rank': '132'},
-    ],
-    'A2': [
-      {'french': 'face à', 'spanish': 'frente', 'rank': '260'},
-      {'french': 'entendre', 'spanish': 'oír', 'rank': '263'},
-      {'french': 'dont', 'spanish': 'cuyo', 'rank': '264'},
-      {'french': 'terminer', 'spanish': 'acabar', 'rank': '266'},
-      {'french': 'aussi', 'spanish': 'tampoco', 'rank': '279'},
-      {'french': 'encore', 'spanish': 'aún', 'rank': '282'},
-      {'french': 'sujet', 'spanish': 'tema', 'rank': '283'},
-      {'french': 'argent', 'spanish': 'dinero', 'rank': '291'},
-      {'french': 'même', 'spanish': 'incluso', 'rank': '294'},
-      {'french': 'domaine', 'spanish': 'campo', 'rank': '295'},
-    ],
-    'B1': [
-      {'french': 'objectif', 'spanish': 'propósito', 'rank': '752'},
-      {'french': 'attention', 'spanish': 'cuidado', 'rank': '754'},
-      {'french': 'niveau', 'spanish': 'grado', 'rank': '756'},
-      {'french': 'vaste', 'spanish': 'amplio', 'rank': '763'},
-      {'french': 'répondre', 'spanish': 'contestar', 'rank': '764'},
-      {'french': 'journal', 'spanish': 'periódico', 'rank': '765'},
-      {'french': 'inquiéter', 'spanish': 'preocupar', 'rank': '766'},
-      {'french': 'tableau', 'spanish': 'cuadro', 'rank': '779'},
-      {'french': 'poste', 'spanish': 'cargo', 'rank': '791'},
-      {'french': 'étage', 'spanish': 'piso', 'rank': '797'},
-    ],
-    'B2': [
-      {'french': 'forêt', 'spanish': 'bosque', 'rank': '1506'},
-      {'french': 'brûler', 'spanish': 'quemar', 'rank': '1509'},
-      {'french': 'appel', 'spanish': 'llamado', 'rank': '1510'},
-      {'french': 'attente', 'spanish': 'espera', 'rank': '1525'},
-      {'french': 'dépenser', 'spanish': 'gastar', 'rank': '1526'},
-      {'french': 'offrir', 'spanish': 'regalar', 'rank': '1528'},
-      {'french': 'plaindre', 'spanish': 'quejar', 'rank': '1530'},
-      {'french': 'nettoyer', 'spanish': 'limpiar', 'rank': '1537'},
-      {'french': 'rapport', 'spanish': 'informe', 'rank': '1548'},
-      {'french': 'puissant', 'spanish': 'poderoso', 'rank': '1560'},
-    ],
-    'C1': [
-      {'french': 'récolte', 'spanish': 'cosecha', 'rank': '2780'},
-      {'french': 'mou', 'spanish': 'blando', 'rank': '2785'},
-      {'french': 'maître', 'spanish': 'amo', 'rank': '2789'},
-      {'french': 'engagée', 'spanish': 'comprometido', 'rank': '2805'},
-      {'french': 'ennuyeux', 'spanish': 'aburrido', 'rank': '2815'},
-      {'french': 'boisson', 'spanish': 'bebida', 'rank': '2830'},
-      {'french': 'discussion', 'spanish': 'charla', 'rank': '2832'},
-      {'french': 'pomme', 'spanish': 'manzana', 'rank': '2855'},
-      {'french': 'morceau', 'spanish': 'pedazo', 'rank': '2857'},
-      {'french': 'épuisé', 'spanish': 'agotado', 'rank': '2863'},
-    ],
-  };
+  Map<String, List<Map<String, String>>> _wordsByLevel = {};
 
   @override
   void initState() {
     super.initState();
-    _hasAnsweredNo = false;
+    _loadAssessmentWords();
+  }
+
+  Future<void> _loadAssessmentWords() async {
+    final words = await DatabaseService.instance.getAssessmentWords();
+    setState(() {
+      _wordsByLevel = words;
+    });
   }
 
   void _moveToNextLevel() {
@@ -108,21 +54,22 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
 
     setState(() {
       _currentWordIndex = 0;
-      _seenCount = 0;
+      _errCount = 0;
       _currentLevel = nextLevel;
     });
   }
 
-  void _showConclusionAndFinish() {
+  void _showConclusionAndFinish() async {
+    // Sauvegarder le niveau de départ
+    await PreferencesService().setStartingLevel(_finalLevel);
+
     setState(() {
       _showingConclusion = true;
     });
   }
 
-  void _handleAnswer(bool knows) {
-    if (!knows) {
-      _seenCount++;
-    }
+  void _handleAnswer(int errCount) {
+    _errCount = _errCount + errCount;
 
     setState(() {
       if (_currentWordIndex < _wordsByLevel[_currentLevel]!.length - 1) {
@@ -130,8 +77,8 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
         _showTranslation = false;
       } else {
         // L'utilisateur a terminé les 10 mots de ce niveau
-        if (_seenCount >= 2 || _hasAnsweredNo) {
-          // Si l'utilisateur a répondu "I've seen it before" deux fois ou "No" une fois
+        if (_errCount >= 2) {
+          // Si l'utilisateur a répondu "No" une fois ou "I've seen it before" deux fois
           _finalLevel = _currentLevel;
           _showConclusionAndFinish();
         } else if (_currentLevel == 'C1') {
@@ -147,18 +94,16 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
     });
   }
 
-  void _handleSeenAnswer() {
-    _seenCount++;
-    _handleAnswer(false);
-  }
-
-  void _handleNoAnswer() {
-    _hasAnsweredNo = true;
-    _handleAnswer(false);
-  }
-
   @override
   Widget build(BuildContext context) {
+    if (_wordsByLevel.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     if (_showingConclusion) {
       return Scaffold(
         body: SafeArea(
@@ -201,6 +146,8 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -208,7 +155,10 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                     ),
                     child: const Text(
                       'Start Learning →',
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -229,7 +179,11 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const NotificationOnboardingScreen(),
+            ),
+          ),
         ),
         title: const Text(
           "Let's find your level",
@@ -336,7 +290,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _handleAnswer(true),
+                      onPressed: () => _handleAnswer(0),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green[100],
                         foregroundColor: Colors.green[800],
@@ -355,7 +309,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _handleSeenAnswer,
+                      onPressed: () => _handleAnswer(1),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange[100],
                         foregroundColor: Colors.orange[800],
@@ -374,7 +328,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _handleNoAnswer,
+                      onPressed: () => _handleAnswer(2),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red[100],
                         foregroundColor: Colors.red[800],

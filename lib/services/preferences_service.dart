@@ -3,61 +3,56 @@ import 'package:flutter/material.dart';
 
 class PreferencesService {
   static final PreferencesService _instance = PreferencesService._internal();
-  late SharedPreferences _prefs;
-  bool _initialized = false;
-
-  factory PreferencesService() {
-    return _instance;
-  }
-
+  factory PreferencesService() => _instance;
   PreferencesService._internal();
 
-  Future<void> initialize() async {
-    if (_initialized) return;
-    _prefs = await SharedPreferences.getInstance();
-    _initialized = true;
-  }
-
   static const String _dailyWordGoalKey = 'daily_word_goal';
+  static const String _startingLevelKey = 'starting_level';
   static const String _notificationsEnabledKey = 'notifications_enabled';
-  static const String _notificationTimeKey = 'notification_time';
-  static const String _previousProgressKey = 'previous_progress';
+  static const String _notificationHourKey = 'notification_hour';
+  static const String _notificationMinuteKey = 'notification_minute';
 
   Future<int> getDailyWordGoal() async {
-    await initialize();
-    return _prefs.getInt(_dailyWordGoalKey) ?? 5;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_dailyWordGoalKey) ?? 5;
   }
 
   Future<void> setDailyWordGoal(int goal) async {
-    await initialize();
-    await _prefs.setInt(_dailyWordGoalKey, goal);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_dailyWordGoalKey, goal);
+  }
+
+  Future<String> getStartingLevel() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_startingLevelKey) ?? 'A1';
+  }
+
+  Future<void> setStartingLevel(String level) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_startingLevelKey, level);
   }
 
   Future<bool> getNotificationsEnabled() async {
-    await initialize();
-    return _prefs.getBool(_notificationsEnabledKey) ?? false;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_notificationsEnabledKey) ?? false;
   }
 
   Future<void> setNotificationsEnabled(bool enabled) async {
-    await initialize();
-    await _prefs.setBool(_notificationsEnabledKey, enabled);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_notificationsEnabledKey, enabled);
   }
 
-  Future<TimeOfDay?> getNotificationTime() async {
-    await initialize();
-    final timeString = _prefs.getString(_notificationTimeKey);
-    if (timeString == null) return null;
-    final parts = timeString.split(':');
-    return TimeOfDay(
-      hour: int.parse(parts[0]),
-      minute: int.parse(parts[1]),
-    );
+  Future<TimeOfDay> getNotificationTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hour = prefs.getInt(_notificationHourKey) ?? 9;
+    final minute = prefs.getInt(_notificationMinuteKey) ?? 0;
+    return TimeOfDay(hour: hour, minute: minute);
   }
 
   Future<void> setNotificationTime(TimeOfDay time) async {
-    await initialize();
-    final timeString = '${time.hour}:${time.minute}';
-    await _prefs.setString(_notificationTimeKey, timeString);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_notificationHourKey, time.hour);
+    await prefs.setInt(_notificationMinuteKey, time.minute);
   }
 
   Future<DateTime?> getLastStreakAnimationDate() async {
@@ -73,12 +68,12 @@ class PreferencesService {
   }
 
   Future<double> getPreviousProgress() async {
-    await initialize();
-    return _prefs.getDouble(_previousProgressKey) ?? 0.0;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble('previous_progress') ?? 0.0;
   }
 
   Future<void> setPreviousProgress(double progress) async {
-    await initialize();
-    await _prefs.setDouble(_previousProgressKey, progress);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('previous_progress', progress);
   }
 }

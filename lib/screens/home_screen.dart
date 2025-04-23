@@ -3,8 +3,6 @@ import '../models/word_pair.dart';
 import '../services/database_service.dart';
 import '../services/preferences_service.dart';
 import '../widgets/word_card.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/too_easy_dialog.dart';
 import '../widgets/star_animation.dart';
 import '../widgets/streak_animation.dart';
 
@@ -43,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = true;
       });
 
-      await _preferencesService.initialize();
+      //await _preferencesService.initialize();
       _dailyWordGoal = await _preferencesService.getDailyWordGoal();
       final nextWord = await DatabaseService.instance.getNextWordForReview();
       final studyHistory = await DatabaseService.instance.getLastStudiedWords();

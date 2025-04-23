@@ -492,16 +492,50 @@ class DatabaseService {
     };
   }
 
-  Future<List<Map<String, dynamic>>> getAssessmentWords() async {
+  Future<Map<String, List<Map<String, String>>>> getAssessmentWords() async {
     final db = await database;
-    // Sélectionner des mots de différents niveaux pour l'évaluation
-    return await db.rawQuery('''
-      SELECT id as word_id, french_word, spanish_word
-      FROM vocabulary
-      WHERE id IN (
-        71, 77, 89, 93, 95, 104, 122, 127, 132, 135, 139, 154, 164, 176, 180, 197, 211, 233, 236, 260, 279, 311, 335, 353, 437, 443, 461, 492, 539, 586, 628, 685, 749, 804, 890, 956, 1029, 1127, 1218, 1317, 1441, 1560, 1686, 1831, 1993, 2165, 2355, 2545, 2780, 3000
-      )
-      ORDER BY id
-    ''');
+
+    // Définition des plages de word_id pour chaque niveau
+    final levelRanges = {
+      'A1': {'start': 1, 'end': 250},
+      'A2': {'start': 251, 'end': 750},
+      'B1': {'start': 751, 'end': 1500},
+      'B2': {'start': 1501, 'end': 2750},
+      'C1': {'start': 2751, 'end': 5000},
+    };
+
+    Map<String, List<Map<String, String>>> result = {};
+
+    for (final level in levelRanges.keys) {
+      final range = levelRanges[level]!;
+
+      // Requête pour obtenir 10 mots aléatoires du niveau
+      final List<Map<String, dynamic>> words = await db.rawQuery('''
+        WITH RandomWords AS (
+          SELECT 
+            v.french_word as french,
+            v.spanish_word as spanish,
+            v.id as rank
+          FROM vocabulary v
+          WHERE v.id BETWEEN ? AND ?
+          AND LENGTH(v.french_word) >= 3
+          AND LENGTH(v.spanish_word) >= 3
+        ORDER BY RANDOM()
+        LIMIT 10
+        )
+        SELECT * FROM RandomWords ORDER BY rank
+      ''', [range['start'], range['end']]);
+
+      // Conversion du résultat au format souhaité
+      result[level] = words
+          .map((word) => {
+                'french': word['french'] as String,
+                'spanish': word['spanish'] as String,
+                'rank': word['rank'].toString(),
+              })
+          .toList();
+    }
+
+    return result;
   }
 }
