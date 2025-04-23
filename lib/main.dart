@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'screens/onboarding/onboarding_welcome_screen.dart';
+import 'screens/main_screen.dart';
+import 'screens/onboarding/onboarding_screen.dart';
 import 'services/database_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize the database
+  // Initialize database
   await DatabaseService.instance.database;
 
-  runApp(const VocableApp());
+  // Check if it's first launch
+  final prefs = await SharedPreferences.getInstance();
+  final isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
+
+  if (isFirstLaunch) {
+    await prefs.setBool('is_first_launch', false);
+  }
+
+  runApp(MyApp(isFirstLaunch: isFirstLaunch));
 }
 
-class VocableApp extends StatelessWidget {
-  const VocableApp({super.key});
+class MyApp extends StatelessWidget {
+  final bool isFirstLaunch;
+
+  const MyApp({super.key, required this.isFirstLaunch});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +61,7 @@ class VocableApp extends StatelessWidget {
         ),
         appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       ),
-      home: const WelcomeScreen(),
+      home: isFirstLaunch ? const OnboardingScreen() : const MainScreen(),
     );
   }
 }
