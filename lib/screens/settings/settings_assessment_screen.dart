@@ -138,13 +138,7 @@ class _SettingsAssessmentScreenState extends State<SettingsAssessmentScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const MainScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
@@ -341,22 +335,6 @@ class _SettingsAssessmentScreenState extends State<SettingsAssessmentScreen> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 8),
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    _finalLevel = _currentLevel;
-                    _showConclusionAndFinish();
-                  },
-                  child: Text(
-                    'Passer l’évaluation →',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
               ),
             ],
           ),
