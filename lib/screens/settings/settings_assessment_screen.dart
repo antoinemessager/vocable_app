@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import '../../services/database_service.dart';
 import '../../services/preferences_service.dart';
 import '../main_screen.dart';
-import 'notification_onboarding_screen.dart';
+import 'settings_screen.dart';
 
-class AssessmentScreen extends StatefulWidget {
-  const AssessmentScreen({super.key});
+class SettingsAssessmentScreen extends StatefulWidget {
+  const SettingsAssessmentScreen({super.key});
 
   @override
-  State<AssessmentScreen> createState() => _AssessmentScreenState();
+  State<SettingsAssessmentScreen> createState() =>
+      _SettingsAssessmentScreenState();
 }
 
-class _AssessmentScreenState extends State<AssessmentScreen> {
+class _SettingsAssessmentScreenState extends State<SettingsAssessmentScreen> {
   int _currentWordIndex = 0;
   bool _showTranslation = false;
   String _currentLevel = 'A1';
@@ -181,7 +182,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => const NotificationOnboardingScreen(),
+              builder: (context) => const SettingsScreen(),
             ),
           ),
         ),

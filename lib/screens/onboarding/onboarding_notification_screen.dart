@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/clock_painter.dart';
-import 'assessment_screen.dart';
+import 'onboarding_assessment_screen.dart';
 
 class NotificationOnboardingScreen extends StatefulWidget {
   const NotificationOnboardingScreen({super.key});

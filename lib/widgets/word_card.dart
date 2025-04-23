@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/word_pair.dart';
+import 'too_easy_dialog.dart';
 
 class WordCard extends StatefulWidget {
   final WordPair word;
@@ -24,6 +26,20 @@ class _WordCardState extends State<WordCard> {
     setState(() {
       _isRevealed = true;
     });
+  }
+
+  Future<void> _handleTooEasy() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hideDialog = prefs.getBool('hide_too_easy_dialog') ?? false;
+
+    if (!hideDialog) {
+      final shouldMarkTooEasy = await TooEasyDialog.show(context);
+      if (shouldMarkTooEasy != true) {
+        return;
+      }
+    }
+
+    widget.onTooEasy();
   }
 
   @override
@@ -123,6 +139,7 @@ class _WordCardState extends State<WordCard> {
                   ],
                   IntrinsicHeight(
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Padding(
@@ -133,7 +150,7 @@ class _WordCardState extends State<WordCard> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8),
                                 backgroundColor: Colors.red[50],
-                                foregroundColor: Colors.red,
+                                foregroundColor: Colors.red[700],
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -147,7 +164,7 @@ class _WordCardState extends State<WordCard> {
                                           constraints.maxWidth < 350 ? 16 : 20),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Incorrect',
+                                    'No',
                                     style: TextStyle(
                                         fontSize: constraints.maxWidth < 350
                                             ? 11
@@ -158,6 +175,7 @@ class _WordCardState extends State<WordCard> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -166,7 +184,7 @@ class _WordCardState extends State<WordCard> {
                               style: FilledButton.styleFrom(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8),
-                                backgroundColor: Colors.green[100],
+                                backgroundColor: Colors.green[50],
                                 foregroundColor: Colors.green[700],
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -181,7 +199,7 @@ class _WordCardState extends State<WordCard> {
                                           constraints.maxWidth < 350 ? 16 : 20),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Correct',
+                                    'Yes',
                                     style: TextStyle(
                                         fontSize: constraints.maxWidth < 350
                                             ? 11
@@ -192,11 +210,12 @@ class _WordCardState extends State<WordCard> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 2),
                             child: FilledButton(
-                              onPressed: widget.onTooEasy,
+                              onPressed: _handleTooEasy,
                               style: FilledButton.styleFrom(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8),

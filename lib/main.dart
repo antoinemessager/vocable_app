@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'screens/onboarding/welcome_screen.dart';
+import 'screens/onboarding/onboarding_welcome_screen.dart';
 import 'services/database_service.dart';
 
 void main() async {

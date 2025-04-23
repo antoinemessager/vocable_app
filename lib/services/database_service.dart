@@ -146,7 +146,20 @@ class DatabaseService {
   // Get a single word for review based on the provided logic
   Future<WordPair?> getNextWordForReview() async {
     final db = await database;
-    const minWordId = 1;
+
+    final levelRanges = {
+      'A1': 1,
+      'A2': 251,
+      'B1': 751,
+      'B2': 1501,
+      'C1': 2751,
+      'C2': 5001,
+    };
+
+    // Get the user's minimum level from preferences
+    final prefs = await SharedPreferences.getInstance();
+    final startingLevel = prefs.getString('starting_level') ?? 'A1';
+    final minWordIdForLevel = levelRanges[startingLevel] ?? 1;
 
     final List<Map<String, dynamic>> results = await db.rawQuery('''
       WITH LatestProgress AS (
@@ -185,7 +198,7 @@ class DatabaseService {
         LIMIT 50
       )
       SELECT * FROM Pool50 ORDER BY RANDOM() LIMIT 1;
-    ''', [minWordId]);
+    ''', [minWordIdForLevel]);
 
     if (results.isEmpty) {
       return null;
@@ -393,32 +406,6 @@ class DatabaseService {
     return result.first['count'] as int;
   }
 
-  Future<int> getWordsInProgress() async {
-    final db = await database;
-    final result = await db.rawQuery('''
-      WITH LatestProgress AS (
-        SELECT word_id, box_level
-        FROM user_progress
-        WHERE (word_id, timestamp) IN (
-          SELECT word_id, MAX(timestamp)
-          FROM user_progress
-          GROUP BY word_id
-        )
-      ),
-      StudiedWords AS (
-        SELECT word_id
-        FROM user_progress
-        GROUP BY word_id
-        HAVING COUNT(*) >= 2
-      )
-      SELECT COUNT(*) as count
-      FROM LatestProgress lp
-      JOIN StudiedWords sw ON lp.word_id = sw.word_id
-      WHERE lp.box_level < 5
-    ''');
-    return result.first['count'] as int;
-  }
-
   Future<List<double>> getLastSevenDaysProgress() async {
     final db = await database;
     List<double> progress = [];
@@ -458,6 +445,15 @@ class DatabaseService {
 
   Future<Map<String, double>> getCEFRProgress() async {
     final db = await database;
+
+    // Get the user's current level from preferences
+    final prefs = await SharedPreferences.getInstance();
+    final currentLevel = prefs.getString('starting_level') ?? 'A1';
+
+    // Define level order for comparison
+    final levelOrder = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    final currentLevelIndex = levelOrder.indexOf(currentLevel);
+
     final result = await db.rawQuery('''
       WITH LatestProgress AS (
         SELECT word_id, box_level
@@ -482,7 +478,7 @@ class DatabaseService {
     ''');
 
     final counts = result.first;
-    return {
+    final progress = {
       'A1': (counts['a1_count'] as int) / 250.0,
       'A2': (counts['a2_count'] as int) / 500.0,
       'B1': (counts['b1_count'] as int) / 750.0,
@@ -490,6 +486,13 @@ class DatabaseService {
       'C1': (counts['c1_count'] as int) / 2250.0,
       'C2': (counts['c2_count'] as int) / 5000.0,
     };
+
+    // Set progress to 100% for levels below the current level
+    for (int i = 0; i < currentLevelIndex; i++) {
+      progress[levelOrder[i]] = 1.0;
+    }
+
+    return progress;
   }
 
   Future<Map<String, List<Map<String, String>>>> getAssessmentWords() async {

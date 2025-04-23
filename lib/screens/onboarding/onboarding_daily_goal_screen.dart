@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/preferences_service.dart';
-import 'notification_onboarding_screen.dart';
+import 'onboarding_notification_screen.dart';
 
 class OnboardingDailyGoalScreen extends StatefulWidget {
   const OnboardingDailyGoalScreen({super.key});

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/preferences_service.dart';
 import '../../widgets/too_easy_settings_dialog.dart';
-import 'help_center_screen.dart';
+import 'settings_help_center_screen.dart';
 import 'settings_daily_goal_screen.dart';
 import 'settings_notification_time_screen.dart';
+import 'settings_assessment_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -114,10 +115,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: _showDailyGoalDialog,
           ),
           ListTile(
-            title: const Text('Notifications'),
-            subtitle: Text(_notificationsEnabled ? 'Enabled' : 'Disabled'),
             leading: const Icon(Icons.notifications),
+            title: const Text('Notifications'),
             onTap: _showNotificationSettings,
+          ),
+          ListTile(
+            leading: const Icon(Icons.quiz),
+            title: const Text('Take Level Assessment'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsAssessmentScreen(),
+                ),
+              );
+            },
           ),
           ListTile(
             title: const Text('Help Center'),
@@ -126,7 +138,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const HelpCenterScreen(),
+                  builder: (context) => const SettingsHelpCenterScreen(),
                 ),
               );
             },
