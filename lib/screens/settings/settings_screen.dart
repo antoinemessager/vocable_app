@@ -89,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Settings',
+                      'Paramètres',
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -97,7 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                     ),
                     Text(
-                      'Customize your experience',
+                      'Personnalise ton expérience',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: Colors.blue,
                             fontWeight: FontWeight.w500,
@@ -109,8 +109,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Daily Word Goal'),
-            subtitle: Text('$_dailyWordGoal words per day'),
+            title: const Text('Objectif quotidien'),
+            subtitle: Text('$_dailyWordGoal mots par jour'),
             leading: const Icon(Icons.flag),
             onTap: _showDailyGoalDialog,
           ),
@@ -118,10 +118,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.notifications),
             title: const Text('Notifications'),
             onTap: _showNotificationSettings,
+            subtitle: Text(_notificationsEnabled ? 'Activées' : 'Désactivées'),
           ),
           ListTile(
             leading: const Icon(Icons.quiz),
-            title: const Text('Take Level Assessment'),
+            title: const Text('Repasser l\'évaluation'),
             onTap: () {
               Navigator.push(
                 context,
@@ -132,7 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           ListTile(
-            title: const Text('Help Center'),
+            title: const Text('Centre d\'aide'),
             leading: const Icon(Icons.help),
             onTap: () {
               Navigator.push(
@@ -144,8 +145,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           ListTile(
-            title: const Text('Too Easy Confirmation'),
-            subtitle: Text(_showTooEasyDialog ? 'Enabled' : 'Disabled'),
+            title: const Text('Message de confirmation'),
+            subtitle: Text(_showTooEasyDialog ? 'Activé' : 'Désactivé'),
             leading: const Icon(Icons.warning_amber_rounded),
             onTap: () => TooEasySettingsDialog.show(context)
                 .then((_) => _loadPreferences()),

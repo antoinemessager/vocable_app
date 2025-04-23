@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await _preferencesService.setPreviousProgress(todayProgress);
       _previousProgress = todayProgress;
     } catch (e) {
-      print('Error loading content: $e');
+      print('Erreur lors du chargement du contenu : $e');
       setState(() {
         _isLoading = false;
       });
@@ -116,14 +116,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'All caught up!',
+              'Tout est à jour !',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
-              'No words to review right now',
+              'Pas de mots à réviser pour le moment',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _getNextWord,
-              child: const Text('Try Again'),
+              child: const Text('Réessayer'),
             ),
           ],
         ),
@@ -162,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Today's Progress",
+                                "Progression du Jour",
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall
@@ -274,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                         ),
                         Text(
-                          'Mastered',
+                          'Maîtrisés',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Colors.grey[600],
@@ -315,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                         ),
                         Text(
-                          'Day Streak',
+                          'Série de Jours',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Colors.grey[600],

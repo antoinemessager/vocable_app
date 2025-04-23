@@ -16,7 +16,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
     // On estime environ 1-1.5 minute par mot
     final minTime = _wordsPerDay;
     final maxTime = (_wordsPerDay * 1.5).round();
-    return 'Estimated $minTime-$maxTime min daily';
+    return 'Estimé $minTime-$maxTime min par jour';
   }
 
   @override
@@ -54,7 +54,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
           onPressed: () => Navigator.of(context).pop(_wordsPerDay),
         ),
         title: const Text(
-          'Set Your Daily Goal',
+          'Définis Ton Objectif',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -70,7 +70,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
           children: [
             const SizedBox(height: 8),
             const Text(
-              'How many new words would you like to learn each day?',
+              'Combien de nouveaux mots aimerais-tu apprendre chaque jour ?',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
@@ -114,7 +114,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                       ),
                       const SizedBox(width: 12),
                       const Text(
-                        'words per day',
+                        'mots par jour',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -169,7 +169,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'We recommend starting with 10 words per day. You can always adjust this later in settings.',
+                      'Nous recommandons de commencer avec 10 mots par jour. Tu pourras toujours réajuster cela plus tard dans les paramètres.',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.blue[700],

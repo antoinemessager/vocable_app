@@ -25,7 +25,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Ready to start learning?',
+                  'Prêt à commencer ?',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -33,7 +33,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Master Spanish vocabulary with our\npersonalized approach',
+                  'Maîtrise le vocabulaire espagnol avec\nnotre approche personnalisée',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -45,22 +45,22 @@ class WelcomeScreen extends StatelessWidget {
                 _buildFeatureItem(
                   icon: Icons.psychology,
                   color: Colors.blue,
-                  title: 'Smart Learning',
-                  description: 'Adapts to your proficiency level',
+                  title: 'Apprentissage Intelligent',
+                  description: 'S\'adapte à ton niveau de compétence',
                 ),
                 const SizedBox(height: 16),
                 _buildFeatureItem(
                   icon: Icons.trending_up,
                   color: Colors.green,
-                  title: 'Track Progress',
-                  description: 'Set and achieve daily goals',
+                  title: 'Suivi des Progrès',
+                  description: 'Fixe et atteins tes objectifs quotidiens',
                 ),
                 const SizedBox(height: 16),
                 _buildFeatureItem(
                   icon: Icons.timer,
                   color: Colors.purple,
-                  title: 'Spaced Repetition',
-                  description: 'Learn efficiently and retain more',
+                  title: 'Répétition Espacée',
+                  description: 'Apprends efficacement et reçois plus',
                 ),
                 const SizedBox(height: 32),
                 // Start Button
@@ -83,7 +83,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                     child: const Text(
-                      'Get Started',
+                      'Commencer',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

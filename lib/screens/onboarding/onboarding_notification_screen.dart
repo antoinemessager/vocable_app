@@ -89,10 +89,10 @@ class _NotificationOnboardingScreenState
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Notifications',
+          'Rappels Quotidiens',
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
@@ -121,7 +121,7 @@ class _NotificationOnboardingScreenState
                   color: Colors.blue,
                 ),
                 title: const Text(
-                  'Daily Reminders',
+                  'Rappels quotidiens',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -153,7 +153,7 @@ class _NotificationOnboardingScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Reminder Time',
+                      'Heure du rappel',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -259,7 +259,7 @@ class _NotificationOnboardingScreenState
               const SizedBox(height: 24),
               Center(
                 child: Text(
-                  'You\'ll receive a daily notification at this time to remind you to practice your vocabulary',
+                  'Tu recevras une notification quotidienne à cette heure pour te rappeler de pratiquer ton vocabulaire',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -289,10 +289,10 @@ class _NotificationOnboardingScreenState
                   ),
                 ),
                 child: const Text(
-                  'Continue →',
+                  'Continuer',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),

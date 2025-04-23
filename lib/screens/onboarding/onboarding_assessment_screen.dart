@@ -119,7 +119,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Assessment Complete!',
+                  'Évaluation Terminée',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -127,7 +127,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Based on your responses, we will start with level $_finalLevel vocabulary.',
+                  'Basé sur tes réponses, nous commencerons avec le vocabulaire de niveau $_finalLevel.',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
@@ -154,7 +154,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                       ),
                     ),
                     child: const Text(
-                      'Start Learning →',
+                      'Commencer l\'apprentissage →',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -186,7 +186,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
           ),
         ),
         title: const Text(
-          "Let's find your level",
+          "Déterminons votre niveau",
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
@@ -201,7 +201,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Testing level $_currentLevel",
+                "Test du niveau $_currentLevel",
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
@@ -216,7 +216,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Word ${_currentWordIndex + 1} of $totalWordsInLevel',
+                'Mot ${_currentWordIndex + 1} sur $totalWordsInLevel',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -241,7 +241,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                 child: Column(
                   children: [
                     const Text(
-                      'Do you know this word?',
+                      'Connaissez-vous ce mot ?',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
@@ -264,7 +264,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                           });
                         },
                         child: const Text(
-                          'Show translation',
+                          'Afficher la traduction',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.blue,
@@ -300,7 +300,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                         ),
                       ),
                       child: const Text(
-                        'Yes, I know this word well',
+                        'Oui, je connais bien ce mot',
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -319,7 +319,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                         ),
                       ),
                       child: const Text(
-                        "I've seen it before",
+                        "Je l'ai déjà vu",
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -338,7 +338,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                         ),
                       ),
                       child: const Text(
-                        "No, I don't know this word",
+                        "Non, je ne connais pas ce mot",
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -354,7 +354,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                     _showConclusionAndFinish();
                   },
                   child: Text(
-                    'Skip assessment →',
+                    'Passer l\'évaluation →',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 16,

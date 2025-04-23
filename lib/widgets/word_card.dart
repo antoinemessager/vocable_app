@@ -80,7 +80,7 @@ class _WordCardState extends State<WordCard> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Reveal Translation'),
+                      child: const Text('Afficher la traduction'),
                     ),
                   ),
                 ] else ...[
@@ -164,7 +164,7 @@ class _WordCardState extends State<WordCard> {
                                           constraints.maxWidth < 350 ? 16 : 20),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'No',
+                                    'Incorrect',
                                     style: TextStyle(
                                         fontSize: constraints.maxWidth < 350
                                             ? 11
@@ -199,7 +199,7 @@ class _WordCardState extends State<WordCard> {
                                           constraints.maxWidth < 350 ? 16 : 20),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Yes',
+                                    'Correct',
                                     style: TextStyle(
                                         fontSize: constraints.maxWidth < 350
                                             ? 11
@@ -234,7 +234,7 @@ class _WordCardState extends State<WordCard> {
                                           constraints.maxWidth < 350 ? 16 : 20),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Too Easy',
+                                    'Trop facile',
                                     style: TextStyle(
                                         fontSize: constraints.maxWidth < 350
                                             ? 11

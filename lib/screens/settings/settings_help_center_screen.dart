@@ -7,7 +7,7 @@ class SettingsHelpCenterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Help Center'),
+        title: const Text('Centre d\'aide'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -15,7 +15,7 @@ class SettingsHelpCenterScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'How Learning Works',
+              'Comment l\'apprentissage fonctionne',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -23,7 +23,7 @@ class SettingsHelpCenterScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Research shows that to effectively memorize new words, you need to successfully recall them 5 times at specific intervals:',
+              'La recherche montre que pour mémoriser efficacement de nouveaux mots, tu dois t\'en rappeler avec succès 5 fois à des intervalles spécifiques :',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -32,17 +32,17 @@ class SettingsHelpCenterScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('• First review: immediatly'),
-                  Text('• Second review: 1 hour later'),
-                  Text('• Third review: 1 day later'),
-                  Text('• Fourth review: 3 days later'),
-                  Text('• Fifth review: 7 days later'),
+                  Text('• Première révision : immédiatement'),
+                  Text('• Deuxième révision : 1 heure plus tard'),
+                  Text('• Troisième révision : 1 jour plus tard'),
+                  Text('• Quatrième révision : 3 jours plus tard'),
+                  Text('• Cinquième révision : 7 jours plus tard'),
                 ],
               ),
             ),
             const SizedBox(height: 24),
             const Text(
-              'The Counter System',
+              'Le système de compteur',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -50,12 +50,12 @@ class SettingsHelpCenterScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'The counter at the top of each card shows your progress through these 5 reviews. Each time you successfully recall a word, the counter increases. If you fail to recall a word, the counter resets to 0.',
+              'Le compteur en haut de chaque carte indique ta progression à travers ces 5 révisions. Chaque fois que tu te souviens correctement d\'un mot, le compteur augmente. Si tu ne parviens pas à te souvenir d\'un mot, le compteur revient à 0. Dès que tu as 5 révisions correctes, le mot est marqué comme connu.',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 24),
             const Text(
-              'Card Interface',
+              'Interface de la carte',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class SettingsHelpCenterScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Each card has three buttons:',
+              'Chaque carte comporte trois boutons :',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
@@ -84,7 +84,7 @@ class SettingsHelpCenterScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 const Expanded(
                   child: Text(
-                    'Correct: Tap this when you successfully recalled the word. This increases your counter.',
+                    'Correct : Appuie ici lorsque tu te souviens correctement du mot. Cela augmente ton compteur.',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
@@ -108,7 +108,7 @@ class SettingsHelpCenterScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 const Expanded(
                   child: Text(
-                    'Incorrect: Tap this when you couldn\'t recall the word. This resets your counter to 0.',
+                    'Incorrect : Appuie ici lorsque tu ne te souviens pas du mot. Cela réinitialise ton compteur à 0. Il faudra le avoir juste à nouveau 5 fois de suite pour le mettre dans la case connue.',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
@@ -132,7 +132,7 @@ class SettingsHelpCenterScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 const Expanded(
                   child: Text(
-                    'Too Easy: Tap this if you already know the word well. This moves the word to the highest box and you won\'t see it again.',
+                    'Trop facile : Appuie ici si tu es sur de connaître le mot. Cela déplace le mot vers le niveau le plus haut et tu ne le verras plus.',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),

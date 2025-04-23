@@ -27,7 +27,7 @@ class TooEasyDialog extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           const Text(
-            'Are you sure?',
+            'Es-tu sûr?',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -42,7 +42,7 @@ class TooEasyDialog extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 24),
             child: Text(
-              'If you mark this word as "too easy", you won\'t see it again in your reviews.',
+              'Si tu marques ce mot comme "trop facile", tu ne le verras plus dans tes révisions.',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -78,7 +78,7 @@ class TooEasyDialog extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Don\'t show this message again',
+                            'Ne plus afficher ce message',
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey[600],
@@ -107,7 +107,7 @@ class TooEasyDialog extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Cancel',
+                'Annuler',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -129,7 +129,7 @@ class TooEasyDialog extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Mark as\ntoo easy',
+                'Continuer',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.red[700],

@@ -57,7 +57,7 @@ class _TooEasySettingsDialogState extends State<TooEasySettingsDialog> {
           const SizedBox(width: 12),
           const Expanded(
             child: Text(
-              'Too Easy Confirmation',
+              'Message de confirmation',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -71,7 +71,7 @@ class _TooEasySettingsDialogState extends State<TooEasySettingsDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'When enabled, a confirmation dialog will be shown before marking words as too easy.',
+            'Lorsque cela est activé, une boîte de dialogue de confirmation sera affichée avant de marquer les mots comme trop faciles.',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[600],
@@ -83,7 +83,7 @@ class _TooEasySettingsDialogState extends State<TooEasySettingsDialog> {
             children: [
               Expanded(
                 child: Text(
-                  'Show confirmation dialog',
+                  'Afficher la boîte de dialogue de confirmation',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[800],

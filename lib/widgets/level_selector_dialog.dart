@@ -14,12 +14,12 @@ class LevelSelectorDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final levels = [
-      {'level': 0, 'text': 'Unknown'},
-      {'level': 1, 'text': 'Level 1'},
-      {'level': 2, 'text': 'Level 2'},
-      {'level': 3, 'text': 'Level 3'},
-      {'level': 4, 'text': 'Level 4'},
-      {'level': 5, 'text': 'Known'},
+      {'level': 0, 'text': 'Inconnu'},
+      {'level': 1, 'text': 'Niveau 1'},
+      {'level': 2, 'text': 'Niveau 2'},
+      {'level': 3, 'text': 'Niveau 3'},
+      {'level': 4, 'text': 'Niveau 4'},
+      {'level': 5, 'text': 'Connu'},
     ];
     final currentLevel = word['box_level'] as int;
 

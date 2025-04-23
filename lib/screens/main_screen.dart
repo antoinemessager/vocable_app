@@ -45,22 +45,22 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Accueil',
           ),
           NavigationDestination(
             icon: Icon(Icons.history_outlined),
             selectedIcon: Icon(Icons.history),
-            label: 'History',
+            label: 'Historique',
           ),
           NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined),
             selectedIcon: Icon(Icons.bar_chart),
-            label: 'Progress',
+            label: 'Progression',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
+            label: 'Paramètres',
           ),
         ],
       ),

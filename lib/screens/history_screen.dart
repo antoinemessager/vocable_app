@@ -38,7 +38,7 @@ class HistoryScreenState extends State<HistoryScreen>
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading content: $e');
+      print('Erreur lors du chargement du contenu : $e');
       setState(() => _isLoading = false);
     }
   }
@@ -48,30 +48,31 @@ class HistoryScreenState extends State<HistoryScreen>
     final date = DateTime.parse(timestamp);
     final difference = now.difference(date);
 
-    if (difference.inSeconds < 5) return 'now';
-    if (difference.inMinutes < 1) return '${difference.inSeconds} seconds ago';
+    if (difference.inSeconds < 5) return 'maintenant';
+    if (difference.inMinutes < 1)
+      return 'il y a ${difference.inSeconds} secondes';
     if (difference.inHours < 1) {
       final minutes = difference.inMinutes;
-      return '$minutes ${minutes == 1 ? 'minute' : 'minutes'} ago';
+      return 'il y a $minutes ${minutes == 1 ? 'minute' : 'minutes'}';
     }
     if (difference.inDays < 1) {
       final hours = difference.inHours;
-      return '$hours ${hours == 1 ? 'hour' : 'hours'} ago';
+      return 'il y a $hours ${hours == 1 ? 'heure' : 'heures'}';
     }
     if (difference.inDays < 7) {
       final days = difference.inDays;
-      return '$days ${days == 1 ? 'day' : 'days'} ago';
+      return 'il y a $days ${days == 1 ? 'jour' : 'jours'}';
     }
     if (difference.inDays < 30) {
       final weeks = (difference.inDays / 7).floor();
-      return '$weeks ${weeks == 1 ? 'week' : 'weeks'} ago';
+      return 'il y a $weeks ${weeks == 1 ? 'semaine' : 'semaines'}';
     }
     if (difference.inDays < 365) {
       final months = (difference.inDays / 30).floor();
-      return '$months ${months == 1 ? 'month' : 'months'} ago';
+      return 'il y a $months ${months == 1 ? 'mois' : 'mois'}';
     }
     final years = (difference.inDays / 365).floor();
-    return '$years ${years == 1 ? 'year' : 'years'} ago';
+    return 'il y a $years ${years == 1 ? 'an' : 'ans'}';
   }
 
   Future<void> _showLevelSelector(Map<String, dynamic> word) async {
@@ -87,17 +88,17 @@ class HistoryScreenState extends State<HistoryScreen>
   String _getLevelText(int boxLevel) {
     switch (boxLevel) {
       case 1:
-        return 'Level 1';
+        return 'Niveau 1';
       case 2:
-        return 'Level 2';
+        return 'Niveau 2';
       case 3:
-        return 'Level 3';
+        return 'Niveau 3';
       case 4:
-        return 'Level 4';
+        return 'Niveau 4';
       case >= 5:
-        return 'Known';
+        return 'Connu';
       default:
-        return 'Unknown';
+        return 'Inconnu';
     }
   }
 
@@ -110,7 +111,7 @@ class HistoryScreenState extends State<HistoryScreen>
 
     if (_studyHistory.isEmpty) {
       return const Center(
-        child: Text('No study history yet'),
+        child: Text('Aucun historique d\'étude pour le moment'),
       );
     }
 
@@ -140,14 +141,14 @@ class HistoryScreenState extends State<HistoryScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Words Discovered',
+                        'Mots Découverts',
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                       ),
                       Text(
-                        '${_studyHistory.length} words',
+                        '${_studyHistory.length} mots',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   color: Colors.blue,
@@ -197,7 +198,7 @@ class HistoryScreenState extends State<HistoryScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Last seen ${_getTimeAgo(word['timestamp'])}',
+                          'Vu ${_getTimeAgo(word['timestamp'])}',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 12,

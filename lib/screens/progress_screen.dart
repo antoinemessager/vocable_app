@@ -11,7 +11,7 @@ class ProgressScreen extends StatefulWidget {
 class _ProgressScreenState extends State<ProgressScreen> {
   int _totalWords = 0;
   int _dayStreak = 0;
-  Map<String, Map<String, dynamic>> _cefrProgress = {
+  final Map<String, Map<String, dynamic>> _cefrProgress = {
     'A1': {'total': 250, 'current': 0},
     'A2': {'total': 500, 'current': 0},
     'B1': {'total': 750, 'current': 0},
@@ -69,7 +69,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Progress',
+                'Progression',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -117,7 +117,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Words Learned',
+                'Mots Appris',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -133,7 +133,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '$_dayStreak day streak',
+                    'Série de $_dayStreak jours',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.orange,
@@ -156,7 +156,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'CEFR Progress',
+            'Progression CEFR',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -246,7 +246,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            '$current/$total words',
+            '$current/$total mots',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 12,

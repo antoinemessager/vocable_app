@@ -157,7 +157,7 @@ class _StreakAnimationState extends State<StreakAnimation>
                               scale: _calendarScaleAnimation.value,
                               child: Container(
                                 padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   shape: BoxShape.circle,
                                 ),

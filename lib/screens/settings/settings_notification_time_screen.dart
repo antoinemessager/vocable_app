@@ -39,7 +39,7 @@ class _NotificationTimeScreenState extends State<NotificationTimeScreen> {
     // Puis programmer la nouvelle notification
     await _notificationService.scheduleDailyNotification(
       title: 'Rappel Vocable',
-      body: 'C\'est l\'heure de pratiquer votre vocabulaire!',
+      body: 'C\'est l\'heure de pratiquer votre vocabulaire !',
       hour: hour,
       minute: minute,
       notificationId: 1000,
@@ -118,7 +118,7 @@ class _NotificationTimeScreenState extends State<NotificationTimeScreen> {
                   color: Colors.blue,
                 ),
                 title: const Text(
-                  'Daily Reminders',
+                  'Rappels Quotidiens',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -150,7 +150,7 @@ class _NotificationTimeScreenState extends State<NotificationTimeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Reminder Time',
+                      'Heure du Rappel',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -256,7 +256,7 @@ class _NotificationTimeScreenState extends State<NotificationTimeScreen> {
               const SizedBox(height: 24),
               Center(
                 child: Text(
-                  'You\'ll receive a daily notification at this time to remind you to practice your vocabulary',
+                  'Vous recevrez une notification quotidienne à cette heure pour vous rappeler de pratiquer votre vocabulaire.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
