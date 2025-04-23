@@ -107,7 +107,6 @@ class _StreakAnimationState extends State<StreakAnimation>
         if (renderBox == null) return const SizedBox.shrink();
 
         final position = renderBox.localToGlobal(Offset.zero);
-        final size = renderBox.size;
 
         // Position centrale de l'écran pour le message
         final screenWidth = MediaQuery.of(context).size.width;
