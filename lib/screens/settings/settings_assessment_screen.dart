@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import '../../services/database_service.dart';
 import '../../services/preferences_service.dart';
-import '../main_screen.dart';
 import 'settings_screen.dart';
 
 class SettingsAssessmentScreen extends StatefulWidget {
