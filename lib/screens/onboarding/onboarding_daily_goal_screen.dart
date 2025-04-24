@@ -11,7 +11,7 @@ class OnboardingDailyGoalScreen extends StatefulWidget {
 }
 
 class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
-  int _selectedGoal = 5;
+  int _selectedGoal = 10;
 
   @override
   void initState() {
@@ -24,6 +24,7 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
     setState(() {
       _selectedGoal = prefs.getInt('daily_word_goal') ?? 10;
     });
+    await prefs.setInt('daily_word_goal', _selectedGoal);
   }
 
   Future<void> _saveGoal(int goal) async {

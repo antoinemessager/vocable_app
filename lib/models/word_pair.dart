@@ -4,6 +4,7 @@ class WordPair {
   final String word_fr;
   final String es_sentence;
   final String fr_sentence;
+  final int nb_time_seen;
 
   WordPair({
     required this.word_id,
@@ -11,6 +12,7 @@ class WordPair {
     required this.word_fr,
     required this.es_sentence,
     required this.fr_sentence,
+    this.nb_time_seen = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +22,7 @@ class WordPair {
       'spanish_word': word_es,
       'french_context': fr_sentence,
       'spanish_context': es_sentence,
+      'nb_time_seen': nb_time_seen,
     };
   }
 

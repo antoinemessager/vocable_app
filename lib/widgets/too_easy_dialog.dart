@@ -42,7 +42,7 @@ class TooEasyDialog extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 24),
             child: Text(
-              'Si tu marques ce mot comme "trop facile", tu ne le verras plus dans tes révisions.',
+              'Si tu marques ce mot comme "déjà connu", il ne comptera pas dans ta progression et tu ne le verras plus dans tes révisions.',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],

@@ -81,8 +81,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
           // Si l'utilisateur a répondu "No" une fois ou "I've seen it before" deux fois
           _finalLevel = _currentLevel;
           _showConclusionAndFinish();
-        } else if (_currentLevel == 'C1') {
-          // Si l'utilisateur a réussi le niveau C1
+        } else if (_currentLevel == 'B2') {
           _finalLevel = 'C1';
           _showConclusionAndFinish();
         } else {

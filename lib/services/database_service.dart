@@ -70,7 +70,13 @@ class DatabaseService {
 
     // Insert vocabulary words
     for (var pair in wordPairs) {
-      batch.insert('vocabulary', pair.toMap());
+      batch.insert('vocabulary', {
+        'id': pair.word_id,
+        'french_word': pair.word_fr,
+        'spanish_word': pair.word_es,
+        'french_context': pair.fr_sentence,
+        'spanish_context': pair.es_sentence,
+      });
     }
 
     // Initialize user_progress for all words with box_level 0
@@ -178,6 +184,7 @@ class DatabaseService {
             WHEN box_level = 2 THEN datetime(timestamp, '+1 day')
             WHEN box_level = 3 THEN datetime(timestamp, '+3 days')
             WHEN box_level = 4 THEN datetime(timestamp, '+7 days')
+            WHEN box_level = 5 THEN datetime(timestamp, '+10 years')
             ELSE timestamp
           END AS min_timestamp,
           COUNT(*) AS nb_time_seen
@@ -217,6 +224,7 @@ class DatabaseService {
       word_es: map['spanish_word'],
       fr_sentence: map['french_context'],
       es_sentence: map['spanish_context'],
+      nb_time_seen: map['nb_time_seen'],
     );
   }
 
@@ -242,7 +250,8 @@ class DatabaseService {
         v.french_context,
         v.spanish_context,
         lp.box_level,
-        lp.timestamp
+        lp.timestamp,
+        lp.nb_entries
       FROM LatestProgress lp
       JOIN vocabulary v ON v.id = lp.word_id
       WHERE lp.rn = 1
@@ -303,13 +312,17 @@ class DatabaseService {
     // Get the current number of words learned (box_level > 0)
     final wordsNow = await db.rawQuery('''
       WITH LastProgress AS (
-        SELECT box_level, MAX(timestamp) as last_timestamp
+        SELECT 
+          word_id,
+          box_level, 
+          MAX(timestamp) as last_timestamp,
+          COUNT(*) as nb_views
         FROM user_progress
         GROUP BY word_id
       )
       SELECT sum(box_level)  as learned_words
       FROM LastProgress lp
-      
+      WHERE lp.nb_views >= 3 or lp.box_level < 5
     ''');
     final int startCount = wordsBeforeToday.first['learned_words'] as int;
     final int currentCount = wordsNow.first['learned_words'] as int;
@@ -352,7 +365,9 @@ class DatabaseService {
           SELECT 
             word_id,
             SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as start_sum,
-            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as end_sum
+            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as end_sum,
+            COUNT(*) as nb_views,
+            MAX(box_level) as max_level
           FROM user_progress
           WHERE word_id IN (
             SELECT DISTINCT word_id
@@ -360,6 +375,7 @@ class DatabaseService {
             WHERE timestamp >= ? AND timestamp < ?
           )
           GROUP BY word_id
+          HAVING NOT (nb_views = 2 AND max_level = 5)
         )
         SELECT COALESCE(SUM(end_sum - start_sum) / 5.0, 0) as words_learned
         FROM DayProgress
@@ -386,17 +402,18 @@ class DatabaseService {
     final db = await database;
     final result = await db.rawQuery('''
       WITH LatestProgress AS (
-        SELECT word_id, box_level
+        SELECT 
+          word_id,
+          box_level,
+          ROW_NUMBER() OVER (PARTITION BY word_id ORDER BY timestamp DESC) as rn,
+          COUNT(*) OVER (PARTITION BY word_id) as nb_views
         FROM user_progress
-        WHERE (word_id, timestamp) IN (
-          SELECT word_id, MAX(timestamp)
-          FROM user_progress
-          GROUP BY word_id
-        )
       )
-      SELECT COUNT(*) as count
+      SELECT count(*) as count
       FROM LatestProgress
-      WHERE box_level >= 5
+      WHERE nb_views >= 3
+        AND box_level >= 5
+        AND rn = 1
     ''');
     return result.first['count'] as int;
   }
@@ -510,7 +527,6 @@ class DatabaseService {
       'A2': {'start': 251, 'end': 750},
       'B1': {'start': 751, 'end': 1500},
       'B2': {'start': 1501, 'end': 2750},
-      'C1': {'start': 2751, 'end': 5000},
     };
 
     Map<String, List<Map<String, String>>> result = {};

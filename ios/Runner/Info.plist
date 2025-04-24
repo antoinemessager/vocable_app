@@ -13,6 +13,8 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
+	<string>Vocable</string>
+	<key>CFBundleIconFile</key>
 	<string>vocable</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>

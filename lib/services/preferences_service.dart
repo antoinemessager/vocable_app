@@ -76,4 +76,14 @@ class PreferencesService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('previous_progress', progress);
   }
+
+  Future<bool> getIsFirstTimeGoal() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('is_first_time_goal') ?? true;
+  }
+
+  Future<void> setIsFirstTimeGoal(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_first_time_goal', value);
+  }
 }

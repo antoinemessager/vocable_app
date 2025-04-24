@@ -83,7 +83,7 @@ class _SettingsAssessmentScreenState extends State<SettingsAssessmentScreen> {
           // Si l'utilisateur a répondu "Non" une fois ou "Je l'ai déjà vu" deux fois
           _finalLevel = _currentLevel;
           _showConclusionAndFinish();
-        } else if (_currentLevel == 'C1') {
+        } else if (_currentLevel == 'B2') {
           _finalLevel = 'C1';
           _showConclusionAndFinish();
         } else {

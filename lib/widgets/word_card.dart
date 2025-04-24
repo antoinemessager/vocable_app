@@ -138,113 +138,129 @@ class _WordCardState extends State<WordCard> {
                     const SizedBox(height: 16),
                   ],
                   IntrinsicHeight(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2),
-                            child: FilledButton(
-                              onPressed: () => widget.onAnswer(false),
-                              style: FilledButton.styleFrom(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                backgroundColor: Colors.red[50],
-                                foregroundColor: Colors.red[700],
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                    const EdgeInsets.symmetric(horizontal: 2),
+                                child: FilledButton(
+                                  onPressed: () => widget.onAnswer(false),
+                                  style: FilledButton.styleFrom(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    backgroundColor: Colors.red[50],
+                                    foregroundColor: Colors.red[700],
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.close,
+                                          size: constraints.maxWidth < 350
+                                              ? 16
+                                              : 20),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Incorrect',
+                                        style: TextStyle(
+                                            fontSize: constraints.maxWidth < 350
+                                                ? 11
+                                                : 13),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.close,
-                                      size:
-                                          constraints.maxWidth < 350 ? 16 : 20),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Incorrect',
-                                    style: TextStyle(
-                                        fontSize: constraints.maxWidth < 350
-                                            ? 11
-                                            : 13),
-                                  ),
-                                ],
-                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2),
-                            child: FilledButton(
-                              onPressed: () => widget.onAnswer(true),
-                              style: FilledButton.styleFrom(
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                backgroundColor: Colors.green[50],
-                                foregroundColor: Colors.green[700],
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                    const EdgeInsets.symmetric(horizontal: 2),
+                                child: FilledButton(
+                                  onPressed: () => widget.onAnswer(true),
+                                  style: FilledButton.styleFrom(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    backgroundColor: Colors.green[50],
+                                    foregroundColor: Colors.green[700],
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.check,
+                                          size: constraints.maxWidth < 350
+                                              ? 16
+                                              : 20),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Correct',
+                                        style: TextStyle(
+                                            fontSize: constraints.maxWidth < 350
+                                                ? 11
+                                                : 13),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.check,
-                                      size:
-                                          constraints.maxWidth < 350 ? 16 : 20),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Correct',
-                                    style: TextStyle(
-                                        fontSize: constraints.maxWidth < 350
-                                            ? 11
-                                            : 13),
-                                  ),
-                                ],
-                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2),
-                            child: FilledButton(
-                              onPressed: _handleTooEasy,
-                              style: FilledButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                backgroundColor: Colors.grey[100],
-                                foregroundColor: Colors.grey[700],
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 8),
+                        if (widget.word.nb_time_seen == 1)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 2),
+                                  child: FilledButton(
+                                    onPressed: _handleTooEasy,
+                                    style: FilledButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8),
+                                      backgroundColor: Colors.grey[100],
+                                      foregroundColor: Colors.grey[700],
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.double_arrow,
+                                            size: constraints.maxWidth < 350
+                                                ? 16
+                                                : 20),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Déjà connu',
+                                          style: TextStyle(
+                                              fontSize:
+                                                  constraints.maxWidth < 350
+                                                      ? 11
+                                                      : 13),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.double_arrow,
-                                      size:
-                                          constraints.maxWidth < 350 ? 16 : 20),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Trop facile',
-                                    style: TextStyle(
-                                        fontSize: constraints.maxWidth < 350
-                                            ? 11
-                                            : 13),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            ],
                           ),
-                        ),
                       ],
                     ),
                   ),
