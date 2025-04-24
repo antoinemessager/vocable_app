@@ -4,7 +4,6 @@ import '../services/database_service.dart';
 import '../services/preferences_service.dart';
 import '../widgets/word_card.dart';
 import '../widgets/star_animation.dart';
-import '../widgets/streak_animation.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -279,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onAnswer: (wasCorrect) async {
                                     final currentLevel = await DatabaseService
                                         .instance
-                                        .getWordLevel(_currentWord!.word_id);
+                                        .getWordBoxLevel(_currentWord!.word_id);
                                     await DatabaseService.instance
                                         .recordProgress(
                                       _currentWord!.word_id,

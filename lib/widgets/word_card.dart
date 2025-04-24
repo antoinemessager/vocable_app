@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/word_pair.dart';
+import '../screens/settings/settings_help_center_screen.dart';
 import 'too_easy_dialog.dart';
 
 class WordCard extends StatefulWidget {
@@ -58,12 +59,49 @@ class _WordCardState extends State<WordCard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  widget.word.word_fr,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                SizedBox(
+                  height: 40, // Hauteur fixe pour le Stack
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Positioned(
+                        left: 0,
+                        right:
+                            0, // Augmentation du décalage pour mieux centrer le mot
+                        child: Text(
+                          widget.word.word_fr,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                  textAlign: TextAlign.center,
+                      Positioned(
+                        right: 0,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.help_outline,
+                            color: Colors.grey,
+                            size: 20,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const SettingsHelpCenterScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 12),
                 if (!_isRevealed) ...[

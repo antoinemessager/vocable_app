@@ -71,7 +71,7 @@ class _TooEasySettingsDialogState extends State<TooEasySettingsDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Lorsque cela est activé, une boîte de dialogue de confirmation sera affichée avant de marquer les mots comme trop faciles.',
+            'Lorsque cela est activé, une boîte de dialogue de confirmation sera affichée avant de marquer les mots comme déjà vus.',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[600],

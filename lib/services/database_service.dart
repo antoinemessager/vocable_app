@@ -291,65 +291,12 @@ class DatabaseService {
   }
 
   Future<double> getTodayProgress() async {
-    final db = await database;
-
-    // Get the start of today
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
-
-    // Get the number of words learned before today (box_level > 0)
-    final wordsBeforeToday = await db.rawQuery('''
-      WITH LastProgressBeforeToday AS (
-        SELECT box_level, MAX(timestamp) as last_timestamp
-        FROM user_progress
-        WHERE timestamp < ?
-        GROUP BY word_id
-      )
-      SELECT coalesce(sum(box_level), 0) as learned_words
-      FROM LastProgressBeforeToday lp
-    ''', [startOfDay.toIso8601String()]);
-
-    // Get the current number of words learned (box_level > 0)
-    final wordsNow = await db.rawQuery('''
-      WITH LastProgress AS (
-        SELECT 
-          word_id,
-          box_level, 
-          MAX(timestamp) as last_timestamp,
-          COUNT(*) as nb_views
-        FROM user_progress
-        GROUP BY word_id
-      )
-      SELECT sum(box_level)  as learned_words
-      FROM LastProgress lp
-      WHERE lp.nb_views >= 3 or lp.box_level < 5
-    ''');
-    final int startCount = wordsBeforeToday.first['learned_words'] as int;
-    final int currentCount = wordsNow.first['learned_words'] as int;
-
-    // Calculate progress (difference in number of words learned)
-    return (currentCount - startCount).toDouble() / 5;
-  }
-
-  Future<int> getWordLevel(int wordId) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'user_progress',
-      where: 'word_id = ?',
-      whereArgs: [wordId],
-      orderBy: 'timestamp DESC',
-      limit: 1,
-    );
-
-    if (maps.isEmpty) {
-      return 0;
-    }
-
-    return maps.first['box_level'] as int;
+    return getWordsLearnedBetweenDates(startOfDay, now);
   }
 
   Future<int> getDayStreak() async {
-    final db = await database;
     final now = DateTime.now();
     int streak = 0;
     final prefs = await SharedPreferences.getInstance();
@@ -360,33 +307,8 @@ class DatabaseService {
       final startOfDay = DateTime(date.year, date.month, date.day);
       final endOfDay = startOfDay.add(const Duration(days: 1));
 
-      final result = await db.rawQuery('''
-        WITH DayProgress AS (
-          SELECT 
-            word_id,
-            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as start_sum,
-            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as end_sum,
-            COUNT(*) as nb_views,
-            MAX(box_level) as max_level
-          FROM user_progress
-          WHERE word_id IN (
-            SELECT DISTINCT word_id
-            FROM user_progress
-            WHERE timestamp >= ? AND timestamp < ?
-          )
-          GROUP BY word_id
-          HAVING NOT (nb_views = 2 AND max_level = 5)
-        )
-        SELECT COALESCE(SUM(end_sum - start_sum) / 5.0, 0) as words_learned
-        FROM DayProgress
-      ''', [
-        startOfDay.toIso8601String(),
-        endOfDay.toIso8601String(),
-        startOfDay.toIso8601String(),
-        endOfDay.toIso8601String()
-      ]);
-
-      final wordsLearned = (result.first['words_learned'] as num).toDouble();
+      final wordsLearned =
+          await getWordsLearnedBetweenDates(startOfDay, endOfDay);
 
       if (wordsLearned >= dailyGoal) {
         streak++;
@@ -427,43 +349,6 @@ class DatabaseService {
       HAVING COUNT(*) >= 2
     ''');
     return result.first['count'] as int;
-  }
-
-  Future<List<double>> getLastSevenDaysProgress() async {
-    final db = await database;
-    List<double> progress = [];
-    final now = DateTime.now();
-
-    for (int i = 6; i >= 0; i--) {
-      final date = now.subtract(Duration(days: i));
-      final startOfDay = DateTime(date.year, date.month, date.day);
-      final endOfDay = startOfDay.add(const Duration(days: 1));
-
-      final result = await db.rawQuery('''
-        WITH ProgressDiff AS (
-          SELECT 
-            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as start_sum,
-            SUM(CASE WHEN timestamp < ? THEN box_level ELSE 0 END) as end_sum
-          FROM user_progress
-          WHERE word_id IN (
-            SELECT DISTINCT word_id
-            FROM user_progress
-            WHERE timestamp >= ? AND timestamp < ?
-          )
-        )
-        SELECT (end_sum - start_sum) / 5.0 as progress
-        FROM ProgressDiff
-      ''', [
-        startOfDay.toIso8601String(),
-        endOfDay.toIso8601String(),
-        startOfDay.toIso8601String(),
-        endOfDay.toIso8601String()
-      ]);
-
-      progress.add((result.first['progress'] as num?)?.toDouble() ?? 0.0);
-    }
-
-    return progress;
   }
 
   Future<Map<String, double>> getCEFRProgress() async {
@@ -562,5 +447,52 @@ class DatabaseService {
     }
 
     return result;
+  }
+
+  Future<double> getWordsLearnedBetweenDates(
+      DateTime startDate, DateTime endDate) async {
+    final db = await database;
+
+    // Get the number of words learned before start date
+    final wordsBeforeStart = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT 
+          word_id,
+          box_level,
+          ROW_NUMBER() OVER (PARTITION BY word_id ORDER BY timestamp DESC) as rn,
+          COUNT(*) OVER (PARTITION BY word_id) as nb_views
+        FROM user_progress
+        WHERE timestamp < ?
+      ), WithoutLastTwoAs5 AS (
+        SELECT * FROM LatestProgress
+        WHERE rn=1 AND NOT (nb_views = 2 AND box_level = 5)
+      )
+      SELECT coalesce(sum(box_level), 0) as learned_words
+      FROM WithoutLastTwoAs5
+    ''', [startDate.toIso8601String()]);
+
+    // Get the number of words learned before end date
+    final wordsBeforeEnd = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT 
+          word_id,
+          box_level,
+          ROW_NUMBER() OVER (PARTITION BY word_id ORDER BY timestamp DESC) as rn,
+          COUNT(*) OVER (PARTITION BY word_id) as nb_views
+        FROM user_progress
+        WHERE timestamp < ?
+      ), WithoutLastTwoAs5 AS (
+        SELECT * FROM LatestProgress
+        WHERE rn=1 AND NOT (nb_views = 2 AND box_level = 5)
+      )
+      SELECT coalesce(sum(box_level), 0) as learned_words
+      FROM WithoutLastTwoAs5
+    ''', [endDate.toIso8601String()]);
+
+    final int startCount = wordsBeforeStart.first['learned_words'] as int;
+    final int endCount = wordsBeforeEnd.first['learned_words'] as int;
+
+    // Calculate progress (difference in number of words learned)
+    return (endCount - startCount).toDouble() / 5;
   }
 }
