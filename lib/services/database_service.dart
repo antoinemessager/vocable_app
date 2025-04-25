@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import '../models/word_pair.dart';
 import '../models/word_progress.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._init();
@@ -234,14 +235,24 @@ class DatabaseService {
 
     final List<Map<String, dynamic>> results = await db.rawQuery(
       '''
-      WITH LatestProgress AS (
-        SELECT 
-          word_id,
-          box_level,
-          timestamp,
-          ROW_NUMBER() OVER (PARTITION BY word_id ORDER BY timestamp DESC) as rn,
-          COUNT(*) OVER (PARTITION BY word_id) as nb_entries
-        FROM user_progress
+      WITH LatestTimestamp AS (
+          SELECT word_id, MAX(timestamp) AS max_timestamp
+          FROM user_progress
+          GROUP BY word_id
+      ), EntryCounts AS (
+          SELECT word_id, COUNT(*) AS nb_entries
+          FROM user_progress
+          GROUP BY word_id
+      ), LatestTimestampEntries AS (
+      SELECT 
+          up.word_id,
+          up.box_level,
+          up.timestamp,
+          CASE WHEN up.timestamp = lt.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
+      FROM user_progress up
+      JOIN LatestTimestamp lt ON up.word_id = lt.word_id
+      JOIN EntryCounts ec ON up.word_id = ec.word_id
       )
       SELECT 
         v.id as word_id,
@@ -252,7 +263,7 @@ class DatabaseService {
         lp.box_level,
         lp.timestamp,
         lp.nb_entries
-      FROM LatestProgress lp
+      FROM LatestTimestampEntries lp
       JOIN vocabulary v ON v.id = lp.word_id
       WHERE lp.rn = 1
         AND lp.nb_entries >= 2
@@ -309,10 +320,9 @@ class DatabaseService {
 
       final wordsLearned =
           await getWordsLearnedBetweenDates(startOfDay, endOfDay);
-
       if (wordsLearned >= dailyGoal) {
         streak++;
-      } else {
+      } else if (i > 0) {
         break;
       }
     }
@@ -323,17 +333,28 @@ class DatabaseService {
   Future<int> getTotalMasteredWords() async {
     final db = await database;
     final result = await db.rawQuery('''
-      WITH LatestProgress AS (
-        SELECT 
-          word_id,
-          box_level,
-          ROW_NUMBER() OVER (PARTITION BY word_id ORDER BY timestamp DESC) as rn,
-          COUNT(*) OVER (PARTITION BY word_id) as nb_views
-        FROM user_progress
+      WITH LatestTimestamp AS (
+          SELECT word_id, MAX(timestamp) AS max_timestamp
+          FROM user_progress
+          GROUP BY word_id
+      ), EntryCounts AS (
+          SELECT word_id, COUNT(*) AS nb_entries
+          FROM user_progress
+          GROUP BY word_id
+      ), LatestTimestampEntries AS (
+      SELECT 
+          up.word_id,
+          up.box_level,
+          up.timestamp,
+          CASE WHEN up.timestamp = lt.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
+      FROM user_progress up
+      JOIN LatestTimestamp lt ON up.word_id = lt.word_id
+      JOIN EntryCounts ec ON up.word_id = ec.word_id
       )
       SELECT count(*) as count
-      FROM LatestProgress
-      WHERE nb_views >= 3
+      FROM LatestTimestampEntries
+      WHERE nb_entries >= 3
         AND box_level >= 5
         AND rn = 1
     ''');
@@ -363,16 +384,23 @@ class DatabaseService {
     final currentLevelIndex = levelOrder.indexOf(currentLevel);
 
     final result = await db.rawQuery('''
-      WITH LatestProgress AS (
-        SELECT word_id, box_level
-        FROM user_progress
-        WHERE (word_id, timestamp) IN (
-          SELECT word_id, MAX(timestamp)
+      WITH EntryCounts AS (
+          SELECT 
+            word_id, 
+            COUNT(*) AS nb_entries, 
+            MAX(timestamp) AS max_timestamp
           FROM user_progress
           GROUP BY word_id
-        )
-      ),
-      CEFRCounts AS (
+      ), LatestInfo AS (
+      SELECT 
+          up.word_id,
+          up.box_level,
+          up.timestamp,
+          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
+      FROM user_progress up
+      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.word_id = ec.word_id
+      ), CEFRCounts AS (
         SELECT
           SUM(CASE WHEN word_id BETWEEN 1 AND 250 AND box_level >= 5 THEN 1 ELSE 0 END) as a1_count,
           SUM(CASE WHEN word_id BETWEEN 251 AND 750 AND box_level >= 5 THEN 1 ELSE 0 END) as a2_count,
@@ -380,7 +408,7 @@ class DatabaseService {
           SUM(CASE WHEN word_id BETWEEN 1501 AND 2750 AND box_level >= 5 THEN 1 ELSE 0 END) as b2_count,
           SUM(CASE WHEN word_id BETWEEN 2751 AND 5000 AND box_level >= 5 THEN 1 ELSE 0 END) as c1_count,
           SUM(CASE WHEN word_id BETWEEN 5001 AND 10000 AND box_level >= 5 THEN 1 ELSE 0 END) as c2_count
-        FROM LatestProgress
+        FROM (select * from LatestInfo where rn=1)
       )
       SELECT * FROM CEFRCounts
     ''');
@@ -455,38 +483,52 @@ class DatabaseService {
 
     // Get the number of words learned before start date
     final wordsBeforeStart = await db.rawQuery('''
-      WITH LatestProgress AS (
-        SELECT 
-          word_id,
-          box_level,
-          ROW_NUMBER() OVER (PARTITION BY word_id ORDER BY timestamp DESC) as rn,
-          COUNT(*) OVER (PARTITION BY word_id) as nb_views
-        FROM user_progress
-        WHERE timestamp < ?
-      ), WithoutLastTwoAs5 AS (
-        SELECT * FROM LatestProgress
-        WHERE rn=1 AND NOT (nb_views = 2 AND box_level = 5)
+      WITH EntryCounts AS (
+          SELECT 
+            word_id, 
+            COUNT(*) AS nb_entries, 
+            MAX(timestamp) AS max_timestamp
+          FROM user_progress
+          WHERE timestamp < ?
+          GROUP BY word_id
+      ), LatestInfo AS (
+      SELECT 
+          up.word_id,
+          up.box_level,
+          up.timestamp,
+          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
+      FROM user_progress up
+      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.word_id = ec.word_id
       )
       SELECT coalesce(sum(box_level), 0) as learned_words
-      FROM WithoutLastTwoAs5
+      FROM LatestInfo 
+      where rn=1 and (box_level!=5 or nb_entries>2)
     ''', [startDate.toIso8601String()]);
 
     // Get the number of words learned before end date
     final wordsBeforeEnd = await db.rawQuery('''
-      WITH LatestProgress AS (
-        SELECT 
-          word_id,
-          box_level,
-          ROW_NUMBER() OVER (PARTITION BY word_id ORDER BY timestamp DESC) as rn,
-          COUNT(*) OVER (PARTITION BY word_id) as nb_views
-        FROM user_progress
-        WHERE timestamp < ?
-      ), WithoutLastTwoAs5 AS (
-        SELECT * FROM LatestProgress
-        WHERE rn=1 AND NOT (nb_views = 2 AND box_level = 5)
+      WITH EntryCounts AS (
+          SELECT 
+            word_id, 
+            COUNT(*) AS nb_entries, 
+            MAX(timestamp) AS max_timestamp
+          FROM user_progress
+          WHERE timestamp < ?
+          GROUP BY word_id
+      ), LatestInfo AS (
+      SELECT 
+          up.word_id,
+          up.box_level,
+          up.timestamp,
+          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
+      FROM user_progress up
+      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.word_id = ec.word_id
       )
       SELECT coalesce(sum(box_level), 0) as learned_words
-      FROM WithoutLastTwoAs5
+      FROM LatestInfo 
+      where rn=1 and (box_level!=5 or nb_entries>2)
     ''', [endDate.toIso8601String()]);
 
     final int startCount = wordsBeforeStart.first['learned_words'] as int;

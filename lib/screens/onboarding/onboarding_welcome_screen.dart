@@ -11,7 +11,7 @@ class WelcomeScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(12),
             child: Column(
               children: [
                 const SizedBox(height: 32),
@@ -33,7 +33,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Maîtrise le vocabulaire espagnol avec\nnotre approche personnalisée',
+                  'Maîtrise le vocabulaire espagnol avec notre approche personnalisée',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -46,21 +46,21 @@ class WelcomeScreen extends StatelessWidget {
                   icon: Icons.psychology,
                   color: Colors.blue,
                   title: 'Apprentissage Intelligent',
-                  description: 'S\'adapte à ton niveau de compétence',
+                  description: 'S\'adapte à ton niveau',
                 ),
                 const SizedBox(height: 16),
                 _buildFeatureItem(
                   icon: Icons.trending_up,
                   color: Colors.green,
                   title: 'Suivi des Progrès',
-                  description: 'Fixe et atteins tes objectifs quotidiens',
+                  description: 'Fixe tes objectifs quotidiens',
                 ),
                 const SizedBox(height: 16),
                 _buildFeatureItem(
                   icon: Icons.timer,
                   color: Colors.purple,
                   title: 'Répétition Espacée',
-                  description: 'Apprends efficacement et reçois plus',
+                  description: 'Apprends efficacement',
                 ),
                 const SizedBox(height: 32),
                 // Start Button

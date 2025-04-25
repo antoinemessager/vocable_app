@@ -173,9 +173,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _getNextWord,
-              child: const Text('Réessayer'),
+            Center(
+              child: ElevatedButton(
+                onPressed: _getNextWord,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Réessayer'),
+              ),
             ),
           ],
         ),

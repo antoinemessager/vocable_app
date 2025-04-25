@@ -32,35 +32,100 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Vocable',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4169E1),
-          brightness: Brightness.light,
-        ),
-        textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         useMaterial3: true,
-        cardTheme: CardTheme(
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.light(
+          primary: Colors.blue,
+          secondary: Colors.blue,
+          surface: Colors.white,
+          background: const Color(0xFFF5F5F5),
+          onSurface: Colors.black,
+          onBackground: Colors.black,
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+        cardTheme: CardTheme(
+          color: Colors.white,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        textTheme: GoogleFonts.interTextTheme(
+          const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black),
+            bodyMedium: TextStyle(color: Colors.black),
+            titleLarge: TextStyle(color: Colors.black),
+          ),
+        ),
       ),
       darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4169E1),
-          brightness: Brightness.dark,
-        ),
-        textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         useMaterial3: true,
-        cardTheme: CardTheme(
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.light(
+          primary: Colors.blue,
+          secondary: Colors.blue,
+          surface: Colors.white,
+          background: const Color(0xFFF5F5F5),
+          onSurface: Colors.black,
+          onBackground: Colors.black,
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+        cardTheme: CardTheme(
+          color: Colors.white,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        textTheme: GoogleFonts.interTextTheme(
+          const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black),
+            bodyMedium: TextStyle(color: Colors.black),
+            titleLarge: TextStyle(color: Colors.black),
+          ),
+        ),
       ),
+      themeMode: ThemeMode.light,
       home: isFirstLaunch ? const OnboardingScreen() : const MainScreen(),
     );
   }
