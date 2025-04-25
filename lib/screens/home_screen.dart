@@ -233,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       .spaceBetween,
                                               children: [
                                                 Text(
-                                                  "Progression du Jour",
+                                                  "Progression",
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .headlineSmall
@@ -262,18 +262,35 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ],
                                       ),
                                       const SizedBox(height: 16),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: LinearProgressIndicator(
-                                          value:
-                                              _todayProgress / _dailyWordGoal,
-                                          minHeight: 16,
-                                          backgroundColor: Colors.grey[100],
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            hasCompletedDailyGoal
-                                                ? Colors.green
-                                                : Colors.blue,
+                                      Container(
+                                        height: 16,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.3),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: LinearProgressIndicator(
+                                            value:
+                                                _todayProgress / _dailyWordGoal,
+                                            minHeight: 16,
+                                            backgroundColor: Colors.transparent,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                              hasCompletedDailyGoal
+                                                  ? Colors.green
+                                                  : Colors.blue,
+                                            ),
                                           ),
                                         ),
                                       ),

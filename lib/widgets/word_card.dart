@@ -103,7 +103,7 @@ class _WordCardState extends State<WordCard> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 2),
                 if (!_isRevealed) ...[
                   SizedBox(
                     width: double.infinity,

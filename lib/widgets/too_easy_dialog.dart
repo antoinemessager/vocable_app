@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TooEasyDialog extends StatelessWidget {
-  const TooEasyDialog({super.key});
+  final VoidCallback onTooEasy;
+
+  const TooEasyDialog({
+    super.key,
+    required this.onTooEasy,
+  });
 
   static Future<bool?> show(BuildContext context) async {
     return showDialog<bool>(
       context: context,
-      builder: (context) => const TooEasyDialog(),
+      builder: (context) => TooEasyDialog(onTooEasy: () {}),
     );
   }
 
@@ -96,10 +101,9 @@ class TooEasyDialog extends StatelessWidget {
       ),
       actions: [
         Row(
-          //mainAxisAlignment: MainAxisAlignment.left,
           children: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
+              onPressed: () => Navigator.of(context).pop(),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -117,7 +121,10 @@ class TooEasyDialog extends StatelessWidget {
             ),
             const SizedBox(width: 24),
             TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () {
+                onTooEasy();
+                Navigator.of(context).pop();
+              },
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,

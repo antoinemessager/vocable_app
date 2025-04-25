@@ -185,7 +185,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
           ),
         ),
         title: const Text(
-          "Déterminons votre niveau",
+          "Déterminons ton niveau",
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
@@ -240,7 +240,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                 child: Column(
                   children: [
                     const Text(
-                      'Connaissez-vous ce mot ?',
+                      'Connais-tu ce mot ?',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
