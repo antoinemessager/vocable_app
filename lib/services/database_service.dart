@@ -402,17 +402,17 @@ class DatabaseService {
       JOIN (select * from EntryCounts where nb_entries>1) ec ON up.word_id = ec.word_id
       ), CEFRCounts AS (
         SELECT
-          SUM(CASE WHEN word_id BETWEEN 1 AND 250 AND box_level >= 5 THEN 1 ELSE 0 END) as a1_count,
-          SUM(CASE WHEN word_id BETWEEN 251 AND 750 AND box_level >= 5 THEN 1 ELSE 0 END) as a2_count,
-          SUM(CASE WHEN word_id BETWEEN 751 AND 1500 AND box_level >= 5 THEN 1 ELSE 0 END) as b1_count,
-          SUM(CASE WHEN word_id BETWEEN 1501 AND 2750 AND box_level >= 5 THEN 1 ELSE 0 END) as b2_count,
-          SUM(CASE WHEN word_id BETWEEN 2751 AND 5000 AND box_level >= 5 THEN 1 ELSE 0 END) as c1_count,
-          SUM(CASE WHEN word_id BETWEEN 5001 AND 10000 AND box_level >= 5 THEN 1 ELSE 0 END) as c2_count
+          coalesce(SUM(CASE WHEN word_id BETWEEN 1 AND 250 AND box_level >= 5 THEN 1 ELSE 0 END), 0) as a1_count,
+          coalesce(SUM(CASE WHEN word_id BETWEEN 251 AND 750 AND box_level >= 5 THEN 1 ELSE 0 END), 0) as a2_count,
+          coalesce(SUM(CASE WHEN word_id BETWEEN 751 AND 1500 AND box_level >= 5 THEN 1 ELSE 0 END), 0) as b1_count,
+          coalesce(SUM(CASE WHEN word_id BETWEEN 1501 AND 2750 AND box_level >= 5 THEN 1 ELSE 0 END), 0) as b2_count,
+          coalesce(SUM(CASE WHEN word_id BETWEEN 2751 AND 5000 AND box_level >= 5 THEN 1 ELSE 0 END), 0) as c1_count,
+          coalesce(SUM(CASE WHEN word_id BETWEEN 5001 AND 10000 AND box_level >= 5 THEN 1 ELSE 0 END), 0) as c2_count
         FROM (select * from LatestInfo where rn=1)
       )
       SELECT * FROM CEFRCounts
     ''');
-
+    print(result);
     final counts = result.first;
     final progress = {
       'A1': (counts['a1_count'] as int) / 250.0,

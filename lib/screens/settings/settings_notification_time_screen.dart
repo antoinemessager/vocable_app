@@ -122,12 +122,18 @@ class _NotificationTimeScreenState extends State<NotificationTimeScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
+                    color: Colors.black,
                   ),
                 ),
                 trailing: Switch(
                   value: _notificationsEnabled,
                   onChanged: _toggleNotifications,
                   activeColor: Colors.blue,
+                  activeTrackColor: Colors.blue[100],
+                  inactiveTrackColor: Colors.grey[300],
+                  inactiveThumbColor: Colors.grey[400],
+                  trackOutlineColor:
+                      WidgetStateProperty.all(Colors.transparent),
                 ),
               ),
             ),

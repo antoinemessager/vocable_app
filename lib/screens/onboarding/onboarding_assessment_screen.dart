@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/database_service.dart';
 import '../../services/preferences_service.dart';
 import '../main_screen.dart';
@@ -62,6 +63,10 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
   void _showConclusionAndFinish() async {
     // Sauvegarder le niveau de départ
     await PreferencesService().setStartingLevel(_finalLevel);
+
+    // Mettre is_first_launch à false car l'onboarding est terminé
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_first_launch', false);
 
     setState(() {
       _showingConclusion = true;

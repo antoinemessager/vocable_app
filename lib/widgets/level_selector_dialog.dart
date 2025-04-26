@@ -24,6 +24,7 @@ class LevelSelectorDialog extends StatelessWidget {
     final currentLevel = word['box_level'] as int;
 
     return AlertDialog(
+      backgroundColor: Colors.grey[50],
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,

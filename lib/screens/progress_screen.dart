@@ -268,7 +268,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         padding: const EdgeInsets.only(
           left: 16,
           right: 16,
-          top: 60,
+          top: 40,
           bottom: 16,
         ),
         children: [

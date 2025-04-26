@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Column(
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 40),
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -422,7 +422,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                       ),
                                       Text(
-                                        'Jours de suite',
+                                        'Jours',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodySmall

@@ -43,6 +43,7 @@ class _TooEasySettingsDialogState extends State<TooEasySettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Colors.grey[50],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -95,6 +96,10 @@ class _TooEasySettingsDialogState extends State<TooEasySettingsDialog> {
                 value: _showTooEasyDialog,
                 onChanged: _toggleTooEasyDialog,
                 activeColor: Colors.blue,
+                activeTrackColor: Colors.blue[100],
+                inactiveTrackColor: Colors.grey[300],
+                inactiveThumbColor: Colors.grey[400],
+                trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
               ),
             ],
           ),

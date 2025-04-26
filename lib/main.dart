@@ -15,10 +15,6 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
 
-  if (isFirstLaunch) {
-    await prefs.setBool('is_first_launch', false);
-  }
-
   runApp(MyApp(isFirstLaunch: isFirstLaunch));
 }
 
@@ -32,100 +28,47 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Vocable',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF4169E1),
+          brightness: Brightness.light,
+        ),
+        scaffoldBackgroundColor: Colors.grey[50],
+        textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         useMaterial3: true,
-        brightness: Brightness.light,
-        colorScheme: ColorScheme.light(
-          primary: Colors.blue,
-          secondary: Colors.blue,
-          surface: Colors.white,
-          background: const Color(0xFFF5F5F5),
-          onSurface: Colors.black,
-          onBackground: Colors.black,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         cardTheme: CardTheme(
-          color: Colors.white,
-          elevation: 2,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-        textTheme: GoogleFonts.interTextTheme(
-          const TextTheme(
-            bodyLarge: TextStyle(color: Colors.black),
-            bodyMedium: TextStyle(color: Colors.black),
-            titleLarge: TextStyle(color: Colors.black),
-          ),
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Colors.grey[100],
+          foregroundColor: Colors.black87,
         ),
       ),
       darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF4169E1),
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: Colors.grey[50],
+        textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         useMaterial3: true,
-        brightness: Brightness.light,
-        colorScheme: ColorScheme.light(
-          primary: Colors.blue,
-          secondary: Colors.blue,
-          surface: Colors.white,
-          background: const Color(0xFFF5F5F5),
-          onSurface: Colors.black,
-          onBackground: Colors.black,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         cardTheme: CardTheme(
-          color: Colors.white,
-          elevation: 2,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-        textTheme: GoogleFonts.interTextTheme(
-          const TextTheme(
-            bodyLarge: TextStyle(color: Colors.black),
-            bodyMedium: TextStyle(color: Colors.black),
-            titleLarge: TextStyle(color: Colors.black),
-          ),
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Colors.grey[100],
+          foregroundColor: Colors.black87,
         ),
       ),
-      themeMode: ThemeMode.light,
       home: isFirstLaunch ? const OnboardingScreen() : const MainScreen(),
     );
   }

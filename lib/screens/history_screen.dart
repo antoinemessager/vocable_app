@@ -49,8 +49,9 @@ class HistoryScreenState extends State<HistoryScreen>
     final difference = now.difference(date);
 
     if (difference.inSeconds < 5) return 'maintenant';
-    if (difference.inMinutes < 1)
+    if (difference.inMinutes < 1) {
       return 'il y a ${difference.inSeconds} secondes';
+    }
     if (difference.inHours < 1) {
       final minutes = difference.inMinutes;
       return 'il y a $minutes ${minutes == 1 ? 'minute' : 'minutes'}';
@@ -121,7 +122,7 @@ class HistoryScreenState extends State<HistoryScreen>
         padding: const EdgeInsets.only(
           left: 16,
           right: 16,
-          top: 60,
+          top: 40,
           bottom: 16,
         ),
         itemCount: _studyHistory.length + 1,
@@ -164,6 +165,7 @@ class HistoryScreenState extends State<HistoryScreen>
 
           final word = _studyHistory[index - 1];
           return Card(
+            color: Colors.grey[100],
             margin: const EdgeInsets.only(bottom: 12),
             child: InkWell(
               onTap: () => _showLevelSelector(word),

@@ -71,7 +71,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.only(
           left: 16,
           right: 16,
-          top: 60,
+          top: 40,
           bottom: 16,
         ),
         children: [
@@ -109,20 +109,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Objectif quotidien'),
-            subtitle: Text('$_dailyWordGoal mots par jour'),
-            leading: const Icon(Icons.flag),
+            title: const Text('Objectif quotidien',
+                style: TextStyle(color: Colors.black87)),
+            subtitle: Text('$_dailyWordGoal mots par jour',
+                style: const TextStyle(color: Colors.black45)),
+            leading: const Icon(Icons.flag, color: Colors.black87),
             onTap: _showDailyGoalDialog,
           ),
           ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Notifications'),
+            leading: const Icon(Icons.notifications, color: Colors.black87),
+            title: const Text('Notifications',
+                style: TextStyle(color: Colors.black87)),
             onTap: _showNotificationSettings,
-            subtitle: Text(_notificationsEnabled ? 'Activées' : 'Désactivées'),
+            subtitle: Text(_notificationsEnabled ? 'Activées' : 'Désactivées',
+                style: const TextStyle(color: Colors.black45)),
           ),
           ListTile(
-            leading: const Icon(Icons.quiz),
-            title: const Text('Repasser l\'évaluation'),
+            leading: const Icon(Icons.quiz, color: Colors.black87),
+            title: const Text('Repasser l\'évaluation',
+                style: TextStyle(color: Colors.black87)),
             onTap: () {
               Navigator.push(
                 context,
@@ -133,8 +138,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           ListTile(
-            title: const Text('Centre d\'aide'),
-            leading: const Icon(Icons.help),
+            title: const Text('Centre d\'aide',
+                style: TextStyle(color: Colors.black87)),
+            leading: const Icon(Icons.help, color: Colors.black87),
             onTap: () {
               Navigator.push(
                 context,
@@ -145,9 +151,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           ListTile(
-            title: const Text('Message de confirmation'),
-            subtitle: Text(_showTooEasyDialog ? 'Activé' : 'Désactivé'),
-            leading: const Icon(Icons.warning_amber_rounded),
+            title: const Text('Message de confirmation',
+                style: TextStyle(color: Colors.black87)),
+            subtitle: Text(_showTooEasyDialog ? 'Activé' : 'Désactivé',
+                style: const TextStyle(color: Colors.black45)),
+            leading:
+                const Icon(Icons.warning_amber_rounded, color: Colors.black87),
             onTap: () => TooEasySettingsDialog.show(context)
                 .then((_) => _loadPreferences()),
           ),

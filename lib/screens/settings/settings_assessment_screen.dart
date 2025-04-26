@@ -172,11 +172,7 @@ class _SettingsAssessmentScreenState extends State<SettingsAssessmentScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => const SettingsScreen(),
-            ),
-          ),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           "Découvrons ton niveau",

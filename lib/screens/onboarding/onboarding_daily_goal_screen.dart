@@ -11,7 +11,7 @@ class OnboardingDailyGoalScreen extends StatefulWidget {
 }
 
 class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
-  int _selectedGoal = 10;
+  int _selectedGoal = 5;
 
   @override
   void initState() {
@@ -22,7 +22,7 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _selectedGoal = prefs.getInt('daily_word_goal') ?? 10;
+      _selectedGoal = prefs.getInt('daily_word_goal') ?? 5;
     });
     await prefs.setInt('daily_word_goal', _selectedGoal);
   }
@@ -59,7 +59,7 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -70,7 +70,7 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
                     color: Colors.grey,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 // Goal Options
                 _buildGoalOption(
                   value: 3,
