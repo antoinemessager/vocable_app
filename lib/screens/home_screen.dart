@@ -53,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
       // Vérifier si l'utilisateur vient de dépasser 100% de son objectif pour la première fois
       final bool hasJustExceededGoal =
           _previousProgress < _dailyWordGoal && todayProgress >= _dailyWordGoal;
-      final bool isFirstTime = await _preferencesService.getIsFirstTimeGoal();
 
       setState(() {
         _currentWord = nextWord;
@@ -62,9 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
         _dayStreak = dayStreak;
         _totalMasteredWords = totalMasteredWords;
         _isLoading = false;
-        if (hasJustExceededGoal && isFirstTime) {
+        _showGoalAchieved = false;
+        if (hasJustExceededGoal) {
           _showGoalAchieved = true;
-          _preferencesService.setIsFirstTimeGoal(false);
         }
       });
 

@@ -147,6 +147,7 @@ class NotificationService {
         ongoing: false,
         autoCancel: true,
         styleInformation: DefaultStyleInformation(true, true),
+        largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
       );
 
       await _notifications.zonedSchedule(
