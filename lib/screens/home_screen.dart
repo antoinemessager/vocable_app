@@ -27,11 +27,198 @@ class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey _streakKey = GlobalKey();
   double _previousProgress = 0.0;
   bool _showGoalAchieved = false;
+  bool _hasShownHelp = false;
+  bool _hasShownFirstPopup = false;
 
   @override
   void initState() {
     super.initState();
     _loadContent();
+    _checkFirstTimeHelp();
+  }
+
+  Future<void> _checkFirstTimeHelp() async {
+    _hasShownHelp = await _preferencesService.getHasShownHelp();
+  }
+
+  void _showFirstCardHelp() {
+    if (!_hasShownHelp) {
+      _hasShownFirstPopup = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.lightbulb_outline, color: Colors.amber[700], size: 28),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Comment cela fonctionne ?',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: const SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Regarde le mot en français et essaye de penser à sa traduction en espagnol. '
+                  'Une fois que tu as une réponse en tête, appuie sur "Afficher la traduction" pour voir la réponse correcte.',
+                  style: TextStyle(fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blue,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: const Text('Compris'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _showAnswerHelp() {
+    if (!_hasShownHelp && _hasShownFirstPopup) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(32),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+          title: Row(
+            children: [
+              Icon(Icons.psychology_outlined, color: Colors.blue, size: 28),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Comment évaluer ta réponse?',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Compare ta réponse avec la traduction affichée :',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 12),
+                _buildHelpItem(
+                  icon: Icons.double_arrow,
+                  color: Colors.grey[700]!,
+                  title: 'Déjà vu',
+                  description:
+                      'Le bouton "Déjà vu" s\'affiche uniquement la première fois que tu vois le mot. Si tu connais bien le mot et n\'as pas d\'hésitation, clique sur "Déjà vu". Le mot rentrera dans la liste des mots maîtrisés et tu ne le verras plus.',
+                ),
+                const SizedBox(height: 8),
+                _buildHelpItem(
+                  icon: Icons.check,
+                  color: Colors.green[700]!,
+                  title: 'Correct',
+                  description:
+                      'Lors de la première présentation du mot, si tu connais le mot mais que tu souhaites continuer à revoir le mot, clique sur "Correct". Il te sera représenté dans 1h, 1 jour, 3 jours ou 7 jours (en fonction de ton niveau de maîtrise).',
+                ),
+                const SizedBox(height: 8),
+                _buildHelpItem(
+                  icon: Icons.close,
+                  color: Colors.red[700]!,
+                  title: 'Incorrect',
+                  description:
+                      'Si tu t\'es trompé, clique sur "Incorrect". Le mot te sera représenté rapidement.',
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _preferencesService.setHasShownHelp(true);
+                _hasShownHelp = true;
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blue,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: const Text('Compris'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Widget _buildHelpItem({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String description,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            description,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _loadContent() async {
@@ -70,6 +257,11 @@ class _HomeScreenState extends State<HomeScreen> {
       // Sauvegarder la nouvelle valeur de progression
       await _preferencesService.setPreviousProgress(todayProgress);
       _previousProgress = todayProgress;
+
+      // Afficher le premier pop-up d'aide si nécessaire
+      if (!_hasShownHelp && _currentWord != null) {
+        _showFirstCardHelp();
+      }
     } catch (e) {
       print('Erreur lors du chargement du contenu : $e');
       setState(() {
@@ -334,6 +526,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       isTooEasy: true,
                                     );
                                     _getNextWord();
+                                  },
+                                  onShowTranslation: () {
+                                    _showAnswerHelp();
                                   },
                                 ),
                               ),

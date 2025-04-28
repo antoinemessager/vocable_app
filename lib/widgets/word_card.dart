@@ -8,12 +8,14 @@ class WordCard extends StatefulWidget {
   final WordPair word;
   final Function(bool) onAnswer;
   final VoidCallback onTooEasy;
+  final VoidCallback? onShowTranslation;
 
   const WordCard({
     super.key,
     required this.word,
     required this.onAnswer,
     required this.onTooEasy,
+    this.onShowTranslation,
   });
 
   @override
@@ -108,7 +110,10 @@ class _WordCardState extends State<WordCard> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _toggleReveal,
+                      onPressed: () {
+                        _toggleReveal();
+                        widget.onShowTranslation?.call();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,

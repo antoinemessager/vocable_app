@@ -11,6 +11,7 @@ class PreferencesService {
   static const String _notificationsEnabledKey = 'notifications_enabled';
   static const String _notificationHourKey = 'notification_hour';
   static const String _notificationMinuteKey = 'notification_minute';
+  static const String _hasShownHelpKey = 'has_shown_help';
 
   Future<int> getDailyWordGoal() async {
     final prefs = await SharedPreferences.getInstance();
@@ -75,5 +76,15 @@ class PreferencesService {
   Future<void> setPreviousProgress(double progress) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('previous_progress', progress);
+  }
+
+  Future<bool> getHasShownHelp() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_hasShownHelpKey) ?? false;
+  }
+
+  Future<void> setHasShownHelp(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hasShownHelpKey, value);
   }
 }
