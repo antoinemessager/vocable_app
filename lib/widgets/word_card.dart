@@ -36,13 +36,16 @@ class _WordCardState extends State<WordCard> {
     final hideDialog = prefs.getBool('hide_too_easy_dialog') ?? false;
 
     if (!hideDialog) {
-      final shouldMarkTooEasy = await TooEasyDialog.show(context);
+      final shouldMarkTooEasy = await TooEasyDialog.show(
+        context,
+        onTooEasy: widget.onTooEasy,
+      );
       if (shouldMarkTooEasy != true) {
         return;
       }
+    } else {
+      widget.onTooEasy();
     }
-
-    widget.onTooEasy();
   }
 
   @override

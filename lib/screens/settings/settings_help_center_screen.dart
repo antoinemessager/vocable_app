@@ -149,7 +149,7 @@ class SettingsHelpCenterScreen extends StatelessWidget {
             width: 8,
             height: 8,
             margin: const EdgeInsets.only(top: 8),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.blue,
               shape: BoxShape.circle,
             ),

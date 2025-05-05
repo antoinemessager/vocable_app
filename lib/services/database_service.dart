@@ -332,6 +332,7 @@ class DatabaseService {
 
   Future<int> getTotalMasteredWords() async {
     final db = await database;
+
     final result = await db.rawQuery('''
       WITH LatestTimestamp AS (
           SELECT word_id, MAX(timestamp) AS max_timestamp
@@ -402,12 +403,12 @@ class DatabaseService {
       JOIN (select * from EntryCounts where nb_entries>1) ec ON up.word_id = ec.word_id
       ), CEFRCounts AS (
         SELECT
-          coalesce(SUM(box_level)/5, 0) as a1_count,
-          coalesce(SUM(box_level)/5, 0) as a2_count,
-          coalesce(SUM(box_level)/5, 0) as b1_count,
-          coalesce(SUM(box_level)/5, 0) as b2_count,
-          coalesce(SUM(box_level)/5, 0) as c1_count,
-          coalesce(SUM(box_level)/5, 0) as c2_count
+          coalesce(SUM(case when word_id <= 250 then box_level else 0 end)/5, 0) as a1_count,
+          coalesce(SUM(case when word_id > 250 and word_id <= 750 then box_level else 0 end)/5, 0) as a2_count,
+          coalesce(SUM(case when word_id > 750 and word_id <= 1500 then box_level else 0 end)/5, 0) as b1_count,
+          coalesce(SUM(case when word_id > 1500 and word_id <= 2750 then box_level else 0 end)/5, 0) as b2_count,
+          coalesce(SUM(case when word_id > 2750 and word_id <= 5000 then box_level else 0 end)/5, 0) as c1_count,
+          coalesce(SUM(case when word_id > 5000 then box_level else 0 end)/5, 0) as c2_count
         FROM (select * from LatestInfo where rn=1)
       )
       SELECT * FROM CEFRCounts

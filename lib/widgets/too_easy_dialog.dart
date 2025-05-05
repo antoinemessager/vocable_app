@@ -9,10 +9,11 @@ class TooEasyDialog extends StatelessWidget {
     required this.onTooEasy,
   });
 
-  static Future<bool?> show(BuildContext context) async {
+  static Future<bool?> show(BuildContext context,
+      {required VoidCallback onTooEasy}) async {
     return showDialog<bool>(
       context: context,
-      builder: (context) => TooEasyDialog(onTooEasy: () {}),
+      builder: (context) => TooEasyDialog(onTooEasy: onTooEasy),
     );
   }
 
@@ -104,7 +105,7 @@ class TooEasyDialog extends StatelessWidget {
         Row(
           children: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(context).pop(false),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -124,7 +125,7 @@ class TooEasyDialog extends StatelessWidget {
             TextButton(
               onPressed: () {
                 onTooEasy();
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
               },
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(

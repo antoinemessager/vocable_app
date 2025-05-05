@@ -77,7 +77,7 @@ class _SettingsAssessmentScreenState extends State<SettingsAssessmentScreen> {
         _showTranslation = false;
       } else {
         // L'utilisateur a terminé les 10 mots de ce niveau
-        if (_errCount >= 2) {
+        if (_errCount >= 4) {
           // Si l'utilisateur a répondu "Non" une fois ou "Je l'ai déjà vu" deux fois
           _finalLevel = _currentLevel;
           _showConclusionAndFinish();
