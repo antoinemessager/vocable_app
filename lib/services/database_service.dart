@@ -65,8 +65,32 @@ class DatabaseService {
       )
     ''');
 
-    // Load initial vocabulary data from JSON file
+    // Create verb table
+    await db.execute('''
+      CREATE TABLE verb (
+        verb_id INTEGER NOT NULL,
+        verb TEXT NOT NULL,
+        tense TEXT NOT NULL,
+        conjugation TEXT NOT NULL,
+        PRIMARY KEY (verb_id, tense)
+      )
+    ''');
+
+    // Create user progress verb table
+    await db.execute('''
+      CREATE TABLE user_progress_verb (
+        verb_id INTEGER NOT NULL,
+        box_level INTEGER NOT NULL,
+        timestamp TEXT NOT NULL,
+        FOREIGN KEY (verb_id) REFERENCES verb (verb_id)
+      )
+    ''');
+
+    // Load initial vocabulary data from JSON files
     final List<WordPair> wordPairs = await readJsonFromAssets();
+    print(wordPairs.length);
+    final List<Map<String, dynamic>> verbs = await readVerbsFromAssets();
+    print(verbs.length);
     final batch = db.batch();
 
     // Insert vocabulary words
@@ -89,6 +113,48 @@ class DatabaseService {
       });
     }
 
+    // Insert verbs
+    for (var verb in verbs) {
+      final verbId = verb['verb_id'] as int;
+      final verbText = verb['verb'] as String;
+
+      // Insert each tense as a separate row
+      final tenses = {
+        'présent': verb['present'],
+        'passé composé': verb['passe_compose'],
+        'futur': verb['futur'],
+        'futur antérieur': verb['futur_anterieur'],
+        'imparfait': verb['imparfait'],
+        'plus que parfait': verb['plus_que_parfait'],
+        'passé simple': verb['passe_simple'],
+        'passé antérieur': verb['passe_anterieur'],
+        'conditionnel présent': verb['conditionnel_present'],
+        'conditionnel passé': verb['conditionnel_passe'],
+        'subjonctif présent': verb['subjonctif_present'],
+        'subjonctif passé': verb['subjonctif_passe'],
+        'impératif': verb['imperatif'],
+        'impératif négatif': verb['imperatif_negatif'],
+      };
+
+      for (var entry in tenses.entries) {
+        batch.insert('verb', {
+          'verb_id': verbId,
+          'verb': verbText,
+          'tense': entry.key,
+          'conjugation': entry.value,
+        });
+      }
+    }
+
+    // Initialize user_progress_verb for all verbs with box_level 0
+    for (var verb in verbs) {
+      batch.insert('user_progress_verb', {
+        'verb_id': verb['verb_id'],
+        'box_level': 0,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    }
+
     await batch.commit(noResult: true);
   }
 
@@ -97,24 +163,122 @@ class DatabaseService {
       'assets/words.json',
     );
 
-    final Map<String, dynamic> jsonData = jsonDecode(jsonString);
-
+    final List<dynamic> jsonData = jsonDecode(jsonString);
     List<WordPair> wordPairs = [];
-    jsonData.forEach((key, value) {
+
+    for (var entry in jsonData) {
       wordPairs.add(
         WordPair(
-          word_id: value['rank'] ?? 0,
-          word_es: value['es_word'] ?? 'ERROR',
-          word_fr: value['fr_word'] ?? 'ERROR',
-          es_sentence: value['es_sentence'] ?? '',
-          fr_sentence: value['fr_sentence'] ?? '',
+          word_id: entry['id'] as int,
+          word_es: entry['mot_esp'] as String,
+          word_fr: entry['mot_fr'] as String,
+          es_sentence: entry['phrase_esp'] as String,
+          fr_sentence: entry['phrase_fr'] as String,
         ),
       );
-    });
+    }
 
     wordPairs.sort((a, b) => a.word_id.compareTo(b.word_id));
 
     return wordPairs;
+  }
+
+  Future<List<Map<String, dynamic>>> readVerbsFromAssets() async {
+    final String jsonString = await rootBundle.loadString(
+      'assets/verbes.json',
+    );
+
+    final List<dynamic> jsonData = jsonDecode(jsonString);
+    final List<Map<String, dynamic>> verbs = [];
+    final Map<int, Map<String, dynamic>> verbMap = {};
+
+    // First pass: group conjugations by verb
+    for (var entry in jsonData) {
+      final verb = entry['Verbes'] as String;
+      final tense = entry['Temps'] as String;
+      final conjugation = entry['Conjugaison'] as String;
+
+      // Find or create verb entry
+      int verbId = verbMap.keys.firstWhere(
+        (id) => verbMap[id]!['verb'] == verb,
+        orElse: () {
+          final newId = verbMap.length;
+          verbMap[newId] = {
+            'verb_id': newId,
+            'verb': verb,
+            'present': '',
+            'passe_compose': '',
+            'futur': '',
+            'futur_anterieur': '',
+            'imparfait': '',
+            'plus_que_parfait': '',
+            'passe_simple': '',
+            'passe_anterieur': '',
+            'conditionnel_present': '',
+            'conditionnel_passe': '',
+            'subjonctif_present': '',
+            'subjonctif_passe': '',
+            'imperatif': '',
+            'imperatif_negatif': '',
+          };
+          return newId;
+        },
+      );
+
+      // Map tense names to database fields
+      String fieldName;
+      switch (tense) {
+        case 'Présent':
+          fieldName = 'present';
+          break;
+        case 'Passé Composé':
+          fieldName = 'passe_compose';
+          break;
+        case 'Futur':
+          fieldName = 'futur';
+          break;
+        case 'Futur Antérieur':
+          fieldName = 'futur_anterieur';
+          break;
+        case 'Imparfait':
+          fieldName = 'imparfait';
+          break;
+        case 'Plus que Parfait':
+          fieldName = 'plus_que_parfait';
+          break;
+        case 'Passé Simple':
+          fieldName = 'passe_simple';
+          break;
+        case 'Passé Antérieur':
+          fieldName = 'passe_anterieur';
+          break;
+        case 'Conditionnel Présent':
+          fieldName = 'conditionnel_present';
+          break;
+        case 'Conditionnel Passé':
+          fieldName = 'conditionnel_passe';
+          break;
+        case 'Subjonctif Présent':
+          fieldName = 'subjonctif_present';
+          break;
+        case 'Subjonctif Passé':
+          fieldName = 'subjonctif_passe';
+          break;
+        case 'Impératif':
+          fieldName = 'imperatif';
+          break;
+        case 'Impératif Négatif':
+          fieldName = 'imperatif_negatif';
+          break;
+        default:
+          continue; // Skip unknown tenses
+      }
+
+      verbMap[verbId]![fieldName] = conjugation;
+    }
+
+    // Convert map to list
+    return verbMap.values.toList();
   }
 
   // Record a new progress entry
@@ -534,8 +698,203 @@ class DatabaseService {
 
     final int startCount = wordsBeforeStart.first['learned_words'] as int;
     final int endCount = wordsBeforeEnd.first['learned_words'] as int;
-
     // Calculate progress (difference in number of words learned)
     return (endCount - startCount).toDouble() / 5;
+  }
+
+  // Get words for a specific CEFR level
+  Future<List<Map<String, dynamic>>> getWordsForCEFRLevel(String level) async {
+    final db = await database;
+
+    // Get the user's current level from preferences
+    final prefs = await SharedPreferences.getInstance();
+    final startingLevel = prefs.getString('starting_level') ?? 'A1';
+
+    // Define level order for comparison
+    final levelOrder = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    final currentLevelIndex = levelOrder.indexOf(startingLevel);
+    final requestedLevelIndex = levelOrder.indexOf(level);
+
+    // Define the word ID ranges for each CEFR level
+    final levelRanges = {
+      'A1': {'start': 1, 'end': 250},
+      'A2': {'start': 251, 'end': 750},
+      'B1': {'start': 751, 'end': 1500},
+      'B2': {'start': 1501, 'end': 2750},
+      'C1': {'start': 2751, 'end': 5000},
+      'C2': {'start': 5001, 'end': 10000},
+    };
+
+    final range = levelRanges[level]!;
+
+    final List<Map<String, dynamic>> results = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT 
+          word_id,
+          box_level,
+          MAX(timestamp) as latest_timestamp
+        FROM user_progress
+        GROUP BY word_id
+      )
+      SELECT 
+        v.id as word_id,
+        v.french_word,
+        v.spanish_word,
+        v.french_context,
+        v.spanish_context,
+        CASE 
+          WHEN ? > ? THEN 5  -- If the requested level is below starting level, mark as known
+          ELSE COALESCE(lp.box_level, 0)
+        END as box_level
+      FROM vocabulary v
+      LEFT JOIN LatestProgress lp ON v.id = lp.word_id
+      WHERE v.id BETWEEN ? AND ?
+      ORDER BY v.id
+    ''',
+        [currentLevelIndex, requestedLevelIndex, range['start'], range['end']]);
+
+    return results;
+  }
+
+  Future<Map<String, dynamic>> getRandomVerb() async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT
+          verb_id,
+          box_level,
+          MAX(timestamp) AS latest_timestamp,
+          COUNT(*) AS nb_time_seen
+        FROM user_progress_verb
+        GROUP BY verb_id
+      )
+      SELECT 
+        v.verb_id,
+        v.verb,
+        v.tense,
+        v.conjugation,
+        COALESCE(lp.box_level, 0) as box_level,
+        COALESCE(lp.nb_time_seen, 0) as nb_time_seen
+      FROM verb v
+      LEFT JOIN LatestProgress lp ON v.verb_id = lp.verb_id
+      ORDER BY RANDOM()
+      LIMIT 1
+    ''');
+
+    if (result.isEmpty) {
+      return {
+        'verb': '',
+        'tense': '',
+        'conjugation': '',
+        'verb_id': 0,
+        'nb_time_seen': 0
+      };
+    }
+    return {
+      'verb': result.first['verb'] as String,
+      'tense': result.first['tense'] as String,
+      'conjugation': result.first['conjugation'] as String,
+      'verb_id': result.first['verb_id'] as int,
+      'nb_time_seen': result.first['nb_time_seen'] as int,
+    };
+  }
+
+  Future<double> getVerbProgress() async {
+    final db = await database;
+
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+
+    // Get the number of verbs learned before start of day
+    final verbsBeforeStart = await db.rawQuery('''
+      WITH EntryCounts AS (
+          SELECT 
+            verb_id, 
+            COUNT(*) AS nb_entries, 
+            MAX(timestamp) AS max_timestamp
+          FROM user_progress_verb
+          WHERE timestamp < ?
+          GROUP BY verb_id
+      ), LatestInfo AS (
+      SELECT 
+          up.verb_id,
+          up.box_level,
+          up.timestamp,
+          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
+      FROM user_progress_verb up
+      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.verb_id = ec.verb_id
+      )
+      SELECT coalesce(sum(box_level), 0) as learned_verbs
+      FROM LatestInfo 
+      where rn=1 and (box_level!=5 or nb_entries>2)
+    ''', [startOfDay.toIso8601String()]);
+
+    // Get the number of verbs learned before now
+    final verbsBeforeNow = await db.rawQuery('''
+      WITH EntryCounts AS (
+          SELECT 
+            verb_id, 
+            COUNT(*) AS nb_entries, 
+            MAX(timestamp) AS max_timestamp
+          FROM user_progress_verb
+          WHERE timestamp < ?
+          GROUP BY verb_id
+      ), LatestInfo AS (
+      SELECT 
+          up.verb_id,
+          up.box_level,
+          up.timestamp,
+          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
+      FROM user_progress_verb up
+      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.verb_id = ec.verb_id
+      )
+      SELECT coalesce(sum(box_level), 0) as learned_verbs
+      FROM LatestInfo 
+      where rn=1 and (box_level!=5 or nb_entries>2)
+    ''', [now.toIso8601String()]);
+
+    final int startCount = verbsBeforeStart.first['learned_verbs'] as int;
+    final int nowCount = verbsBeforeNow.first['learned_verbs'] as int;
+
+    // Calculate today's progress (difference in number of verbs learned)
+
+    return (nowCount - startCount).toDouble() / 5;
+  }
+
+  Future<void> recordVerbProgress(int verbId,
+      {bool isCorrect = true, bool isTooEasy = false}) async {
+    final db = await database;
+    final currentLevel = await getVerbBoxLevel(verbId);
+
+    int newLevel;
+    if (isTooEasy) {
+      newLevel = 5; // Verbe considéré comme acquis
+    } else if (isCorrect) {
+      newLevel = currentLevel + 1;
+    } else {
+      newLevel = 0; // Retour au début si incorrect
+    }
+
+    await db.insert('user_progress_verb', {
+      'verb_id': verbId,
+      'box_level': newLevel,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<int> getVerbBoxLevel(int verbId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.query(
+      'user_progress_verb',
+      where: 'verb_id = ?',
+      whereArgs: [verbId],
+      orderBy: 'timestamp DESC',
+      limit: 1,
+    );
+
+    if (result.isEmpty) return 0;
+    return result.first['box_level'] as int;
   }
 }

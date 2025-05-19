@@ -51,14 +51,14 @@ class _MainScreenState extends State<MainScreen> {
         ),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined, color: Colors.black87),
-            selectedIcon: Icon(Icons.home, color: Colors.black87),
-            label: 'Accueil',
+            icon: Icon(Icons.menu_book_outlined, color: Colors.black87),
+            selectedIcon: Icon(Icons.menu_book, color: Colors.black87),
+            label: 'Vocabulaire',
           ),
           NavigationDestination(
-            icon: Icon(Icons.history_outlined, color: Colors.black87),
-            selectedIcon: Icon(Icons.history, color: Colors.black87),
-            label: 'Historique',
+            icon: Icon(Icons.edit_note_outlined, color: Colors.black87),
+            selectedIcon: Icon(Icons.edit_note, color: Colors.black87),
+            label: 'Conjugaison',
           ),
           NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined, color: Colors.black87),

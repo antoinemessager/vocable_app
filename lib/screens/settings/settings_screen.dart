@@ -6,6 +6,7 @@ import 'settings_help_center_screen.dart';
 import 'settings_daily_goal_screen.dart';
 import 'settings_notification_time_screen.dart';
 import 'settings_assessment_screen.dart';
+import 'settings_verb_tenses_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -44,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _showDailyGoalDialog() async {
     final result = await Navigator.of(context).push<int>(
       MaterialPageRoute(
-        builder: (context) => const DailyGoalScreen(),
+        builder: (context) => const SettingsDailyGoalScreen(),
       ),
     );
 
@@ -115,6 +116,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: const TextStyle(color: Colors.black45)),
             leading: const Icon(Icons.flag, color: Colors.black87),
             onTap: _showDailyGoalDialog,
+          ),
+          ListTile(
+            title: const Text('Temps verbaux',
+                style: TextStyle(color: Colors.black87)),
+            subtitle: const Text('Sélectionner les temps à apprendre',
+                style: TextStyle(color: Colors.black45)),
+            leading: const Icon(Icons.access_time, color: Colors.black87),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsVerbTensesScreen(),
+                ),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.notifications, color: Colors.black87),

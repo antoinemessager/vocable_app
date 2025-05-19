@@ -1,237 +1,170 @@
 import 'package:flutter/material.dart';
+import '../widgets/verb_card.dart';
 import '../services/database_service.dart';
-import '../widgets/level_selector_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
   @override
-  State<HistoryScreen> createState() => HistoryScreenState();
+  State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class HistoryScreenState extends State<HistoryScreen>
-    with AutomaticKeepAliveClientMixin {
-  List<Map<String, dynamic>> _studyHistory = [];
-  bool _isLoading = true;
-
-  @override
-  bool get wantKeepAlive => true;
+class _HistoryScreenState extends State<HistoryScreen> {
+  final DatabaseService _databaseService = DatabaseService.instance;
+  Map<String, dynamic> _currentVerb = {
+    'verb': '',
+    'tense': '',
+    'conjugation': '',
+    'verb_id': 0,
+    'nb_time_seen': 0
+  };
+  int _dailyGoal = 5;
+  double _todayProgress = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _loadContent();
+    _loadRandomVerb();
+    _loadProgress();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadContent();
-  }
-
-  Future<void> _loadContent() async {
-    try {
-      setState(() => _isLoading = true);
-      final studyHistory = await DatabaseService.instance.getLastStudiedWords();
+  Future<void> _loadRandomVerb() async {
+    final verb = await _databaseService.getRandomVerb();
+    if (mounted) {
       setState(() {
-        _studyHistory = studyHistory;
-        _isLoading = false;
+        _currentVerb = verb;
       });
-    } catch (e) {
-      print('Erreur lors du chargement du contenu : $e');
-      setState(() => _isLoading = false);
     }
   }
 
-  String _getTimeAgo(String timestamp) {
-    final now = DateTime.now();
-    final date = DateTime.parse(timestamp);
-    final difference = now.difference(date);
-
-    if (difference.inSeconds < 5) return 'maintenant';
-    if (difference.inMinutes < 1) {
-      return 'il y a ${difference.inSeconds} secondes';
-    }
-    if (difference.inHours < 1) {
-      final minutes = difference.inMinutes;
-      return 'il y a $minutes ${minutes == 1 ? 'minute' : 'minutes'}';
-    }
-    if (difference.inDays < 1) {
-      final hours = difference.inHours;
-      return 'il y a $hours ${hours == 1 ? 'heure' : 'heures'}';
-    }
-    if (difference.inDays < 7) {
-      final days = difference.inDays;
-      return 'il y a $days ${days == 1 ? 'jour' : 'jours'}';
-    }
-    if (difference.inDays < 30) {
-      final weeks = (difference.inDays / 7).floor();
-      return 'il y a $weeks ${weeks == 1 ? 'semaine' : 'semaines'}';
-    }
-    if (difference.inDays < 365) {
-      final months = (difference.inDays / 30).floor();
-      return 'il y a $months ${months == 1 ? 'mois' : 'mois'}';
-    }
-    final years = (difference.inDays / 365).floor();
-    return 'il y a $years ${years == 1 ? 'an' : 'ans'}';
-  }
-
-  Future<void> _showLevelSelector(Map<String, dynamic> word) async {
-    await showDialog(
-      context: context,
-      builder: (context) => LevelSelectorDialog(
-        word: word,
-        onLevelChanged: _loadContent,
-      ),
-    );
-  }
-
-  String _getLevelText(int boxLevel) {
-    switch (boxLevel) {
-      case 1:
-        return 'Niveau 1';
-      case 2:
-        return 'Niveau 2';
-      case 3:
-        return 'Niveau 3';
-      case 4:
-        return 'Niveau 4';
-      case >= 5:
-        return 'Connu';
-      default:
-        return 'Inconnu';
+  Future<void> _loadProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final dailyGoal = prefs.getInt('daily_verb_goal') ?? 5;
+    final progress = await _databaseService.getVerbProgress();
+    print(progress);
+    print(dailyGoal);
+    if (mounted) {
+      setState(() {
+        _dailyGoal = dailyGoal;
+        _todayProgress = progress;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    final hasCompletedDailyGoal = _todayProgress >= _dailyGoal;
+    final progressPercentage = ((_todayProgress / _dailyGoal) * 100).round();
+    final progressValue = _todayProgress / _dailyGoal;
 
-    if (_studyHistory.isEmpty) {
-      return const Center(
-        child: Text('Aucun historique d\'étude pour le moment'),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadContent,
-      child: ListView.builder(
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 40,
-          bottom: 16,
-        ),
-        itemCount: _studyHistory.length + 1,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return Container(
+    return Scaffold(
+      body: Column(
+        children: [
+          const SizedBox(height: 40),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
               margin: const EdgeInsets.only(bottom: 24),
-              child: Row(
+              child: Column(
                 children: [
-                  const Icon(
-                    Icons.visibility,
-                    color: Colors.blue,
-                    size: 32,
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      Text(
-                        'Mots Découverts',
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                      Icon(
+                        Icons.emoji_events,
+                        color: Colors.amber[700],
+                        size: 32,
                       ),
-                      Text(
-                        '${_studyHistory.length} mots',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Progression",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            Text(
+                              '$progressPercentage%',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: hasCompletedDailyGoal
+                                        ? Colors.green
+                                        : Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: LinearProgressIndicator(
+                        value: progressValue,
+                        minHeight: 16,
+                        backgroundColor: Colors.transparent,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          hasCompletedDailyGoal ? Colors.green : Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            );
-          }
-
-          final word = _studyHistory[index - 1];
-          return Card(
-            color: Colors.grey[100],
-            margin: const EdgeInsets.only(bottom: 12),
-            child: InkWell(
-              onTap: () => _showLevelSelector(word),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          word['french_word'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                          ),
-                        ),
-                        Text(
-                          word['spanish_word'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 18,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Vu ${_getTimeAgo(word['timestamp'])}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            _getLevelText(word['box_level']),
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
             ),
-          );
-        },
+          ),
+          Expanded(
+            child: _currentVerb['verb']!.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    child: VerbCard(
+                      verb: _currentVerb['verb']!,
+                      tense: _currentVerb['tense']!,
+                      conjugation: _currentVerb['conjugation']!,
+                      verb_id: _currentVerb['verb_id']!,
+                      nbTimeSeen: _currentVerb['nb_time_seen']!,
+                      onShowConjugation: () {
+                        // TODO: Show conjugation details
+                      },
+                      onCorrect: (isCorrect) async {
+                        await _loadRandomVerb();
+                        await _loadProgress();
+                      },
+                      onIncorrect: (isCorrect) async {
+                        await _loadRandomVerb();
+                        await _loadProgress();
+                      },
+                      onAlreadyKnown: (isTooEasy) async {
+                        await _loadRandomVerb();
+                        await _loadProgress();
+                      },
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }
