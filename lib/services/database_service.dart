@@ -484,7 +484,7 @@ class DatabaseService {
     return streak;
   }
 
-  Future<int> getTotalMasteredWords() async {
+  Future<double> getTotalMasteredWords() async {
     final db = await database;
 
     final result = await db.rawQuery('''
@@ -492,28 +492,21 @@ class DatabaseService {
           SELECT word_id, MAX(timestamp) AS max_timestamp
           FROM user_progress
           GROUP BY word_id
-      ), EntryCounts AS (
-          SELECT word_id, COUNT(*) AS nb_entries
-          FROM user_progress
-          GROUP BY word_id
       ), LatestTimestampEntries AS (
       SELECT 
           up.word_id,
           up.box_level,
           up.timestamp,
-          CASE WHEN up.timestamp = lt.max_timestamp THEN 1 ELSE 2 END AS rn,
-          ec.nb_entries
+          CASE WHEN up.timestamp = lt.max_timestamp THEN 1 ELSE 2 END AS rn
       FROM user_progress up
       JOIN LatestTimestamp lt ON up.word_id = lt.word_id
-      JOIN EntryCounts ec ON up.word_id = ec.word_id
       )
-      SELECT count(*) as count
+      SELECT sum(box_level) as nb_word_mastered
       FROM LatestTimestampEntries
-      WHERE nb_entries >= 3
-        AND box_level >= 5
-        AND rn = 1
+      WHERE rn = 1
     ''');
-    return result.first['count'] as int;
+
+    return (result.first['nb_word_mastered'] as int) / 5;
   }
 
   Future<int> getTotalStudiedWords() async {

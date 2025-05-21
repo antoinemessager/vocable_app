@@ -37,11 +37,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
       DatabaseService.instance.getCEFRProgress(),
     ]);
 
-    final totalMastered = stats[0] as int;
+    final totalMastered = stats[0] as double;
     final Map<String, double> cefrPercentages = stats[2] as Map<String, double>;
 
     setState(() {
-      _totalWords = totalMastered;
+      _totalWords = totalMastered.toInt();
       _dayStreak = stats[1] as int;
 
       _cefrProgress['A1']!['current'] = (cefrPercentages['A1']! * 250).round();

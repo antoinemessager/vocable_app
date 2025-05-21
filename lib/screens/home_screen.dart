@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double _todayProgress = 0.0;
   int _dailyWordGoal = 10;
   int _dayStreak = 0;
-  int _totalMasteredWords = 0;
+  double _totalMasteredWords = 0.0;
   final PreferencesService _preferencesService = PreferencesService();
   bool _showStarAnimation = false;
   int _currentMasteredCount = 0;
@@ -561,7 +561,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           color: Colors.amber, size: 28),
                                       const SizedBox(height: 4),
                                       Text(
-                                        _totalMasteredWords.toString(),
+                                        _totalMasteredWords.toInt().toString(),
                                         style: Theme.of(context)
                                             .textTheme
                                             .titleLarge
