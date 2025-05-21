@@ -3,14 +3,14 @@ import '../widgets/verb_card.dart';
 import '../services/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
+class VerbScreen extends StatefulWidget {
+  const VerbScreen({super.key});
 
   @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
+  State<VerbScreen> createState() => _VerbScreenState();
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
+class _VerbScreenState extends State<VerbScreen> {
   final DatabaseService _databaseService = DatabaseService.instance;
   Map<String, dynamic> _currentVerb = {
     'verb': '',

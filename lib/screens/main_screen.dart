@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'home_screen.dart';
-import 'history_screen.dart';
+import 'verb_screen.dart';
 import 'settings/settings_screen.dart';
 import 'progress_screen.dart';
 
@@ -31,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
         onPageChanged: (index) => setState(() => _currentIndex = index),
         children: const [
           HomeScreen(),
-          HistoryScreen(),
+          VerbScreen(),
           ProgressScreen(),
           SettingsScreen(),
         ],
