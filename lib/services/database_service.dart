@@ -68,11 +68,11 @@ class DatabaseService {
     // Create verb table
     await db.execute('''
       CREATE TABLE verb (
-        verb_id INTEGER NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         verb TEXT NOT NULL,
         tense TEXT NOT NULL,
         conjugation TEXT NOT NULL,
-        PRIMARY KEY (verb_id, tense)
+        UNIQUE(verb, tense)
       )
     ''');
 
@@ -82,15 +82,15 @@ class DatabaseService {
         verb_id INTEGER NOT NULL,
         box_level INTEGER NOT NULL,
         timestamp TEXT NOT NULL,
-        FOREIGN KEY (verb_id) REFERENCES verb (verb_id)
+        FOREIGN KEY (verb_id) REFERENCES verb (id)
       )
     ''');
 
     // Load initial vocabulary data from JSON files
     final List<WordPair> wordPairs = await readJsonFromAssets();
-    print(wordPairs.length);
+
     final List<Map<String, dynamic>> verbs = await readVerbsFromAssets();
-    print(verbs.length);
+
     final batch = db.batch();
 
     // Insert vocabulary words
@@ -115,7 +115,6 @@ class DatabaseService {
 
     // Insert verbs
     for (var verb in verbs) {
-      final verbId = verb['verb_id'] as int;
       final verbText = verb['verb'] as String;
 
       // Insert each tense as a separate row
@@ -127,7 +126,6 @@ class DatabaseService {
         'imparfait': verb['imparfait'],
         'plus que parfait': verb['plus_que_parfait'],
         'passé simple': verb['passe_simple'],
-        'passé antérieur': verb['passe_anterieur'],
         'conditionnel présent': verb['conditionnel_present'],
         'conditionnel passé': verb['conditionnel_passe'],
         'subjonctif présent': verb['subjonctif_present'],
@@ -137,19 +135,22 @@ class DatabaseService {
       };
 
       for (var entry in tenses.entries) {
-        batch.insert('verb', {
-          'verb_id': verbId,
-          'verb': verbText,
-          'tense': entry.key,
-          'conjugation': entry.value,
-        });
+        // Ne pas insérer si la conjugaison est vide ou null
+        if (entry.value != null && entry.value.toString().isNotEmpty) {
+          batch.insert('verb', {
+            'verb': verbText,
+            'tense': entry.key,
+            'conjugation': entry.value,
+          });
+        }
       }
     }
 
     // Initialize user_progress_verb for all verbs with box_level 0
-    for (var verb in verbs) {
+    final List<Map<String, dynamic>> insertedVerbs = await db.query('verb');
+    for (var verb in insertedVerbs) {
       batch.insert('user_progress_verb', {
-        'verb_id': verb['verb_id'],
+        'verb_id': verb['id'],
         'box_level': 0,
         'timestamp': DateTime.now().toIso8601String(),
       });
@@ -190,7 +191,7 @@ class DatabaseService {
 
     final List<dynamic> jsonData = jsonDecode(jsonString);
     final List<Map<String, dynamic>> verbs = [];
-    final Map<int, Map<String, dynamic>> verbMap = {};
+    final Map<String, Map<String, dynamic>> verbMap = {};
 
     // First pass: group conjugations by verb
     for (var entry in jsonData) {
@@ -199,31 +200,24 @@ class DatabaseService {
       final conjugation = entry['Conjugaison'] as String;
 
       // Find or create verb entry
-      int verbId = verbMap.keys.firstWhere(
-        (id) => verbMap[id]!['verb'] == verb,
-        orElse: () {
-          final newId = verbMap.length;
-          verbMap[newId] = {
-            'verb_id': newId,
-            'verb': verb,
-            'present': '',
-            'passe_compose': '',
-            'futur': '',
-            'futur_anterieur': '',
-            'imparfait': '',
-            'plus_que_parfait': '',
-            'passe_simple': '',
-            'passe_anterieur': '',
-            'conditionnel_present': '',
-            'conditionnel_passe': '',
-            'subjonctif_present': '',
-            'subjonctif_passe': '',
-            'imperatif': '',
-            'imperatif_negatif': '',
-          };
-          return newId;
-        },
-      );
+      if (!verbMap.containsKey(verb)) {
+        verbMap[verb] = {
+          'verb': verb,
+          'present': '',
+          'passe_compose': '',
+          'futur': '',
+          'futur_anterieur': '',
+          'imparfait': '',
+          'plus_que_parfait': '',
+          'passe_simple': '',
+          'conditionnel_present': '',
+          'conditionnel_passe': '',
+          'subjonctif_present': '',
+          'subjonctif_passe': '',
+          'imperatif': '',
+          'imperatif_negatif': '',
+        };
+      }
 
       // Map tense names to database fields
       String fieldName;
@@ -243,14 +237,11 @@ class DatabaseService {
         case 'Imparfait':
           fieldName = 'imparfait';
           break;
-        case 'Plus que Parfait':
+        case 'Plus que parfait':
           fieldName = 'plus_que_parfait';
           break;
         case 'Passé Simple':
           fieldName = 'passe_simple';
-          break;
-        case 'Passé Antérieur':
-          fieldName = 'passe_anterieur';
           break;
         case 'Conditionnel Présent':
           fieldName = 'conditionnel_present';
@@ -267,14 +258,14 @@ class DatabaseService {
         case 'Impératif':
           fieldName = 'imperatif';
           break;
-        case 'Impératif Négatif':
+        case 'Imperatif negatif':
           fieldName = 'imperatif_negatif';
           break;
         default:
           continue; // Skip unknown tenses
       }
 
-      verbMap[verbId]![fieldName] = conjugation;
+      verbMap[verb]![fieldName] = conjugation;
     }
 
     // Convert map to list
@@ -769,14 +760,14 @@ class DatabaseService {
         GROUP BY verb_id
       )
       SELECT 
-        v.verb_id,
+        v.id,
         v.verb,
         v.tense,
         v.conjugation,
         COALESCE(lp.box_level, 0) as box_level,
         COALESCE(lp.nb_time_seen, 0) as nb_time_seen
       FROM verb v
-      LEFT JOIN LatestProgress lp ON v.verb_id = lp.verb_id
+      LEFT JOIN LatestProgress lp ON v.id = lp.verb_id
       ORDER BY RANDOM()
       LIMIT 1
     ''');
@@ -794,7 +785,7 @@ class DatabaseService {
       'verb': result.first['verb'] as String,
       'tense': result.first['tense'] as String,
       'conjugation': result.first['conjugation'] as String,
-      'verb_id': result.first['verb_id'] as int,
+      'verb_id': result.first['id'] as int,
       'nb_time_seen': result.first['nb_time_seen'] as int,
     };
   }

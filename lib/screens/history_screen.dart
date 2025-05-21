@@ -31,6 +31,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Future<void> _loadRandomVerb() async {
     final verb = await _databaseService.getRandomVerb();
+
     if (mounted) {
       setState(() {
         _currentVerb = verb;
@@ -42,8 +43,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final prefs = await SharedPreferences.getInstance();
     final dailyGoal = prefs.getInt('daily_verb_goal') ?? 5;
     final progress = await _databaseService.getVerbProgress();
-    print(progress);
-    print(dailyGoal);
+
     if (mounted) {
       setState(() {
         _dailyGoal = dailyGoal;

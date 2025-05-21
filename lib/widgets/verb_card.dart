@@ -416,6 +416,16 @@ class _VerbCardState extends State<VerbCard> {
   Widget _buildConjugationTable() {
     print('Raw conjugation: ${widget.conjugation}'); // Debug raw input
 
+    // Vérifier si la conjugaison est vide ou nulle
+    if (widget.conjugation.isEmpty) {
+      return const Center(
+        child: Text(
+          'Aucune conjugaison disponible',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
     // Séparer sur les virgules et nettoyer le texte
     final conjugations =
         widget.conjugation.split(',').map((line) => line.trim()).toList();
@@ -429,6 +439,16 @@ class _VerbCardState extends State<VerbCard> {
         child: Text(
           'Format de conjugaison invalide',
           style: TextStyle(color: Colors.red),
+        ),
+      );
+    }
+
+    // Vérifier si toutes les conjugaisons sont vides
+    if (conjugations.every((conj) => conj.isEmpty)) {
+      return const Center(
+        child: Text(
+          'Aucune conjugaison disponible',
+          style: TextStyle(color: Colors.grey),
         ),
       );
     }
