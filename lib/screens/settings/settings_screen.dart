@@ -17,7 +17,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final PreferencesService _preferencesService = PreferencesService();
-  int _dailyWordGoal = 5;
   bool _notificationsEnabled = false;
   bool _showTooEasyDialog = true;
 
@@ -29,31 +28,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadPreferences() async {
     //await _preferencesService.initialize();
-    final int dailyWordGoal = await _preferencesService.getDailyWordGoal();
     final bool notificationsEnabled =
         await _preferencesService.getNotificationsEnabled();
     final prefs = await SharedPreferences.getInstance();
     final hideDialog = prefs.getBool('hide_too_easy_dialog') ?? false;
 
     setState(() {
-      _dailyWordGoal = dailyWordGoal;
       _notificationsEnabled = notificationsEnabled;
       _showTooEasyDialog = !hideDialog;
     });
-  }
-
-  Future<void> _showDailyGoalDialog() async {
-    final result = await Navigator.of(context).push<int>(
-      MaterialPageRoute(
-        builder: (context) => const SettingsDailyGoalScreen(),
-      ),
-    );
-
-    if (result != null) {
-      setState(() {
-        _dailyWordGoal = result;
-      });
-    }
   }
 
   Future<void> _showNotificationSettings() async {
