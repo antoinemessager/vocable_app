@@ -10,20 +10,59 @@ class SettingsVerbTensesScreen extends StatefulWidget {
 }
 
 class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
-  final List<String> _allTenses = [
-    'présent',
-    'passé composé',
-    'futur',
-    'futur antérieur',
-    'imparfait',
-    'plus que parfait',
-    'passé simple',
-    'conditionnel présent',
-    'conditionnel passé',
-    'subjonctif présent',
-    'subjonctif passé',
-    'impératif',
-    'impératif négatif',
+  final List<Map<String, dynamic>> _tenses = [
+    {
+      'name': 'présent',
+      'level': 'A1',
+    },
+    {
+      'name': 'imparfait',
+      'level': 'A2',
+    },
+    {
+      'name': 'futur',
+      'level': 'A2',
+    },
+    {
+      'name': 'passé composé',
+      'level': 'A2',
+    },
+    {
+      'name': 'passé simple',
+      'level': 'B1',
+    },
+    {
+      'name': 'conditionnel présent',
+      'level': 'B1',
+    },
+    {
+      'name': 'subjonctif présent',
+      'level': 'B2',
+    },
+    {
+      'name': 'subjonctif passé',
+      'level': 'B2',
+    },
+    {
+      'name': 'impératif',
+      'level': 'B2',
+    },
+    {
+      'name': 'impératif négatif',
+      'level': 'B2',
+    },
+    {
+      'name': 'plus que parfait',
+      'level': 'B2',
+    },
+    {
+      'name': 'futur antérieur',
+      'level': 'B2',
+    },
+    {
+      'name': 'conditionnel passé',
+      'level': 'B2',
+    },
   ];
 
   Set<String> _selectedTenses = {};
@@ -38,7 +77,8 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
     final prefs = await SharedPreferences.getInstance();
     final selectedTenses = prefs.getStringList('selected_verb_tenses');
     setState(() {
-      _selectedTenses = selectedTenses?.toSet() ?? _allTenses.toSet();
+      _selectedTenses = selectedTenses?.toSet() ??
+          _tenses.map((tense) => tense['name'] as String).toSet();
     });
   }
 
@@ -93,7 +133,7 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  ..._allTenses.map((tense) => Container(
+                  ..._tenses.map((tense) => Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -107,17 +147,31 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
                           ],
                         ),
                         child: CheckboxListTile(
-                          title: Text(
-                            tense,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
-                            ),
+                          title: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  tense['name'],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                tense['level'],
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
-                          value: _selectedTenses.contains(tense),
+                          value: _selectedTenses.contains(tense['name']),
                           onChanged: (bool? value) {
                             if (value != null) {
-                              _toggleTense(tense);
+                              _toggleTense(tense['name']);
                             }
                           },
                           activeColor: Colors.blue,
