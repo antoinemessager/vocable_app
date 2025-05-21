@@ -73,6 +73,114 @@ class _VerbCardState extends State<VerbCard> {
     }
   }
 
+  List<TextSpan> _parseConjugation(String text) {
+    final List<TextSpan> spans = [];
+    final RegExp starPattern = RegExp(r'\*([^*]+)\*');
+    int lastIndex = 0;
+
+    // Vérifier si c'est un temps avec auxiliaire en comptant les mots
+    final bool hasAuxiliary = text.trim().split(' ').length > 1;
+
+    if (hasAuxiliary) {
+      // Séparer l'auxiliaire et le participe passé
+      final parts = text.split(' ');
+      if (parts.length >= 2) {
+        // Traiter l'auxiliaire
+        final auxiliary = parts[0];
+        spans.add(TextSpan(
+          text: auxiliary,
+          style: const TextStyle(
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.normal,
+          ),
+        ));
+        spans.add(const TextSpan(text: '\n')); // Retour à la ligne
+
+        // Traiter le participe passé
+        final participle = parts.sublist(1).join(' ');
+        for (final match in starPattern.allMatches(participle)) {
+          // Ajouter le texte avant l'étoile
+          if (match.start > lastIndex) {
+            spans.add(TextSpan(
+              text: participle.substring(lastIndex, match.start),
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.black,
+                fontWeight: FontWeight.normal,
+              ),
+            ));
+          }
+
+          // Ajouter le texte entre les étoiles en gras et bleu
+          spans.add(TextSpan(
+            text: match.group(1),
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+          ));
+
+          lastIndex = match.end;
+        }
+
+        // Ajouter le reste du texte
+        if (lastIndex < participle.length) {
+          spans.add(TextSpan(
+            text: participle.substring(lastIndex),
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.black,
+              fontWeight: FontWeight.normal,
+            ),
+          ));
+        }
+      }
+    } else {
+      // Traitement normal pour les temps sans auxiliaire
+      for (final match in starPattern.allMatches(text)) {
+        // Ajouter le texte avant l'étoile
+        if (match.start > lastIndex) {
+          spans.add(TextSpan(
+            text: text.substring(lastIndex, match.start),
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.black,
+              fontWeight: FontWeight.normal,
+            ),
+          ));
+        }
+
+        // Ajouter le texte entre les étoiles en gras et bleu
+        spans.add(TextSpan(
+          text: match.group(1),
+          style: const TextStyle(
+            fontSize: 18,
+            color: Colors.blue,
+            fontWeight: FontWeight.bold,
+          ),
+        ));
+
+        lastIndex = match.end;
+      }
+
+      // Ajouter le reste du texte
+      if (lastIndex < text.length) {
+        spans.add(TextSpan(
+          text: text.substring(lastIndex),
+          style: const TextStyle(
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.normal,
+          ),
+        ));
+      }
+    }
+
+    return spans;
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -356,30 +464,7 @@ class _VerbCardState extends State<VerbCard> {
                         child: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: conjugations[0].length > 4
-                                    ? conjugations[0].substring(
-                                        0, conjugations[0].length - 4)
-                                    : '',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              TextSpan(
-                                text: conjugations[0].length > 4
-                                    ? conjugations[0]
-                                        .substring(conjugations[0].length - 4)
-                                    : conjugations[0],
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                            children: _parseConjugation(conjugations[0]),
                           ),
                         ),
                       ),
@@ -388,30 +473,7 @@ class _VerbCardState extends State<VerbCard> {
                         child: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: conjugations[1].length > 4
-                                    ? conjugations[1].substring(
-                                        0, conjugations[1].length - 4)
-                                    : '',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              TextSpan(
-                                text: conjugations[1].length > 4
-                                    ? conjugations[1]
-                                        .substring(conjugations[1].length - 4)
-                                    : conjugations[1],
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                            children: _parseConjugation(conjugations[1]),
                           ),
                         ),
                       ),
@@ -422,30 +484,7 @@ class _VerbCardState extends State<VerbCard> {
                           child: RichText(
                             textAlign: TextAlign.center,
                             text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: conjugations[i].length > 4
-                                      ? conjugations[i].substring(
-                                          0, conjugations[i].length - 4)
-                                      : '',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: conjugations[i].length > 4
-                                      ? conjugations[i]
-                                          .substring(conjugations[i].length - 4)
-                                      : conjugations[i],
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                              children: _parseConjugation(conjugations[i]),
                             ),
                           ),
                         ),
@@ -466,30 +505,7 @@ class _VerbCardState extends State<VerbCard> {
                         child: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: conjugations[i].length > 4
-                                    ? conjugations[i].substring(
-                                        0, conjugations[i].length - 4)
-                                    : '',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              TextSpan(
-                                text: conjugations[i].length > 4
-                                    ? conjugations[i]
-                                        .substring(conjugations[i].length - 4)
-                                    : conjugations[i],
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                            children: _parseConjugation(conjugations[i]),
                           ),
                         ),
                       ),
