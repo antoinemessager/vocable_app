@@ -748,7 +748,8 @@ class DatabaseService {
   Future<Map<String, dynamic>> getRandomVerb() async {
     final db = await database;
     final prefs = await SharedPreferences.getInstance();
-    final selectedTenses = prefs.getStringList('selected_verb_tenses') ?? [];
+    final selectedTenses =
+        prefs.getStringList('selected_verb_tenses') ?? ['présent'];
 
     final List<Map<String, dynamic>> result = await db.rawQuery('''
       WITH LatestProgress AS (
@@ -773,6 +774,7 @@ class DatabaseService {
       ORDER BY RANDOM()
       LIMIT 1
     ''', selectedTenses);
+    print({List.filled(selectedTenses.length, '?').join(',')});
 
     if (result.isEmpty) {
       return {

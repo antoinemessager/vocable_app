@@ -64,6 +64,9 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
     // Sauvegarder le niveau de départ
     await PreferencesService().setStartingLevel(_finalLevel);
 
+    // Initialiser les temps verbaux
+    await PreferencesService().initializeVerbTenses();
+
     // Mettre is_first_launch à false car l'onboarding est terminé
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('is_first_launch', false);

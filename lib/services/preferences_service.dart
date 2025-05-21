@@ -87,4 +87,9 @@ class PreferencesService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_hasShownHelpKey, value);
   }
+
+  Future<void> initializeVerbTenses() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('selected_verb_tenses', ['présent']);
+  }
 }

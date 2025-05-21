@@ -77,8 +77,7 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
     final prefs = await SharedPreferences.getInstance();
     final selectedTenses = prefs.getStringList('selected_verb_tenses');
     setState(() {
-      _selectedTenses = selectedTenses?.toSet() ??
-          _tenses.map((tense) => tense['name'] as String).toSet();
+      _selectedTenses = selectedTenses?.toSet() ?? {'présent'};
     });
   }
 
