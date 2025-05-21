@@ -492,21 +492,27 @@ class DatabaseService {
           SELECT word_id, MAX(timestamp) AS max_timestamp
           FROM user_progress
           GROUP BY word_id
+      ), EntryCounts AS (
+          SELECT word_id, COUNT(*) AS nb_entries
+          FROM user_progress
+          GROUP BY word_id
       ), LatestTimestampEntries AS (
       SELECT 
           up.word_id,
           up.box_level,
           up.timestamp,
-          CASE WHEN up.timestamp = lt.max_timestamp THEN 1 ELSE 2 END AS rn
+          CASE WHEN up.timestamp = lt.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
       FROM user_progress up
       JOIN LatestTimestamp lt ON up.word_id = lt.word_id
+      JOIN EntryCounts ec ON up.word_id = ec.word_id
       )
-      SELECT sum(box_level) as nb_word_mastered
+      SELECT coalesce(sum(box_level), 0) as count
       FROM LatestTimestampEntries
-      WHERE rn = 1
+      WHERE rn = 1 and nb_entries >= 2 and (box_level!=5 or nb_entries>2)
     ''');
 
-    return (result.first['nb_word_mastered'] as int) / 5;
+    return (result.first['count'] as int) / 5;
   }
 
   Future<int> getTotalStudiedWords() async {

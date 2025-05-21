@@ -241,6 +241,10 @@ class _HomeScreenState extends State<HomeScreen> {
       final bool hasJustExceededGoal =
           _previousProgress < _dailyWordGoal && todayProgress >= _dailyWordGoal;
 
+      // Vérifier si le nombre de mots maîtrisés a augmenté
+      final bool hasNewMasteredWord =
+          totalMasteredWords.toInt() > _totalMasteredWords;
+
       setState(() {
         _currentWord = nextWord;
         _studyHistory = studyHistory;
@@ -251,6 +255,9 @@ class _HomeScreenState extends State<HomeScreen> {
         _showGoalAchieved = false;
         if (hasJustExceededGoal) {
           _showGoalAchieved = true;
+        }
+        if (hasNewMasteredWord) {
+          _startStarAnimation();
         }
       });
 
@@ -495,28 +502,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: WordCard(
                                   word: _currentWord!,
                                   onAnswer: (wasCorrect) async {
-                                    final currentLevel = await DatabaseService
-                                        .instance
-                                        .getWordBoxLevel(_currentWord!.word_id);
                                     await DatabaseService.instance
                                         .recordProgress(
                                       _currentWord!.word_id,
                                       isCorrect: wasCorrect,
                                     );
-                                    if (wasCorrect && currentLevel == 4) {
-                                      final wordHistory =
-                                          _studyHistory.firstWhere(
-                                        (word) =>
-                                            word['word_id'] ==
-                                            _currentWord!.word_id,
-                                        orElse: () =>
-                                            {'nb_entries': 0, 'box_level': 0},
-                                      );
-                                      if (wordHistory['nb_entries'] > 2 &&
-                                          wordHistory['box_level'] >= 5) {
-                                        _startStarAnimation();
-                                      }
-                                    }
                                     _getNextWord();
                                   },
                                   onTooEasy: () async {
