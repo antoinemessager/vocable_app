@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/word_pair.dart';
-import '../screens/settings/settings_help_center_screen.dart';
 import 'too_easy_dialog.dart';
 
 class WordCard extends StatefulWidget {
@@ -52,6 +51,40 @@ class _WordCardState extends State<WordCard> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final textSpan = TextSpan(
+          text: widget.word.word_fr,
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                height: 1.2,
+              ),
+        );
+        final textPainter = TextPainter(
+          text: textSpan,
+          textDirection: TextDirection.ltr,
+          maxLines: 2,
+        );
+        textPainter.layout(
+            maxWidth: constraints.maxWidth - 32); // 32 pour le padding
+
+        // Calculer la hauteur d'une seule ligne
+        final singleLineTextSpan = TextSpan(
+          text: 'Test',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                height: 1.2,
+              ),
+        );
+        final singleLinePainter = TextPainter(
+          text: singleLineTextSpan,
+          textDirection: TextDirection.ltr,
+          maxLines: 1,
+        );
+        singleLinePainter.layout(maxWidth: constraints.maxWidth - 32);
+        final singleLineHeight = singleLinePainter.height;
+
+        // Le texte a besoin de deux lignes si sa hauteur est supérieure à la hauteur d'une ligne
+        final needsTwoLines = textPainter.height > singleLineHeight * 1.5;
+
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 8),
           shape: RoundedRectangleBorder(
@@ -65,14 +98,13 @@ class _WordCardState extends State<WordCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                  height: 40, // Hauteur fixe pour le Stack
+                  height: needsTwoLines ? 70 : 40,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       Positioned(
                         left: 0,
-                        right:
-                            0, // Augmentation du décalage pour mieux centrer le mot
+                        right: 0,
                         child: Text(
                           widget.word.word_fr,
                           style: Theme.of(context)
@@ -80,29 +112,11 @@ class _WordCardState extends State<WordCard> {
                               .headlineMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.w600,
+                                height: 1.2,
                               ),
                           textAlign: TextAlign.center,
-                        ),
-                      ),
-                      Positioned(
-                        right: 0,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.help_outline,
-                            color: Colors.grey,
-                            size: 20,
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const SettingsHelpCenterScreen(),
-                              ),
-                            );
-                          },
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -168,7 +182,7 @@ class _WordCardState extends State<WordCard> {
                           if (widget.word.fr_sentence.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text(
-                              '(${widget.word.fr_sentence})',
+                              '${widget.word.fr_sentence}',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -293,7 +307,7 @@ class _WordCardState extends State<WordCard> {
                                                 : 20),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Déjà connu',
+                                          'Déjà connu (ne plus afficher)',
                                           style: TextStyle(
                                               fontSize:
                                                   constraints.maxWidth < 350
