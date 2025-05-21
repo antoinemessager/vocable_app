@@ -190,7 +190,6 @@ class DatabaseService {
     );
 
     final List<dynamic> jsonData = jsonDecode(jsonString);
-    final List<Map<String, dynamic>> verbs = [];
     final Map<String, Map<String, dynamic>> verbMap = {};
 
     // First pass: group conjugations by verb
@@ -749,6 +748,9 @@ class DatabaseService {
 
   Future<Map<String, dynamic>> getRandomVerb() async {
     final db = await database;
+    final prefs = await SharedPreferences.getInstance();
+    final selectedTenses = prefs.getStringList('selected_verb_tenses') ?? [];
+
     final List<Map<String, dynamic>> result = await db.rawQuery('''
       WITH LatestProgress AS (
         SELECT
@@ -768,9 +770,10 @@ class DatabaseService {
         COALESCE(lp.nb_time_seen, 0) as nb_time_seen
       FROM verb v
       LEFT JOIN LatestProgress lp ON v.id = lp.verb_id
+      WHERE v.tense IN (${List.filled(selectedTenses.length, '?').join(',')})
       ORDER BY RANDOM()
       LIMIT 1
-    ''');
+    ''', selectedTenses);
 
     if (result.isEmpty) {
       return {

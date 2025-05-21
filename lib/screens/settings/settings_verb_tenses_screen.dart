@@ -18,7 +18,6 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
     'imparfait',
     'plus que parfait',
     'passé simple',
-    'passé antérieur',
     'conditionnel présent',
     'conditionnel passé',
     'subjonctif présent',
@@ -37,10 +36,9 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
 
   Future<void> _loadSelectedTenses() async {
     final prefs = await SharedPreferences.getInstance();
-    final selectedTenses =
-        prefs.getStringList('selected_verb_tenses') ?? _allTenses;
+    final selectedTenses = prefs.getStringList('selected_verb_tenses');
     setState(() {
-      _selectedTenses = selectedTenses.toSet();
+      _selectedTenses = selectedTenses?.toSet() ?? _allTenses.toSet();
     });
   }
 
@@ -83,55 +81,53 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Sélectionne les temps que tu souhaites apprendre',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-                height: 1.2,
-              ),
-            ),
-            const SizedBox(height: 24),
             Expanded(
-              child: ListView.builder(
-                itemCount: _allTenses.length,
-                itemBuilder: (context, index) {
-                  final tense = _allTenses[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+              child: ListView(
+                children: [
+                  const Text(
+                    'Sélectionne les temps que tu souhaites apprendre',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                      height: 1.2,
                     ),
-                    child: CheckboxListTile(
-                      title: Text(
-                        tense,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
+                  ),
+                  const SizedBox(height: 24),
+                  ..._allTenses.map((tense) => Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                      ),
-                      value: _selectedTenses.contains(tense),
-                      onChanged: (bool? value) {
-                        if (value != null) {
-                          _toggleTense(tense);
-                        }
-                      },
-                      activeColor: Colors.blue,
-                      checkColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  );
-                },
+                        child: CheckboxListTile(
+                          title: Text(
+                            tense,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          value: _selectedTenses.contains(tense),
+                          onChanged: (bool? value) {
+                            if (value != null) {
+                              _toggleTense(tense);
+                            }
+                          },
+                          activeColor: Colors.blue,
+                          checkColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      )),
+                ],
               ),
             ),
           ],

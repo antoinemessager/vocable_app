@@ -79,7 +79,9 @@ class _VerbCardState extends State<VerbCard> {
     int lastIndex = 0;
 
     // Vérifier si c'est un temps avec auxiliaire en comptant les mots
-    final bool hasAuxiliary = text.trim().split(' ').length > 1;
+    // Ne pas traiter l'impératif négatif comme un temps avec auxiliaire
+    final bool hasAuxiliary =
+        text.trim().split(' ').length > 1 && !text.contains('no ');
 
     if (hasAuxiliary) {
       // Séparer l'auxiliaire et le participe passé
@@ -472,39 +474,47 @@ class _VerbCardState extends State<VerbCard> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (conjugations.length == 5) ...[
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 4),
-                        child: Text(
-                          '-',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: _parseConjugation(conjugations[0]),
+                      const SizedBox(
+                        height: 32,
+                        child: Center(
+                          child: Text(
+                            '-',
+                            style: TextStyle(fontSize: 18),
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: _parseConjugation(conjugations[1]),
+                      SizedBox(
+                        height: 32,
+                        child: Center(
+                          child: RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              children: _parseConjugation(conjugations[0]),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 32,
+                        child: Center(
+                          child: RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              children: _parseConjugation(conjugations[1]),
+                            ),
                           ),
                         ),
                       ),
                     ] else ...[
                       for (int i = 0; i < 3; i++)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              children: _parseConjugation(conjugations[i]),
+                        SizedBox(
+                          height: 32,
+                          child: Center(
+                            child: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                children: _parseConjugation(conjugations[i]),
+                              ),
                             ),
                           ),
                         ),
@@ -520,12 +530,14 @@ class _VerbCardState extends State<VerbCard> {
                     for (int i = (conjugations.length == 5 ? 2 : 3);
                         i < conjugations.length;
                         i++)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: _parseConjugation(conjugations[i]),
+                      SizedBox(
+                        height: 32,
+                        child: Center(
+                          child: RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              children: _parseConjugation(conjugations[i]),
+                            ),
                           ),
                         ),
                       ),
