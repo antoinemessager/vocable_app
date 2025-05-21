@@ -109,18 +109,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-          ListTile(
-            title: const Text('Objectif quotidien',
-                style: TextStyle(color: Colors.black87)),
-            subtitle: Text('$_dailyWordGoal mots par jour',
-                style: const TextStyle(color: Colors.black45)),
-            leading: const Icon(Icons.flag, color: Colors.black87),
-            onTap: _showDailyGoalDialog,
+          FutureBuilder<Map<String, int>>(
+            future: SharedPreferences.getInstance().then((prefs) => {
+                  'wordsPerDay': prefs.getInt('words_per_day') ?? 5,
+                  'verbsPerDay': prefs.getInt('verbs_per_day') ?? 5,
+                }),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const ListTile(
+                  title: Text('Définis tes objectifs'),
+                  subtitle: Text('Chargement...'),
+                  leading: Icon(Icons.flag),
+                  onTap: null,
+                );
+              }
+              return ListTile(
+                title: const Text('Définis tes objectifs'),
+                subtitle: Text(
+                    '${snapshot.data!['wordsPerDay']} mots et ${snapshot.data!['verbsPerDay']} verbes par jour',
+                    style: TextStyle(color: Colors.black45)),
+                leading: const Icon(Icons.flag),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsDailyGoalScreen(),
+                    ),
+                  );
+                },
+              );
+            },
           ),
           ListTile(
             title: const Text('Temps verbaux',
                 style: TextStyle(color: Colors.black87)),
-            subtitle: const Text('Sélectionner les temps à apprendre',
+            subtitle: const Text('Sélectionne les temps à apprendre',
                 style: TextStyle(color: Colors.black45)),
             leading: const Icon(Icons.access_time, color: Colors.black87),
             onTap: () {
