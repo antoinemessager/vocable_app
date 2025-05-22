@@ -6,61 +6,78 @@ class PreferencesService {
   factory PreferencesService() => _instance;
   PreferencesService._internal();
 
-  static const String _dailyWordGoalKey = 'daily_word_goal';
+  static const String _wordsPerDayKey = 'words_per_day';
   static const String _startingLevelKey = 'starting_level';
   static const String _notificationsEnabledKey = 'notifications_enabled';
   static const String _notificationHourKey = 'notification_hour';
   static const String _notificationMinuteKey = 'notification_minute';
   static const String _hasShownHelpKey = 'has_shown_help';
+  static const String _verbsPerDayKey = 'verbs_per_day';
 
   // Cache pour les valeurs fréquemment utilisées
   static SharedPreferences? _prefs;
-  static int? _cachedDailyWordGoal;
+  static int? _cachedWordsPerDay;
   static double? _cachedPreviousProgress;
   static bool? _cachedHasShownHelp;
+  static int? _cachedVerbsPerDay;
 
   // Initialisation du cache
   static Future<void> _initCache() async {
     if (_prefs == null) {
       _prefs = await SharedPreferences.getInstance();
-      _cachedDailyWordGoal = _prefs!.getInt(_dailyWordGoalKey);
+      _cachedWordsPerDay = _prefs!.getInt(_wordsPerDayKey);
       _cachedPreviousProgress = _prefs!.getDouble('previous_progress');
       _cachedHasShownHelp = _prefs!.getBool(_hasShownHelpKey);
+      _cachedVerbsPerDay = _prefs!.getInt(_verbsPerDayKey);
     }
   }
 
-  Future<int> getDailyWordGoal() async {
+  Future<int> getWordsPerDay() async {
     await _initCache();
-    if (_cachedDailyWordGoal == null) {
-      _cachedDailyWordGoal = _prefs!.getInt(_dailyWordGoalKey) ?? 5;
+    if (_cachedWordsPerDay == null) {
+      _cachedWordsPerDay = _prefs!.getInt(_wordsPerDayKey) ?? 10;
     }
-    return _cachedDailyWordGoal!;
+    return _cachedWordsPerDay!;
   }
 
-  Future<void> setDailyWordGoal(int value) async {
+  Future<void> setWordsPerDay(int value) async {
     await _initCache();
-    await _prefs!.setInt(_dailyWordGoalKey, value);
-    _cachedDailyWordGoal = value;
+    await _prefs!.setInt(_wordsPerDayKey, value);
+    _cachedWordsPerDay = value;
+  }
+
+  Future<int> getVerbsPerDay() async {
+    await _initCache();
+    if (_cachedVerbsPerDay == null) {
+      _cachedVerbsPerDay = _prefs!.getInt(_verbsPerDayKey) ?? 5;
+    }
+    return _cachedVerbsPerDay!;
+  }
+
+  Future<void> setVerbsPerDay(int value) async {
+    await _initCache();
+    await _prefs!.setInt(_verbsPerDayKey, value);
+    _cachedVerbsPerDay = value;
   }
 
   Future<String> getStartingLevel() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_startingLevelKey) ?? 'A1';
+    await _initCache();
+    return _prefs!.getString(_startingLevelKey) ?? 'A1';
   }
 
   Future<void> setStartingLevel(String level) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_startingLevelKey, level);
+    await _initCache();
+    await _prefs!.setString(_startingLevelKey, level);
   }
 
   Future<bool> getNotificationsEnabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_notificationsEnabledKey) ?? false;
+    await _initCache();
+    return _prefs!.getBool(_notificationsEnabledKey) ?? false;
   }
 
   Future<void> setNotificationsEnabled(bool enabled) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_notificationsEnabledKey, enabled);
+    await _initCache();
+    await _prefs!.setBool(_notificationsEnabledKey, enabled);
   }
 
   Future<TimeOfDay> getNotificationTime() async {

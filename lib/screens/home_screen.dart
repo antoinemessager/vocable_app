@@ -4,7 +4,9 @@ import '../services/database_service.dart';
 import '../services/preferences_service.dart';
 import '../widgets/word_card.dart';
 import '../widgets/star_animation.dart';
+import '../widgets/calendar_animation.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   WordPair? _currentWord;
   bool _isLoading = true;
   double _todayProgress = 0.0;
-  int _dailyWordGoal = 5;
+  int daily_word_goal = 5;
   int _dayStreak = 0;
   double _totalMasteredWords = 0.0;
   final PreferencesService _preferencesService = PreferencesService();
@@ -29,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showGoalAchieved = false;
   bool _hasShownHelp = false;
   bool _hasShownFirstPopup = false;
+  bool _showCalendarAnimation = false;
+  int _currentStreakCount = 0;
 
   @override
   void initState() {
@@ -229,8 +233,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final stopwatch = Stopwatch()..start();
 
-      _dailyWordGoal = await _preferencesService.getDailyWordGoal();
-      print('getDailyWordGoal: ${stopwatch.elapsedMilliseconds}ms');
+      final prefs = await SharedPreferences.getInstance();
+      daily_word_goal = prefs.getInt('daily_word_goal') ?? 5;
+      print('getWordsPerDay: ${stopwatch.elapsedMilliseconds}ms');
       stopwatch.reset();
       stopwatch.start();
 
@@ -259,9 +264,10 @@ class _HomeScreenState extends State<HomeScreen> {
       print('getPreviousProgress: ${stopwatch.elapsedMilliseconds}ms');
       stopwatch.reset();
       print('--------------------------------');
+
       // Vérifier si l'utilisateur vient de dépasser 100% de son objectif pour la première fois
-      final bool hasJustExceededGoal =
-          _previousProgress < _dailyWordGoal && todayProgress >= _dailyWordGoal;
+      final bool hasJustExceededGoal = _previousProgress < daily_word_goal &&
+          todayProgress >= daily_word_goal;
 
       setState(() {
         _currentWord = nextWord;
@@ -301,6 +307,13 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _showStarAnimation = true;
       _currentMasteredCount = totalMasteredWords;
+    });
+  }
+
+  void _startCalendarAnimation() {
+    setState(() {
+      _showCalendarAnimation = true;
+      _currentStreakCount = _dayStreak;
     });
   }
 
@@ -344,6 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   setState(() {
                     _showGoalAchieved = false;
                   });
+                  _startCalendarAnimation();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -359,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    final bool hasCompletedDailyGoal = _todayProgress >= _dailyWordGoal;
+    final bool hasCompletedDailyGoal = _todayProgress >= daily_word_goal;
 
     if (_currentWord == null) {
       return Center(
@@ -456,7 +470,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ),
                                                 ),
                                                 Text(
-                                                  '${((_todayProgress / _dailyWordGoal) * 100).round()}%',
+                                                  '${((_todayProgress / daily_word_goal) * 100).round()}%',
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .titleMedium
@@ -494,8 +508,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           child: LinearProgressIndicator(
-                                            value:
-                                                _todayProgress / _dailyWordGoal,
+                                            value: _todayProgress /
+                                                daily_word_goal,
                                             minHeight: 16,
                                             backgroundColor: Colors.transparent,
                                             valueColor:
@@ -658,6 +672,16 @@ class _HomeScreenState extends State<HomeScreen> {
             onComplete: () {
               setState(() {
                 _showStarAnimation = false;
+              });
+            },
+          ),
+        if (_showCalendarAnimation)
+          CalendarAnimation(
+            currentCount: _currentStreakCount,
+            calendarKey: _streakKey,
+            onComplete: () {
+              setState(() {
+                _showCalendarAnimation = false;
               });
             },
           ),

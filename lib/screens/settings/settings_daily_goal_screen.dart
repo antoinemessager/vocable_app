@@ -10,14 +10,14 @@ class SettingsDailyGoalScreen extends StatefulWidget {
 }
 
 class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
-  int _wordsPerDay = 5;
+  int daily_word_goal = 5;
   int _verbsPerDay = 5;
   final _prefs = SharedPreferences.getInstance();
 
   String get _estimatedTime {
     // On estime environ 1-1.5 minute par mot
-    final minTime = _wordsPerDay;
-    final maxTime = (_wordsPerDay * 1.5).round();
+    final minTime = daily_word_goal;
+    final maxTime = (daily_word_goal * 1.5).round();
     return 'Estimé $minTime-$maxTime min par jour';
   }
 
@@ -37,7 +37,7 @@ class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
   Future<void> _loadPreferences() async {
     final prefs = await _prefs;
     setState(() {
-      _wordsPerDay = prefs.getInt('daily_word_goal') ?? 10;
+      daily_word_goal = prefs.getInt('daily_word_goal') ?? 5;
       _verbsPerDay = prefs.getInt('daily_verb_goal') ?? 5;
     });
   }
@@ -47,7 +47,7 @@ class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
       final prefs = await _prefs;
       await prefs.setInt('daily_word_goal', value);
       setState(() {
-        _wordsPerDay = value;
+        daily_word_goal = value;
       });
     }
   }
@@ -71,7 +71,7 @@ class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(_wordsPerDay),
+          onPressed: () => Navigator.of(context).pop(daily_word_goal),
         ),
         title: const Text(
           'Définis Tes Objectifs',
@@ -115,7 +115,7 @@ class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
               child: Column(
                 children: [
                   Text(
-                    _wordsPerDay.toString(),
+                    daily_word_goal.toString(),
                     style: const TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.w700,
@@ -128,7 +128,7 @@ class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
                     children: [
                       _buildCircleButton(
                         Icons.remove,
-                        () => _updateWordsPerDay(_wordsPerDay - 1),
+                        () => _updateWordsPerDay(daily_word_goal - 1),
                         backgroundColor: Colors.grey[200]!,
                         iconColor: Colors.grey[700]!,
                       ),
@@ -143,7 +143,7 @@ class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
                       const SizedBox(width: 12),
                       _buildCircleButton(
                         Icons.add,
-                        () => _updateWordsPerDay(_wordsPerDay + 1),
+                        () => _updateWordsPerDay(daily_word_goal + 1),
                         backgroundColor: Colors.blue,
                         iconColor: Colors.white,
                       ),

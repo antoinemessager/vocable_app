@@ -94,8 +94,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           FutureBuilder<Map<String, int>>(
             future: SharedPreferences.getInstance().then((prefs) => {
-                  'wordsPerDay': prefs.getInt('words_per_day') ?? 5,
-                  'verbsPerDay': prefs.getInt('verbs_per_day') ?? 5,
+                  'wordsPerDay': prefs.getInt('daily_word_goal') ?? 5,
+                  'verbsPerDay': prefs.getInt('daily_verb_goal') ?? 5,
                 }),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -112,13 +112,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     '${snapshot.data!['wordsPerDay']} mots et ${snapshot.data!['verbsPerDay']} verbes par jour',
                     style: TextStyle(color: Colors.black45)),
                 leading: const Icon(Icons.flag),
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const SettingsDailyGoalScreen(),
                     ),
                   );
+                  if (result != null) {
+                    setState(() {});
+                  }
                 },
               );
             },
