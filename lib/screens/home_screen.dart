@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _studyHistory = [];
   bool _isLoading = true;
   double _todayProgress = 0.0;
-  int _dailyWordGoal = 10;
+  int _dailyWordGoal = 5;
   int _dayStreak = 0;
   double _totalMasteredWords = 0.0;
   final PreferencesService _preferencesService = PreferencesService();
@@ -255,9 +255,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _showGoalAchieved = false;
         if (hasJustExceededGoal) {
           _showGoalAchieved = true;
-        }
-        if (hasNewMasteredWord) {
-          _startStarAnimation();
         }
       });
 
@@ -507,6 +504,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       _currentWord!.word_id,
                                       isCorrect: wasCorrect,
                                     );
+                                    final totalMasteredWords =
+                                        await DatabaseService.instance
+                                            .getTotalMasteredWords();
+                                    if (totalMasteredWords.toInt() >
+                                        _totalMasteredWords.toInt()) {
+                                      _startStarAnimation();
+                                    }
                                     _getNextWord();
                                   },
                                   onTooEasy: () async {

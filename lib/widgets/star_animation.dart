@@ -42,9 +42,9 @@ class _StarAnimationState extends State<StarAnimation>
 
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-          tween: Tween<double>(begin: 1.0, end: 1.5), weight: 0.5),
+          tween: Tween<double>(begin: 2.0, end: 2.5), weight: 0.5),
       TweenSequenceItem(
-          tween: Tween<double>(begin: 1.5, end: 1.0), weight: 0.5),
+          tween: Tween<double>(begin: 2.5, end: 1.0), weight: 0.5),
     ]).animate(
       CurvedAnimation(
         parent: _controller,
@@ -101,8 +101,8 @@ class _StarAnimationState extends State<StarAnimation>
         );
 
         return Positioned(
-          left: currentPosition.dx - 16, // Half of the star size
-          top: currentPosition.dy - 16, // Half of the star size
+          left: currentPosition.dx - 24, // Half of the star size
+          top: currentPosition.dy - 24, // Half of the star size
           child: Opacity(
             opacity: _opacityAnimation.value,
             child: Transform.scale(
@@ -110,7 +110,7 @@ class _StarAnimationState extends State<StarAnimation>
               child: const Icon(
                 Icons.star,
                 color: Colors.amber,
-                size: 32,
+                size: 48,
               ),
             ),
           ),
