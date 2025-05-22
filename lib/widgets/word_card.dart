@@ -64,8 +64,7 @@ class _WordCardState extends State<WordCard> {
           maxLines: 2,
         );
         textPainter.layout(
-            maxWidth: constraints.maxWidth - 32); // 32 pour le padding
-
+            maxWidth: constraints.maxWidth - 80); // 32 pour le padding
         // Calculer la hauteur d'une seule ligne
         final singleLineTextSpan = TextSpan(
           text: 'Test',
@@ -83,7 +82,7 @@ class _WordCardState extends State<WordCard> {
         final singleLineHeight = singleLinePainter.height;
 
         // Le texte a besoin de deux lignes si sa hauteur est supérieure à la hauteur d'une ligne
-        final needsTwoLines = textPainter.height > singleLineHeight * 1.5;
+        final needsTwoLines = textPainter.height > singleLineHeight * 1.2;
 
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 8),

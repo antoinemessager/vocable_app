@@ -4,6 +4,7 @@ import '../services/database_service.dart';
 import '../services/preferences_service.dart';
 import '../widgets/word_card.dart';
 import '../widgets/star_animation.dart';
+import 'dart:async';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   WordPair? _currentWord;
-  List<Map<String, dynamic>> _studyHistory = [];
   bool _isLoading = true;
   double _todayProgress = 0.0;
   int _dailyWordGoal = 5;
@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double _totalMasteredWords = 0.0;
   final PreferencesService _preferencesService = PreferencesService();
   bool _showStarAnimation = false;
-  int _currentMasteredCount = 0;
+  double _currentMasteredCount = 0;
   final GlobalKey _masteredKey = GlobalKey();
   final GlobalKey _streakKey = GlobalKey();
   double _previousProgress = 0.0;
@@ -227,27 +227,44 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = true;
       });
 
+      final stopwatch = Stopwatch()..start();
+
       _dailyWordGoal = await _preferencesService.getDailyWordGoal();
+      print('getDailyWordGoal: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.reset();
+      stopwatch.start();
+
       final nextWord = await DatabaseService.instance.getNextWordForReview();
-      final studyHistory = await DatabaseService.instance.getLastStudiedWords();
+      print('getNextWordForReview: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.reset();
+      stopwatch.start();
+
       final todayProgress = await DatabaseService.instance.getTodayProgress();
+      print('getTodayProgress: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.reset();
+      stopwatch.start();
+
       final dayStreak = await DatabaseService.instance.getDayStreak();
+      print('getDayStreak: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.reset();
+      stopwatch.start();
+
       final totalMasteredWords =
           await DatabaseService.instance.getTotalMasteredWords();
+      print('getTotalMasteredWords: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.reset();
+      stopwatch.start();
 
       _previousProgress = await _preferencesService.getPreviousProgress();
-
+      print('getPreviousProgress: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.reset();
+      print('--------------------------------');
       // Vérifier si l'utilisateur vient de dépasser 100% de son objectif pour la première fois
       final bool hasJustExceededGoal =
           _previousProgress < _dailyWordGoal && todayProgress >= _dailyWordGoal;
 
-      // Vérifier si le nombre de mots maîtrisés a augmenté
-      final bool hasNewMasteredWord =
-          totalMasteredWords.toInt() > _totalMasteredWords;
-
       setState(() {
         _currentWord = nextWord;
-        _studyHistory = studyHistory;
         _todayProgress = todayProgress;
         _dayStreak = dayStreak;
         _totalMasteredWords = totalMasteredWords;
@@ -278,11 +295,12 @@ class _HomeScreenState extends State<HomeScreen> {
     await _loadContent();
   }
 
-  void _startStarAnimation() {
+  void _startStarAnimation() async {
+    final totalMasteredWords =
+        await DatabaseService.instance.getTotalMasteredWords();
     setState(() {
       _showStarAnimation = true;
-      _currentMasteredCount =
-          _studyHistory.where((word) => word['box_level'] >= 5).length;
+      _currentMasteredCount = totalMasteredWords;
     });
   }
 
@@ -635,7 +653,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         if (_showStarAnimation)
           StarAnimation(
-            currentCount: _currentMasteredCount,
+            currentCount: _currentMasteredCount.toInt(),
             masteredKey: _masteredKey,
             onComplete: () {
               setState(() {

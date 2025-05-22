@@ -496,6 +496,8 @@ class DatabaseService {
           SELECT word_id, COUNT(*) AS nb_entries
           FROM user_progress
           GROUP BY word_id
+      ), SeenWords AS (
+          Select word_id from EntryCounts where nb_entries >= 2
       ), LatestTimestampEntries AS (
       SELECT 
           up.word_id,
@@ -506,6 +508,7 @@ class DatabaseService {
       FROM user_progress up
       JOIN LatestTimestamp lt ON up.word_id = lt.word_id
       JOIN EntryCounts ec ON up.word_id = ec.word_id
+      where up.word_id in (select word_id from SeenWords)
       )
       SELECT coalesce(sum(box_level), 0) as count
       FROM LatestTimestampEntries
@@ -517,6 +520,7 @@ class DatabaseService {
 
   Future<int> getTotalStudiedWords() async {
     final db = await database;
+
     final result = await db.rawQuery('''
       SELECT COUNT(DISTINCT word_id) as count
       FROM user_progress
