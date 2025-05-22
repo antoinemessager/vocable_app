@@ -16,16 +16,16 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
       'level': 'A1',
     },
     {
-      'name': 'imparfait',
-      'level': 'A2',
-    },
-    {
       'name': 'futur',
       'level': 'A2',
     },
     {
       'name': 'passé composé',
       'level': 'A2',
+    },
+    {
+      'name': 'imparfait',
+      'level': 'B1',
     },
     {
       'name': 'passé simple',

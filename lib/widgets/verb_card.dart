@@ -89,14 +89,26 @@ class _VerbCardState extends State<VerbCard> {
       if (parts.length >= 2) {
         // Traiter l'auxiliaire
         final auxiliary = parts[0];
-        spans.add(TextSpan(
-          text: auxiliary,
-          style: const TextStyle(
-            fontSize: 18,
-            color: Colors.black,
-            fontWeight: FontWeight.normal,
-          ),
-        ));
+        // Vérifier si l'auxiliaire est entre des étoiles
+        if (auxiliary.startsWith('*') && auxiliary.endsWith('*')) {
+          spans.add(TextSpan(
+            text: auxiliary.substring(1, auxiliary.length - 1),
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+          ));
+        } else {
+          spans.add(TextSpan(
+            text: auxiliary,
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.black,
+              fontWeight: FontWeight.normal,
+            ),
+          ));
+        }
         spans.add(const TextSpan(text: '\n')); // Retour à la ligne
 
         // Traiter le participe passé
@@ -416,7 +428,7 @@ class _VerbCardState extends State<VerbCard> {
   }
 
   Widget _buildConjugationTable() {
-    print('Raw conjugation: ${widget.conjugation}'); // Debug raw input
+    // Debug raw input
 
     // Vérifier si la conjugaison est vide ou nulle
     if (widget.conjugation.isEmpty) {
@@ -431,9 +443,6 @@ class _VerbCardState extends State<VerbCard> {
     // Séparer sur les virgules et nettoyer le texte
     final conjugations =
         widget.conjugation.split(',').map((line) => line.trim()).toList();
-
-    print('Number of conjugations: ${conjugations.length}'); // Debug count
-    print('Conjugations: $conjugations'); // Debug content
 
     // Vérifier que nous avons 5 ou 6 lignes de conjugaison
     if (conjugations.length != 6 && conjugations.length != 5) {
@@ -474,47 +483,39 @@ class _VerbCardState extends State<VerbCard> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (conjugations.length == 5) ...[
-                      const SizedBox(
-                        height: 32,
-                        child: Center(
-                          child: Text(
-                            '-',
-                            style: TextStyle(fontSize: 18),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          '-',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            children: _parseConjugation(conjugations[0]),
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 32,
-                        child: Center(
-                          child: RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              children: _parseConjugation(conjugations[0]),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 32,
-                        child: Center(
-                          child: RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              children: _parseConjugation(conjugations[1]),
-                            ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            children: _parseConjugation(conjugations[1]),
                           ),
                         ),
                       ),
                     ] else ...[
                       for (int i = 0; i < 3; i++)
-                        SizedBox(
-                          height: 32,
-                          child: Center(
-                            child: RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
-                                children: _parseConjugation(conjugations[i]),
-                              ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              children: _parseConjugation(conjugations[i]),
                             ),
                           ),
                         ),
@@ -530,14 +531,12 @@ class _VerbCardState extends State<VerbCard> {
                     for (int i = (conjugations.length == 5 ? 2 : 3);
                         i < conjugations.length;
                         i++)
-                      SizedBox(
-                        height: 32,
-                        child: Center(
-                          child: RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              children: _parseConjugation(conjugations[i]),
-                            ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            children: _parseConjugation(conjugations[i]),
                           ),
                         ),
                       ),

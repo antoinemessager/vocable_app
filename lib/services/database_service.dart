@@ -485,36 +485,23 @@ class DatabaseService {
   }
 
   Future<double> getTotalMasteredWords() async {
-    final db = await database;
-
+    final db = await instance.database;
     final result = await db.rawQuery('''
-      WITH LatestTimestamp AS (
-          SELECT word_id, MAX(timestamp) AS max_timestamp
-          FROM user_progress
-          GROUP BY word_id
-      ), EntryCounts AS (
-          SELECT word_id, COUNT(*) AS nb_entries
-          FROM user_progress
-          GROUP BY word_id
-      ), SeenWords AS (
-          Select word_id from EntryCounts where nb_entries >= 2
-      ), LatestTimestampEntries AS (
-      SELECT 
-          up.word_id,
-          up.box_level,
-          up.timestamp,
-          CASE WHEN up.timestamp = lt.max_timestamp THEN 1 ELSE 2 END AS rn,
-          ec.nb_entries
-      FROM user_progress up
-      JOIN LatestTimestamp lt ON up.word_id = lt.word_id
-      JOIN EntryCounts ec ON up.word_id = ec.word_id
-      where up.word_id in (select word_id from SeenWords)
+      WITH WordStats AS (
+        SELECT 
+          word_id,
+          MAX(timestamp) as max_timestamp,
+          COUNT(*) as nb_entries
+        FROM user_progress
+        GROUP BY word_id
+        HAVING COUNT(*) >= 2
       )
-      SELECT coalesce(sum(box_level), 0) as count
-      FROM LatestTimestampEntries
-      WHERE rn = 1 and nb_entries >= 2 and (box_level!=5 or nb_entries>2)
+      SELECT COALESCE(SUM(up.box_level), 0) as count
+      FROM user_progress up
+      JOIN WordStats ws ON up.word_id = ws.word_id 
+        AND up.timestamp = ws.max_timestamp
+      WHERE (up.box_level != 5 OR ws.nb_entries > 2)
     ''');
-
     return (result.first['count'] as int) / 5;
   }
 
@@ -549,15 +536,17 @@ class DatabaseService {
             MAX(timestamp) AS max_timestamp
           FROM user_progress
           GROUP BY word_id
+          HAVING COUNT(*) >= 2
       ), LatestInfo AS (
       SELECT 
           up.word_id,
           up.box_level,
           up.timestamp,
-          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
           ec.nb_entries
       FROM user_progress up
-      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.word_id = ec.word_id
+      JOIN EntryCounts ec 
+        ON up.word_id = ec.word_id
+        AND timestamp = ec.max_timestamp
       ), CEFRCounts AS (
         SELECT
           coalesce(SUM(case when word_id <= 250 then box_level else 0 end)/5, 0) as a1_count,
@@ -566,7 +555,7 @@ class DatabaseService {
           coalesce(SUM(case when word_id > 1500 and word_id <= 2750 then box_level else 0 end)/5, 0) as b2_count,
           coalesce(SUM(case when word_id > 2750 and word_id <= 5000 then box_level else 0 end)/5, 0) as c1_count,
           coalesce(SUM(case when word_id > 5000 then box_level else 0 end)/5, 0) as c2_count
-        FROM (select * from LatestInfo where rn=1)
+        FROM LatestInfo
       )
       SELECT * FROM CEFRCounts
     ''');
@@ -778,7 +767,6 @@ class DatabaseService {
       ORDER BY RANDOM()
       LIMIT 1
     ''', selectedTenses);
-    print({List.filled(selectedTenses.length, '?').join(',')});
 
     if (result.isEmpty) {
       return {
