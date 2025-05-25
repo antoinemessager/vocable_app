@@ -3,6 +3,7 @@ import '../widgets/verb_card.dart';
 import '../services/database_service.dart';
 import '../models/verb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/star_animation.dart';
 
 class VerbScreen extends StatefulWidget {
   const VerbScreen({super.key});
@@ -24,6 +25,9 @@ class _VerbScreenState extends State<VerbScreen> {
   double _todayProgress = 0.0;
   double _totalMasteredVerbs = 0;
   int _dayStreak = 0;
+  bool _showStarAnimation = false;
+  double _currentMasteredCount = 0;
+  final GlobalKey _masteredKey = GlobalKey();
 
   @override
   void initState() {
@@ -56,6 +60,14 @@ class _VerbScreenState extends State<VerbScreen> {
     }
   }
 
+  void _startStarAnimation() async {
+    final totalMasteredVerbs = await _databaseService.getTotalMasteredVerbs();
+    setState(() {
+      _showStarAnimation = true;
+      _currentMasteredCount = totalMasteredVerbs;
+    });
+  }
+
   Future<void> _loadStats() async {
     final totalMastered = await _databaseService.getTotalMasteredVerbs();
     final streak = await _databaseService.getVerbDayStreak();
@@ -76,184 +88,216 @@ class _VerbScreenState extends State<VerbScreen> {
     final progressValue = _todayProgress / daily_verb_goal;
 
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          const SizedBox(height: 40),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 24),
-              child: Column(
-                children: [
-                  Row(
+          Column(
+            children: [
+              const SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 24),
+                  child: Column(
                     children: [
-                      Icon(
-                        Icons.emoji_events,
-                        color: Colors.amber[700],
-                        size: 32,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Progression",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.emoji_events,
+                            color: Colors.amber[700],
+                            size: 32,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Progression",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                Text(
+                                  '$progressPercentage%',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        color: hasCompletedDailyGoal
+                                            ? Colors.green
+                                            : Colors.blue,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '$progressPercentage%',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: hasCompletedDailyGoal
-                                        ? Colors.green
-                                        : Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: LinearProgressIndicator(
+                            value: progressValue,
+                            minHeight: 16,
+                            backgroundColor: Colors.transparent,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              hasCompletedDailyGoal
+                                  ? Colors.green
+                                  : Colors.blue,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  Container(
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: LinearProgressIndicator(
-                        value: progressValue,
-                        minHeight: 16,
-                        backgroundColor: Colors.transparent,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          hasCompletedDailyGoal ? Colors.green : Colors.blue,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-          Expanded(
-            child: _currentVerb.verb.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                    child: VerbCard(
-                      verb: _currentVerb,
-                      onCorrect: (isCorrect) async {
-                        await _loadRandomVerb();
-                        await _loadProgress();
-                        await _loadStats();
-                      },
-                      onIncorrect: (isCorrect) async {
-                        await _loadRandomVerb();
-                        await _loadProgress();
-                        await _loadStats();
-                      },
-                      onAlreadyKnown: (isTooEasy) async {
-                        await _loadRandomVerb();
-                        await _loadProgress();
-                        await _loadStats();
-                      },
+              Expanded(
+                child: _currentVerb.verb.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        child: VerbCard(
+                          verb: _currentVerb,
+                          onCorrect: (isCorrect) async {
+                            final totalMastered =
+                                await _databaseService.getTotalMasteredVerbs();
+                            if (totalMastered.toInt() >
+                                _totalMasteredVerbs.toInt()) {
+                              _startStarAnimation();
+                            }
+                            await _loadRandomVerb();
+                            await _loadProgress();
+                            await _loadStats();
+                          },
+                          onIncorrect: (isCorrect) async {
+                            await _loadRandomVerb();
+                            await _loadProgress();
+                            await _loadStats();
+                          },
+                          onAlreadyKnown: (isTooEasy) async {
+                            await _loadRandomVerb();
+                            await _loadProgress();
+                            await _loadStats();
+                          },
+                        ),
+                      ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                      key: _masteredKey,
+                      width: 120,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 28),
+                          const SizedBox(height: 4),
+                          Text(
+                            _totalMasteredVerbs.toInt().toString(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[800],
+                                ),
+                          ),
+                          Text(
+                            'Appris',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    Container(
+                      width: 120,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.calendar_today,
+                              color: Colors.blue, size: 28),
+                          const SizedBox(height: 4),
+                          Text(
+                            _dayStreak.toString(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[800],
+                                ),
+                          ),
+                          Text(
+                            'Jours',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Container(
-                  width: 120,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 28),
-                      const SizedBox(height: 4),
-                      Text(
-                        _totalMasteredVerbs.toInt().toString(),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
-                            ),
-                      ),
-                      Text(
-                        'Appris',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 120,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      const Icon(Icons.calendar_today,
-                          color: Colors.blue, size: 28),
-                      const SizedBox(height: 4),
-                      Text(
-                        _dayStreak.toString(),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
-                            ),
-                      ),
-                      Text(
-                        'Jours',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          if (_showStarAnimation)
+            StarAnimation(
+              currentCount: _currentMasteredCount.toInt(),
+              masteredKey: _masteredKey,
+              onComplete: () {
+                setState(() {
+                  _showStarAnimation = false;
+                });
+              },
             ),
-          ),
         ],
       ),
     );
