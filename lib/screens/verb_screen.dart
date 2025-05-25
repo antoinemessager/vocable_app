@@ -8,6 +8,7 @@ import '../widgets/calendar_animation.dart';
 import '../services/preferences_service.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math' show pi;
+import '../screens/main_screen.dart';
 
 class VerbScreen extends StatefulWidget {
   const VerbScreen({super.key});
@@ -81,6 +82,9 @@ class _VerbScreenState extends State<VerbScreen> {
         daily_verb_goal = goal;
         _todayProgress = progress;
         _showGoalAchieved = hasJustExceededGoal;
+        if (hasJustExceededGoal) {
+          MainScreen.updateProgress();
+        }
       });
     }
 

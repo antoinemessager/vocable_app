@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math' show pi;
+import '../screens/main_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -242,39 +243,14 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = true;
       });
 
-      final stopwatch = Stopwatch()..start();
-
       final prefs = await SharedPreferences.getInstance();
       daily_word_goal = prefs.getInt('daily_word_goal') ?? 5;
-      print('getWordsPerDay: ${stopwatch.elapsedMilliseconds}ms');
-      stopwatch.reset();
-      stopwatch.start();
-
       final nextWord = await DatabaseService.instance.getNextWordForReview();
-      print('getNextWordForReview: ${stopwatch.elapsedMilliseconds}ms');
-      stopwatch.reset();
-      stopwatch.start();
-
       final todayProgress = await DatabaseService.instance.getTodayProgress();
-      print('getTodayProgress: ${stopwatch.elapsedMilliseconds}ms');
-      stopwatch.reset();
-      stopwatch.start();
-
       final dayStreak = await DatabaseService.instance.getDayStreak();
-      print('getDayStreak: ${stopwatch.elapsedMilliseconds}ms');
-      stopwatch.reset();
-      stopwatch.start();
-
       final totalMasteredWords =
           await DatabaseService.instance.getTotalMasteredWords();
-      print('getTotalMasteredWords: ${stopwatch.elapsedMilliseconds}ms');
-      stopwatch.reset();
-      stopwatch.start();
-
       _previousProgress = await _preferencesService.getPreviousWordProgress();
-      print('getPreviousProgress: ${stopwatch.elapsedMilliseconds}ms');
-      stopwatch.reset();
-      print('--------------------------------');
 
       // Vérifier si l'utilisateur vient de dépasser 100% de son objectif pour la première fois
       final bool hasJustExceededGoal = _previousProgress < daily_word_goal &&
@@ -289,6 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _showGoalAchieved = false;
         if (hasJustExceededGoal) {
           _showGoalAchieved = true;
+          MainScreen.updateProgress();
         }
       });
 
