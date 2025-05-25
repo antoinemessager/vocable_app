@@ -53,12 +53,12 @@ class SettingsHelpCenterScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             _buildSection(
-              title: 'Interface de la carte',
+              title: 'Interface',
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Chaque carte comporte trois boutons :',
+                    'A chaque fois, il y a trois boutons :',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[800],
@@ -72,7 +72,7 @@ class SettingsHelpCenterScreen extends StatelessWidget {
                         Colors.green[50] ?? Colors.green.withOpacity(0.1),
                     title: 'Correct',
                     description:
-                        'Appuie ici lorsque tu te souviens correctement du mot. Cela augmente ton compteur.',
+                        'Appuie ici lorsque tu te souviens correctement du mot. Cela augmente ton compteur. Tu le reverras dans 1 heure, 1 jour, 3 jours ou 7 jours.',
                   ),
                   const SizedBox(height: 16),
                   _buildButtonInfo(
