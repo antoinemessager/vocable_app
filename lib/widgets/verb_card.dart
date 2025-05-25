@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'too_easy_dialog.dart';
 import '../services/database_service.dart';
+import '../models/verb.dart';
 
 class VerbCard extends StatefulWidget {
-  final String verb;
-  final String tense;
-  final String conjugation;
-  final int verb_id;
-  final int nbTimeSeen;
+  final Verb verb;
   final VoidCallback? onShowConjugation;
   final Function(bool)? onCorrect;
   final Function(bool)? onIncorrect;
@@ -17,10 +14,6 @@ class VerbCard extends StatefulWidget {
   const VerbCard({
     super.key,
     required this.verb,
-    required this.tense,
-    required this.conjugation,
-    required this.verb_id,
-    required this.nbTimeSeen,
     this.onShowConjugation,
     this.onCorrect,
     this.onIncorrect,
@@ -37,7 +30,8 @@ class _VerbCardState extends State<VerbCard> {
   @override
   void didUpdateWidget(VerbCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.verb != widget.verb || oldWidget.tense != widget.tense) {
+    if (oldWidget.verb.verb != widget.verb.verb ||
+        oldWidget.verb.tense != widget.verb.tense) {
       setState(() {
         _isRevealed = false;
       });
@@ -59,7 +53,7 @@ class _VerbCardState extends State<VerbCard> {
         context,
         onTooEasy: () async {
           await DatabaseService.instance
-              .recordVerbProgress(widget.verb_id, isTooEasy: true);
+              .recordVerbProgress(widget.verb.verb_id, isTooEasy: true);
           widget.onAlreadyKnown?.call(true);
         },
       );
@@ -68,7 +62,7 @@ class _VerbCardState extends State<VerbCard> {
       }
     } else {
       await DatabaseService.instance
-          .recordVerbProgress(widget.verb_id, isTooEasy: true);
+          .recordVerbProgress(widget.verb.verb_id, isTooEasy: true);
       widget.onAlreadyKnown?.call(true);
     }
   }
@@ -213,44 +207,17 @@ class _VerbCardState extends State<VerbCard> {
               children: [
                 SizedBox(
                   height: 40,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        child: Text(
-                          widget.verb,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                          textAlign: TextAlign.center,
+                  child: Text(
+                    widget.verb.verb,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-                      Positioned(
-                        right: 0,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.help_outline,
-                            color: Colors.grey,
-                            size: 20,
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          onPressed: () {
-                            // TODO: Show help dialog
-                          },
-                        ),
-                      ),
-                    ],
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  widget.tense,
+                  widget.verb.tense,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontStyle: FontStyle.italic,
                         color: Colors.grey[600],
@@ -294,7 +261,7 @@ class _VerbCardState extends State<VerbCard> {
                                 child: FilledButton(
                                   onPressed: () async {
                                     await DatabaseService.instance
-                                        .recordVerbProgress(widget.verb_id,
+                                        .recordVerbProgress(widget.verb.verb_id,
                                             isCorrect: false);
                                     widget.onIncorrect?.call(false);
                                   },
@@ -336,7 +303,7 @@ class _VerbCardState extends State<VerbCard> {
                                 child: FilledButton(
                                   onPressed: () async {
                                     await DatabaseService.instance
-                                        .recordVerbProgress(widget.verb_id,
+                                        .recordVerbProgress(widget.verb.verb_id,
                                             isCorrect: true);
                                     widget.onCorrect?.call(true);
                                   },
@@ -373,7 +340,7 @@ class _VerbCardState extends State<VerbCard> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        if (widget.nbTimeSeen == 1)
+                        if (widget.verb.nb_time_seen <= 1)
                           Row(
                             children: [
                               Expanded(
@@ -428,10 +395,7 @@ class _VerbCardState extends State<VerbCard> {
   }
 
   Widget _buildConjugationTable() {
-    // Debug raw input
-
-    // Vérifier si la conjugaison est vide ou nulle
-    if (widget.conjugation.isEmpty) {
+    if (widget.verb.conjugation.isEmpty) {
       return const Center(
         child: Text(
           'Aucune conjugaison disponible',
@@ -440,11 +404,9 @@ class _VerbCardState extends State<VerbCard> {
       );
     }
 
-    // Séparer sur les virgules et nettoyer le texte
     final conjugations =
-        widget.conjugation.split(',').map((line) => line.trim()).toList();
+        widget.verb.conjugation.split(',').map((line) => line.trim()).toList();
 
-    // Vérifier que nous avons 5 ou 6 lignes de conjugaison
     if (conjugations.length != 6 && conjugations.length != 5) {
       return const Center(
         child: Text(
@@ -454,7 +416,6 @@ class _VerbCardState extends State<VerbCard> {
       );
     }
 
-    // Vérifier si toutes les conjugaisons sont vides
     if (conjugations.every((conj) => conj.isEmpty)) {
       return const Center(
         child: Text(

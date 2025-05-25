@@ -4,6 +4,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/word_pair.dart';
 import '../models/word_progress.dart';
+import '../models/verb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
@@ -88,7 +89,6 @@ class DatabaseService {
 
     // Load initial vocabulary data from JSON files
     final List<WordPair> wordPairs = await readJsonFromAssets();
-
     final List<Map<String, dynamic>> verbs = await readVerbsFromAssets();
 
     final batch = db.batch();
@@ -146,17 +146,23 @@ class DatabaseService {
       }
     }
 
-    // Initialize user_progress_verb for all verbs with box_level 0
+    // Commit the batch to insert all data
+    await batch.commit(noResult: true);
+
+    // Now that all verbs are inserted, initialize user_progress_verb
     final List<Map<String, dynamic>> insertedVerbs = await db.query('verb');
+    final progressBatch = db.batch();
+
     for (var verb in insertedVerbs) {
-      batch.insert('user_progress_verb', {
+      progressBatch.insert('user_progress_verb', {
         'verb_id': verb['id'],
         'box_level': 0,
         'timestamp': DateTime.now().toIso8601String(),
       });
     }
 
-    await batch.commit(noResult: true);
+    // Commit the progress batch
+    await progressBatch.commit(noResult: true);
   }
 
   Future<List<WordPair>> readJsonFromAssets() async {
@@ -738,7 +744,7 @@ class DatabaseService {
     return results;
   }
 
-  Future<Map<String, dynamic>> getRandomVerb() async {
+  Future<Verb> getRandomVerb() async {
     final db = await database;
     final prefs = await SharedPreferences.getInstance();
     final selectedTenses =
@@ -769,21 +775,15 @@ class DatabaseService {
     ''', selectedTenses);
 
     if (result.isEmpty) {
-      return {
-        'verb': '',
-        'tense': '',
-        'conjugation': '',
-        'verb_id': 0,
-        'nb_time_seen': 0
-      };
+      return Verb(
+        verb_id: 0,
+        verb: '',
+        tense: '',
+        conjugation: '',
+        nb_time_seen: 0,
+      );
     }
-    return {
-      'verb': result.first['verb'] as String,
-      'tense': result.first['tense'] as String,
-      'conjugation': result.first['conjugation'] as String,
-      'verb_id': result.first['id'] as int,
-      'nb_time_seen': result.first['nb_time_seen'] as int,
-    };
+    return Verb.fromMap(result.first);
   }
 
   Future<double> getVerbProgress() async {
@@ -844,8 +844,6 @@ class DatabaseService {
 
     final int startCount = verbsBeforeStart.first['learned_verbs'] as int;
     final int nowCount = verbsBeforeNow.first['learned_verbs'] as int;
-
-    // Calculate today's progress (difference in number of verbs learned)
 
     return (nowCount - startCount).toDouble() / 5;
   }

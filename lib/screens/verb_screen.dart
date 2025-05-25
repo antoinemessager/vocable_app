@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/verb_card.dart';
 import '../services/database_service.dart';
+import '../models/verb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VerbScreen extends StatefulWidget {
@@ -12,14 +13,14 @@ class VerbScreen extends StatefulWidget {
 
 class _VerbScreenState extends State<VerbScreen> {
   final DatabaseService _databaseService = DatabaseService.instance;
-  Map<String, dynamic> _currentVerb = {
-    'verb': '',
-    'tense': '',
-    'conjugation': '',
-    'verb_id': 0,
-    'nb_time_seen': 0
-  };
-  int _dailyGoal = 5;
+  Verb _currentVerb = Verb(
+    verb_id: 0,
+    verb: '',
+    tense: '',
+    conjugation: '',
+    nb_time_seen: 0,
+  );
+  int daily_verb_goal = 5;
   double _todayProgress = 0.0;
 
   @override
@@ -41,12 +42,12 @@ class _VerbScreenState extends State<VerbScreen> {
 
   Future<void> _loadProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    final dailyGoal = prefs.getInt('daily_verb_goal') ?? 5;
+    final goal = prefs.getInt('daily_verb_goal') ?? 5;
     final progress = await _databaseService.getVerbProgress();
 
     if (mounted) {
       setState(() {
-        _dailyGoal = dailyGoal;
+        daily_verb_goal = goal;
         _todayProgress = progress;
       });
     }
@@ -54,9 +55,10 @@ class _VerbScreenState extends State<VerbScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasCompletedDailyGoal = _todayProgress >= _dailyGoal;
-    final progressPercentage = ((_todayProgress / _dailyGoal) * 100).round();
-    final progressValue = _todayProgress / _dailyGoal;
+    final hasCompletedDailyGoal = _todayProgress >= daily_verb_goal;
+    final progressPercentage =
+        ((_todayProgress / daily_verb_goal) * 100).round();
+    final progressValue = _todayProgress / daily_verb_goal;
 
     return Scaffold(
       body: Column(
@@ -137,18 +139,11 @@ class _VerbScreenState extends State<VerbScreen> {
             ),
           ),
           Expanded(
-            child: _currentVerb['verb']!.isEmpty
+            child: _currentVerb.verb.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
                     child: VerbCard(
-                      verb: _currentVerb['verb']!,
-                      tense: _currentVerb['tense']!,
-                      conjugation: _currentVerb['conjugation']!,
-                      verb_id: _currentVerb['verb_id']!,
-                      nbTimeSeen: _currentVerb['nb_time_seen']!,
-                      onShowConjugation: () {
-                        // TODO: Show conjugation details
-                      },
+                      verb: _currentVerb,
                       onCorrect: (isCorrect) async {
                         await _loadRandomVerb();
                         await _loadProgress();
