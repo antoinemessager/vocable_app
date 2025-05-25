@@ -4,6 +4,10 @@ import '../services/database_service.dart';
 import '../models/verb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/star_animation.dart';
+import '../widgets/calendar_animation.dart';
+import '../services/preferences_service.dart';
+import 'package:confetti/confetti.dart';
+import 'dart:math' show pi;
 
 class VerbScreen extends StatefulWidget {
   const VerbScreen({super.key});
@@ -14,6 +18,8 @@ class VerbScreen extends StatefulWidget {
 
 class _VerbScreenState extends State<VerbScreen> {
   final DatabaseService _databaseService = DatabaseService.instance;
+  final PreferencesService _preferencesService = PreferencesService();
+  late ConfettiController _confettiController;
   Verb _currentVerb = Verb(
     verb_id: 0,
     verb: '',
@@ -28,13 +34,26 @@ class _VerbScreenState extends State<VerbScreen> {
   bool _showStarAnimation = false;
   double _currentMasteredCount = 0;
   final GlobalKey _masteredKey = GlobalKey();
+  final GlobalKey _streakKey = GlobalKey();
+  bool _showGoalAchieved = false;
+  bool _showCalendarAnimation = false;
+  int _currentStreakCount = 0;
+  double _previousProgress = 0.0;
 
   @override
   void initState() {
     super.initState();
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
     _loadRandomVerb();
     _loadProgress();
     _loadStats();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadRandomVerb() async {
@@ -51,13 +70,23 @@ class _VerbScreenState extends State<VerbScreen> {
     final prefs = await SharedPreferences.getInstance();
     final goal = prefs.getInt('daily_verb_goal') ?? 5;
     final progress = await _databaseService.getVerbProgress();
+    _previousProgress = await _preferencesService.getPreviousVerbProgress();
+
+    // Vérifier si l'utilisateur vient de dépasser 100% de son objectif pour la première fois
+    final bool hasJustExceededGoal =
+        _previousProgress < daily_verb_goal && progress >= daily_verb_goal;
 
     if (mounted) {
       setState(() {
         daily_verb_goal = goal;
         _todayProgress = progress;
+        _showGoalAchieved = hasJustExceededGoal;
       });
     }
+
+    // Sauvegarder la nouvelle valeur de progression
+    await _preferencesService.setPreviousVerbProgress(progress);
+    _previousProgress = progress;
   }
 
   void _startStarAnimation() async {
@@ -80,12 +109,94 @@ class _VerbScreenState extends State<VerbScreen> {
     }
   }
 
+  void _startCalendarAnimation() {
+    setState(() {
+      _showCalendarAnimation = true;
+      _currentStreakCount = _dayStreak;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasCompletedDailyGoal = _todayProgress >= daily_verb_goal;
     final progressPercentage =
         ((_todayProgress / daily_verb_goal) * 100).round();
     final progressValue = _todayProgress / daily_verb_goal;
+
+    if (_showGoalAchieved) {
+      _confettiController.play();
+      return Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.check_circle_outline,
+                    size: 64,
+                    color: Colors.green,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Objectif atteint !',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Félicitations, tu as atteint ton objectif quotidien !',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _showGoalAchieved = false;
+                      });
+                      _startCalendarAnimation();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                    ),
+                    child: const Text('Continuer à apprendre'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: pi / 2,
+              maxBlastForce: 5,
+              minBlastForce: 2,
+              emissionFrequency: 0.05,
+              numberOfParticles: 50,
+              gravity: 0.1,
+              shouldLoop: false,
+              colors: const [
+                Colors.green,
+                Colors.blue,
+                Colors.pink,
+                Colors.orange,
+                Colors.purple
+              ],
+            ),
+          ),
+        ],
+      );
+    }
 
     return Scaffold(
       body: Stack(
@@ -245,6 +356,7 @@ class _VerbScreenState extends State<VerbScreen> {
                       ),
                     ),
                     Container(
+                      key: _streakKey,
                       width: 120,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -295,6 +407,16 @@ class _VerbScreenState extends State<VerbScreen> {
               onComplete: () {
                 setState(() {
                   _showStarAnimation = false;
+                });
+              },
+            ),
+          if (_showCalendarAnimation)
+            CalendarAnimation(
+              currentCount: _currentStreakCount,
+              calendarKey: _streakKey,
+              onComplete: () {
+                setState(() {
+                  _showCalendarAnimation = false;
                 });
               },
             ),

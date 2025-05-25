@@ -13,11 +13,14 @@ class PreferencesService {
   static const String _notificationMinuteKey = 'notification_minute';
   static const String _hasShownHelpKey = 'has_shown_help';
   static const String _verbsPerDayKey = 'verbs_per_day';
+  static const String _previousWordProgressKey = 'previous_word_progress';
+  static const String _previousVerbProgressKey = 'previous_verb_progress';
 
   // Cache pour les valeurs fréquemment utilisées
   static SharedPreferences? _prefs;
   static int? _cachedWordsPerDay;
-  static double? _cachedPreviousProgress;
+  static double? _cachedPreviousWordProgress;
+  static double? _cachedPreviousVerbProgress;
   static bool? _cachedHasShownHelp;
   static int? _cachedVerbsPerDay;
 
@@ -26,7 +29,8 @@ class PreferencesService {
     if (_prefs == null) {
       _prefs = await SharedPreferences.getInstance();
       _cachedWordsPerDay = _prefs!.getInt(_wordsPerDayKey);
-      _cachedPreviousProgress = _prefs!.getDouble('previous_progress');
+      _cachedPreviousWordProgress = _prefs!.getDouble(_previousWordProgressKey);
+      _cachedPreviousVerbProgress = _prefs!.getDouble(_previousVerbProgressKey);
       _cachedHasShownHelp = _prefs!.getBool(_hasShownHelpKey);
       _cachedVerbsPerDay = _prefs!.getInt(_verbsPerDayKey);
     }
@@ -34,9 +38,7 @@ class PreferencesService {
 
   Future<int> getWordsPerDay() async {
     await _initCache();
-    if (_cachedWordsPerDay == null) {
-      _cachedWordsPerDay = _prefs!.getInt(_wordsPerDayKey) ?? 10;
-    }
+    _cachedWordsPerDay ??= _prefs!.getInt(_wordsPerDayKey) ?? 10;
     return _cachedWordsPerDay!;
   }
 
@@ -48,9 +50,7 @@ class PreferencesService {
 
   Future<int> getVerbsPerDay() async {
     await _initCache();
-    if (_cachedVerbsPerDay == null) {
-      _cachedVerbsPerDay = _prefs!.getInt(_verbsPerDayKey) ?? 5;
-    }
+    _cachedVerbsPerDay ??= _prefs!.getInt(_verbsPerDayKey) ?? 5;
     return _cachedVerbsPerDay!;
   }
 
@@ -106,25 +106,35 @@ class PreferencesService {
         .setString('last_streak_animation_date', date.toIso8601String());
   }
 
-  Future<double> getPreviousProgress() async {
+  Future<double> getPreviousWordProgress() async {
     await _initCache();
-    if (_cachedPreviousProgress == null) {
-      _cachedPreviousProgress = _prefs!.getDouble('previous_progress') ?? 0.0;
-    }
-    return _cachedPreviousProgress!;
+    _cachedPreviousWordProgress ??=
+        _prefs!.getDouble(_previousWordProgressKey) ?? 0.0;
+    return _cachedPreviousWordProgress!;
   }
 
-  Future<void> setPreviousProgress(double progress) async {
+  Future<void> setPreviousWordProgress(double progress) async {
     await _initCache();
-    await _prefs!.setDouble('previous_progress', progress);
-    _cachedPreviousProgress = progress;
+    await _prefs!.setDouble(_previousWordProgressKey, progress);
+    _cachedPreviousWordProgress = progress;
+  }
+
+  Future<double> getPreviousVerbProgress() async {
+    await _initCache();
+    _cachedPreviousVerbProgress ??=
+        _prefs!.getDouble(_previousVerbProgressKey) ?? 0.0;
+    return _cachedPreviousVerbProgress!;
+  }
+
+  Future<void> setPreviousVerbProgress(double progress) async {
+    await _initCache();
+    await _prefs!.setDouble(_previousVerbProgressKey, progress);
+    _cachedPreviousVerbProgress = progress;
   }
 
   Future<bool> getHasShownHelp() async {
     await _initCache();
-    if (_cachedHasShownHelp == null) {
-      _cachedHasShownHelp = _prefs!.getBool(_hasShownHelpKey) ?? false;
-    }
+    _cachedHasShownHelp ??= _prefs!.getBool(_hasShownHelpKey) ?? false;
     return _cachedHasShownHelp!;
   }
 
