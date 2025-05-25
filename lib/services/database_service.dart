@@ -882,4 +882,108 @@ class DatabaseService {
     if (result.isEmpty) return 0;
     return result.first['box_level'] as int;
   }
+
+  Future<double> getTotalMasteredVerbs() async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      WITH VebStats AS (
+        SELECT 
+          verb_id,
+          MAX(timestamp) as max_timestamp,
+          COUNT(*) as nb_entries
+        FROM user_progress_verb
+        GROUP BY verb_id
+        HAVING COUNT(*) >= 2
+      )
+      SELECT COALESCE(SUM(up.box_level), 0) as count
+      FROM user_progress_verb up
+      JOIN VebStats vs ON up.verb_id = vs.verb_id 
+        AND up.timestamp = vs.max_timestamp
+      WHERE (up.box_level != 5 OR vs.nb_entries > 2)
+    ''');
+    return (result.first['count'] as int).toDouble() / 5;
+  }
+
+  Future<int> getVerbDayStreak() async {
+    final now = DateTime.now();
+    int streak = 0;
+    final prefs = await SharedPreferences.getInstance();
+    final dailyGoal = prefs.getInt('daily_verb_goal') ?? 5;
+
+    for (int i = 0;; i++) {
+      final date = now.subtract(Duration(days: i));
+      final startOfDay = DateTime(date.year, date.month, date.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      final verbsLearned =
+          await getVerbProgressBetweenDates(startOfDay, endOfDay);
+      if (verbsLearned >= dailyGoal) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  Future<double> getVerbProgressBetweenDates(
+      DateTime startDate, DateTime endDate) async {
+    final db = await database;
+
+    // Get the number of verbs learned before start date
+    final verbsBeforeStart = await db.rawQuery('''
+      WITH EntryCounts AS (
+          SELECT 
+            verb_id, 
+            COUNT(*) AS nb_entries, 
+            MAX(timestamp) AS max_timestamp
+          FROM user_progress_verb
+          WHERE timestamp < ?
+          GROUP BY verb_id
+      ), LatestInfo AS (
+      SELECT 
+          up.verb_id,
+          up.box_level,
+          up.timestamp,
+          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
+      FROM user_progress_verb up
+      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.verb_id = ec.verb_id
+      )
+      SELECT coalesce(sum(box_level), 0) as learned_verbs
+      FROM LatestInfo 
+      where rn=1 and (box_level!=5 or nb_entries>2)
+    ''', [startDate.toIso8601String()]);
+
+    // Get the number of verbs learned before end date
+    final verbsBeforeEnd = await db.rawQuery('''
+      WITH EntryCounts AS (
+          SELECT 
+            verb_id, 
+            COUNT(*) AS nb_entries, 
+            MAX(timestamp) AS max_timestamp
+          FROM user_progress_verb
+          WHERE timestamp < ?
+          GROUP BY verb_id
+      ), LatestInfo AS (
+      SELECT 
+          up.verb_id,
+          up.box_level,
+          up.timestamp,
+          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
+          ec.nb_entries
+      FROM user_progress_verb up
+      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.verb_id = ec.verb_id
+      )
+      SELECT coalesce(sum(box_level), 0) as learned_verbs
+      FROM LatestInfo 
+      where rn=1 and (box_level!=5 or nb_entries>2)
+    ''', [endDate.toIso8601String()]);
+
+    final int startCount = verbsBeforeStart.first['learned_verbs'] as int;
+    final int endCount = verbsBeforeEnd.first['learned_verbs'] as int;
+    // Calculate progress (difference in number of verbs learned)
+    return (endCount - startCount).toDouble() / 5;
+  }
 }

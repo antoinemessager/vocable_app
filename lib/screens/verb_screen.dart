@@ -22,12 +22,15 @@ class _VerbScreenState extends State<VerbScreen> {
   );
   int daily_verb_goal = 5;
   double _todayProgress = 0.0;
+  double _totalMasteredVerbs = 0;
+  int _dayStreak = 0;
 
   @override
   void initState() {
     super.initState();
     _loadRandomVerb();
     _loadProgress();
+    _loadStats();
   }
 
   Future<void> _loadRandomVerb() async {
@@ -49,6 +52,18 @@ class _VerbScreenState extends State<VerbScreen> {
       setState(() {
         daily_verb_goal = goal;
         _todayProgress = progress;
+      });
+    }
+  }
+
+  Future<void> _loadStats() async {
+    final totalMastered = await _databaseService.getTotalMasteredVerbs();
+    final streak = await _databaseService.getVerbDayStreak();
+
+    if (mounted) {
+      setState(() {
+        _totalMasteredVerbs = totalMastered;
+        _dayStreak = streak;
       });
     }
   }
@@ -147,17 +162,97 @@ class _VerbScreenState extends State<VerbScreen> {
                       onCorrect: (isCorrect) async {
                         await _loadRandomVerb();
                         await _loadProgress();
+                        await _loadStats();
                       },
                       onIncorrect: (isCorrect) async {
                         await _loadRandomVerb();
                         await _loadProgress();
+                        await _loadStats();
                       },
                       onAlreadyKnown: (isTooEasy) async {
                         await _loadRandomVerb();
                         await _loadProgress();
+                        await _loadStats();
                       },
                     ),
                   ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                  width: 120,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber, size: 28),
+                      const SizedBox(height: 4),
+                      Text(
+                        _totalMasteredVerbs.toInt().toString(),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                            ),
+                      ),
+                      Text(
+                        'Appris',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 120,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.calendar_today,
+                          color: Colors.blue, size: 28),
+                      const SizedBox(height: 4),
+                      Text(
+                        _dayStreak.toString(),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                            ),
+                      ),
+                      Text(
+                        'Jours',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
