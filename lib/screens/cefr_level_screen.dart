@@ -37,6 +37,8 @@ class _CEFRLevelScreenState extends State<CEFRLevelScreen> {
   }
 
   String _getLevelText(int boxLevel) {
+    if (boxLevel > 5) return '100%';
+
     switch (boxLevel) {
       case 0:
         return '0%';

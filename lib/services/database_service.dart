@@ -1029,10 +1029,10 @@ class DatabaseService {
             FROM user_progress_verb
             GROUP BY verb_id
           )
-          SELECT COUNT(*) as mastered
+          SELECT sum(box_level)/5 as mastered
           FROM verb v
           JOIN LatestProgress lp ON v.id = lp.verb_id
-          WHERE v.tense = ? AND lp.box_level = 5
+          WHERE v.tense = ?
         ''', [tense]);
 
         final mastered = masteredResult.first['mastered'] as int;
