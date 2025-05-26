@@ -986,4 +986,62 @@ class DatabaseService {
     // Calculate progress (difference in number of verbs learned)
     return (endCount - startCount).toDouble() / 5;
   }
+
+  Future<Map<String, double>> getTenseProgress() async {
+    final db = await database;
+    final Map<String, double> progress = {};
+
+    // Pour chaque temps verbal
+    final tenses = [
+      'présent',
+      'futur',
+      'passé composé',
+      'imparfait',
+      'passé simple',
+      'conditionnel présent',
+      'subjonctif présent',
+      'subjonctif passé',
+      'impératif',
+      'impératif négatif',
+      'plus que parfait',
+      'futur antérieur',
+      'conditionnel passé',
+    ];
+
+    for (var tense in tenses) {
+      // Récupérer le nombre total de verbes pour ce temps
+      final totalResult = await db.rawQuery('''
+        SELECT COUNT(*) as total
+        FROM verb
+        WHERE tense = ?
+      ''', [tense]);
+
+      final total = totalResult.first['total'] as int;
+
+      if (total > 0) {
+        // Récupérer le nombre de verbes maîtrisés pour ce temps
+        final masteredResult = await db.rawQuery('''
+          WITH LatestProgress AS (
+            SELECT
+              verb_id,
+              box_level,
+              MAX(timestamp) AS latest_timestamp
+            FROM user_progress_verb
+            GROUP BY verb_id
+          )
+          SELECT COUNT(*) as mastered
+          FROM verb v
+          JOIN LatestProgress lp ON v.id = lp.verb_id
+          WHERE v.tense = ? AND lp.box_level = 5
+        ''', [tense]);
+
+        final mastered = masteredResult.first['mastered'] as int;
+        progress[tense] = mastered / total;
+      } else {
+        progress[tense] = 0.0;
+      }
+    }
+
+    return progress;
+  }
 }

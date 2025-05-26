@@ -105,7 +105,7 @@ class _CEFRLevelScreenState extends State<CEFRLevelScreen> {
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: widget.currentWords / widget.totalWords,
-                          backgroundColor: Colors.grey[200],
+                          backgroundColor: Colors.grey[100],
                           valueColor: AlwaysStoppedAnimation<Color>(
                             widget.level.startsWith('A')
                                 ? Colors.green
@@ -136,7 +136,7 @@ class _CEFRLevelScreenState extends State<CEFRLevelScreen> {
                 ),
                 const SizedBox(height: 16),
                 ..._words.map((word) => Card(
-                      color: Colors.grey[100],
+                      color: Colors.white,
                       margin: const EdgeInsets.only(bottom: 8),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -183,7 +183,7 @@ class _CEFRLevelScreenState extends State<CEFRLevelScreen> {
                               borderRadius: BorderRadius.circular(2),
                               child: LinearProgressIndicator(
                                 value: _getProgressValue(word['box_level']),
-                                backgroundColor: Colors.grey[300],
+                                backgroundColor: Colors.grey[100],
                                 valueColor: const AlwaysStoppedAnimation<Color>(
                                     Colors.blue),
                                 minHeight: 4,
