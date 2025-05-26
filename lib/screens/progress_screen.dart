@@ -11,8 +11,6 @@ class ProgressScreen extends StatefulWidget {
 }
 
 class _ProgressScreenState extends State<ProgressScreen> {
-  int _totalWords = 0;
-  int _totalVerbs = 0;
   int _dayStreak = 0;
   int _verbDayStreak = 0;
   final Map<String, Map<String, dynamic>> _cefrProgress = {
@@ -50,25 +48,19 @@ class _ProgressScreenState extends State<ProgressScreen> {
     setState(() => _isLoading = true);
 
     final stats = await Future.wait([
-      DatabaseService.instance.getTotalMasteredWords(),
-      DatabaseService.instance.getTotalMasteredVerbs(),
       DatabaseService.instance.getDayStreak(),
       DatabaseService.instance.getVerbDayStreak(),
       DatabaseService.instance.getCEFRProgress(),
       DatabaseService.instance.getTenseProgress(),
     ]);
 
-    final totalMastered = stats[0] as double;
-    final totalMasteredVerbs = stats[1] as double;
-    final Map<String, double> cefrPercentages = stats[4] as Map<String, double>;
+    final Map<String, double> cefrPercentages = stats[2] as Map<String, double>;
     final Map<String, double> tensePercentages =
-        stats[5] as Map<String, double>;
+        stats[3] as Map<String, double>;
 
     setState(() {
-      _totalWords = totalMastered.toInt();
-      _totalVerbs = totalMasteredVerbs.toInt();
-      _dayStreak = stats[2] as int;
-      _verbDayStreak = stats[3] as int;
+      _dayStreak = stats[0] as int;
+      _verbDayStreak = stats[1] as int;
 
       _cefrProgress['A1']!['current'] = (cefrPercentages['A1']! * 250).round();
       _cefrProgress['A2']!['current'] = (cefrPercentages['A2']! * 500).round();
