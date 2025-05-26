@@ -455,12 +455,6 @@ class DatabaseService {
     await db.insert('user_progress', progress.toMap());
   }
 
-  // Close the database
-  Future<void> close() async {
-    final db = await instance.database;
-    db.close();
-  }
-
   Future<double> getTodayProgress() async {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
@@ -509,18 +503,6 @@ class DatabaseService {
       WHERE (up.box_level != 5 OR ws.nb_entries > 2)
     ''');
     return (result.first['count'] as int) / 5;
-  }
-
-  Future<int> getTotalStudiedWords() async {
-    final db = await database;
-
-    final result = await db.rawQuery('''
-      SELECT COUNT(DISTINCT word_id) as count
-      FROM user_progress
-      GROUP BY word_id
-      HAVING COUNT(*) >= 2
-    ''');
-    return result.first['count'] as int;
   }
 
   Future<Map<String, double>> getCEFRProgress() async {
@@ -745,45 +727,7 @@ class DatabaseService {
   }
 
   Future<Verb> getRandomVerb() async {
-    final db = await database;
-    final prefs = await SharedPreferences.getInstance();
-    final selectedTenses =
-        prefs.getStringList('selected_verb_tenses') ?? ['présent'];
-
-    final List<Map<String, dynamic>> result = await db.rawQuery('''
-      WITH LatestProgress AS (
-        SELECT
-          verb_id,
-          box_level,
-          MAX(timestamp) AS latest_timestamp,
-          COUNT(*) AS nb_time_seen
-        FROM user_progress_verb
-        GROUP BY verb_id
-      )
-      SELECT 
-        v.id,
-        v.verb,
-        v.tense,
-        v.conjugation,
-        COALESCE(lp.box_level, 0) as box_level,
-        COALESCE(lp.nb_time_seen, 0) as nb_time_seen
-      FROM verb v
-      LEFT JOIN LatestProgress lp ON v.id = lp.verb_id
-      WHERE v.tense IN (${List.filled(selectedTenses.length, '?').join(',')})
-      ORDER BY RANDOM()
-      LIMIT 1
-    ''', selectedTenses);
-
-    if (result.isEmpty) {
-      return Verb(
-        verb_id: 0,
-        verb: '',
-        tense: '',
-        conjugation: '',
-        nb_time_seen: 0,
-      );
-    }
-    return Verb.fromMap(result.first);
+    return getNextVerbForReview();
   }
 
   Future<double> getVerbProgress() async {
@@ -1043,5 +987,63 @@ class DatabaseService {
     }
 
     return progress;
+  }
+
+  Future<Verb> getNextVerbForReview() async {
+    final db = await database;
+    final prefs = await SharedPreferences.getInstance();
+    final selectedTenses =
+        prefs.getStringList('selected_verb_tenses') ?? ['présent'];
+
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT
+          verb_id,
+          box_level,
+          MAX(timestamp) AS latest_timestamp,
+          CASE
+            WHEN box_level = 1 THEN datetime(timestamp, '+1 hour')
+            WHEN box_level = 2 THEN datetime(timestamp, '+1 day')
+            WHEN box_level = 3 THEN datetime(timestamp, '+3 days')
+            WHEN box_level = 4 THEN datetime(timestamp, '+7 days')
+            WHEN box_level = 5 THEN datetime(timestamp, '+10 years')
+            ELSE timestamp
+          END AS min_timestamp,
+          COUNT(*) AS nb_time_seen
+        FROM user_progress_verb
+        GROUP BY verb_id
+      ), UsableVerbs AS (
+        SELECT
+          lp.*
+        FROM LatestProgress lp
+        WHERE datetime('now') >= lp.min_timestamp
+          OR lp.box_level = 0
+      ), Pool50 AS (
+        SELECT
+          v.*,
+          COALESCE(up.box_level, 0) as box_level,
+          COALESCE(up.nb_time_seen, 0) as nb_time_seen
+        FROM verb v
+        LEFT JOIN UsableVerbs up ON v.id = up.verb_id
+        WHERE v.tense IN (${List.filled(selectedTenses.length, '?').join(',')})
+          AND (up.verb_id IS NOT NULL OR NOT EXISTS (
+            SELECT 1 FROM user_progress_verb up2 WHERE up2.verb_id = v.id
+          ))
+        ORDER BY v.id
+        LIMIT 50
+      )
+      SELECT * FROM Pool50 ORDER BY RANDOM() LIMIT 1;
+    ''', selectedTenses);
+    print(result);
+    if (result.isEmpty) {
+      return Verb(
+        verb_id: 0,
+        verb: '',
+        tense: '',
+        conjugation: '',
+        nb_time_seen: 0,
+      );
+    }
+    return Verb.fromMap(result.first);
   }
 }

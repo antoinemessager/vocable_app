@@ -286,7 +286,38 @@ class _VerbScreenState extends State<VerbScreen> {
               ),
               Expanded(
                 child: _currentVerb.verb.isEmpty
-                    ? const Center(child: CircularProgressIndicator())
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.check_circle_outline,
+                              size: 64,
+                              color: Colors.green,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Tout est à jour !',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Pas de verbes à réviser pour le moment',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                            ),
+                          ],
+                        ),
+                      )
                     : SingleChildScrollView(
                         child: VerbCard(
                           verb: _currentVerb,
