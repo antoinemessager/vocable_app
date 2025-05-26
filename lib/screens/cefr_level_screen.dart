@@ -39,20 +39,29 @@ class _CEFRLevelScreenState extends State<CEFRLevelScreen> {
   String _getLevelText(int boxLevel) {
     switch (boxLevel) {
       case 0:
-        return 'Inconnu';
+        return '0%';
       case 1:
-        return 'Niveau 1';
+        return '20%';
       case 2:
-        return 'Niveau 2';
+        return '40%';
       case 3:
-        return 'Niveau 3';
+        return '60%';
       case 4:
-        return 'Niveau 4';
+        return '80%';
       case 5:
-        return 'Connu';
+        return '100%';
       default:
-        return 'Inconnu';
+        return '0%';
     }
+  }
+
+  double _getProgressValue(int boxLevel) {
+    return boxLevel / 5;
+  }
+
+  String _truncateText(String text, int maxLength) {
+    if (text.length <= maxLength) return text;
+    return '${text.substring(0, maxLength)}...';
   }
 
   @override
@@ -129,36 +138,58 @@ class _CEFRLevelScreenState extends State<CEFRLevelScreen> {
                 ..._words.map((word) => Card(
                       color: Colors.grey[100],
                       margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        title: Text(
-                          word['french_word'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        subtitle: Text(
-                          word['spanish_word'],
-                          style: const TextStyle(
-                            color: Colors.blue,
-                          ),
-                        ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            _getLevelText(word['box_level']),
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        _truncateText(word['french_word'], 20),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        word['spanish_word'],
+                                        style: const TextStyle(
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _getLevelText(word['box_level']),
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(2),
+                              child: LinearProgressIndicator(
+                                value: _getProgressValue(word['box_level']),
+                                backgroundColor: Colors.grey[300],
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                    Colors.blue),
+                                minHeight: 4,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     )),
