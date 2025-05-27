@@ -1034,7 +1034,7 @@ class DatabaseService {
       )
       SELECT * FROM Pool50 ORDER BY RANDOM() LIMIT 1;
     ''', selectedTenses);
-    print(result);
+
     if (result.isEmpty) {
       return Verb(
         verb_id: 0,

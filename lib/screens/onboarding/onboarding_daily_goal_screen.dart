@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'onboarding_notification_screen.dart';
+import 'onboarding_daily_verb_goal_screen.dart';
 
 class OnboardingDailyGoalScreen extends StatefulWidget {
   const OnboardingDailyGoalScreen({super.key});
@@ -75,26 +75,25 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
                 _buildGoalOption(
                   value: 3,
                   title: '3 mots par jour',
-                  description: 'Parfait pour un apprentissage en douceur',
+                  description: 'Temps estimé : 3 minutes',
                 ),
                 const SizedBox(height: 16),
                 _buildGoalOption(
                   value: 5,
                   title: '5 mots par jour',
-                  description:
-                      'Un rythme équilibré pour progresser régulièrement',
+                  description: 'Temps estimé : 5 minutes',
                 ),
                 const SizedBox(height: 16),
                 _buildGoalOption(
                   value: 10,
                   title: '10 mots par jour',
-                  description: 'Idéal pour une progression rapide',
+                  description: 'Temps estimé : 10 minutes',
                 ),
                 const SizedBox(height: 16),
                 _buildGoalOption(
                   value: 15,
                   title: '15 mots par jour',
-                  description: 'Pour les plus motivés !',
+                  description: 'Temps estimé : 15 minutes',
                 ),
                 const SizedBox(height: 32),
                 // Continue Button
@@ -105,7 +104,7 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) =>
-                              const NotificationOnboardingScreen(),
+                              const OnboardingDailyVerbGoalScreen(),
                         ),
                       );
                     },

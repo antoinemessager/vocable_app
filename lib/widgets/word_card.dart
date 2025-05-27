@@ -181,7 +181,7 @@ class _WordCardState extends State<WordCard> {
                           if (widget.word.fr_sentence.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text(
-                              '${widget.word.fr_sentence}',
+                              widget.word.fr_sentence,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -306,7 +306,7 @@ class _WordCardState extends State<WordCard> {
                                                 : 20),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Déjà connu (ne plus afficher)',
+                                          'Déjà connu',
                                           style: TextStyle(
                                               fontSize:
                                                   constraints.maxWidth < 350

@@ -306,14 +306,19 @@ class _VerbScreenState extends State<VerbScreen> {
                                   ),
                             ),
                             const SizedBox(height: 8),
-                            Text(
-                              'Pas de verbes à réviser pour le moment',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: Text(
+                                'Pas de verbes à réviser pour le moment. Tu peux modifier la liste des temps à réviser dans les paramètres.',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ],
                         ),
