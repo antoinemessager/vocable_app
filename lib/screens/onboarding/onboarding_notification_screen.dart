@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/clock_painter.dart';
 import 'onboarding_assessment_screen.dart';
+import 'onboarding_assessment_intro_screen.dart';
 
 class NotificationOnboardingScreen extends StatefulWidget {
   const NotificationOnboardingScreen({super.key});
@@ -287,7 +288,8 @@ class _NotificationOnboardingScreenState
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (context) => const AssessmentScreen(),
+                        builder: (context) =>
+                            const OnboardingAssessmentIntroScreen(),
                       ),
                     );
                   },
