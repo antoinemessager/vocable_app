@@ -61,28 +61,24 @@ class OnboardingAssessmentIntroScreen extends StatelessWidget {
                             const SizedBox(height: 16),
                             _buildStep(
                               context,
-                              '1',
                               'Tu verras des mots en français',
                               Icons.translate,
                             ),
                             const SizedBox(height: 12),
                             _buildStep(
                               context,
-                              '2',
                               'Pense à leur traduction',
                               Icons.psychology,
                             ),
                             const SizedBox(height: 12),
                             _buildStep(
                               context,
-                              '3',
                               'Appuie sur le bouton pour voir la traduction',
                               Icons.visibility,
                             ),
                             const SizedBox(height: 12),
                             _buildStep(
                               context,
-                              '4',
                               'Indique si tu connais le mot',
                               Icons.check_circle,
                             ),
@@ -130,32 +126,21 @@ class OnboardingAssessmentIntroScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStep(
-      BuildContext context, String number, String text, IconData icon) {
+  Widget _buildStep(BuildContext context, String text, IconData icon) {
     return Row(
       children: [
         Container(
           width: 32,
           height: 32,
           decoration: BoxDecoration(
+            color: Colors.blue[100],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
             color: Colors.blue,
-            borderRadius: BorderRadius.circular(16),
+            size: 20,
           ),
-          child: Center(
-            child: Text(
-              number,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Icon(
-          icon,
-          color: Colors.blue,
-          size: 24,
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -163,6 +148,7 @@ class OnboardingAssessmentIntroScreen extends StatelessWidget {
             text,
             style: const TextStyle(
               fontSize: 16,
+              color: Colors.black87,
             ),
           ),
         ),

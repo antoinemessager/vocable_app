@@ -78,10 +78,9 @@ class _OnboardingVerbTensesScreenState
   }
 
   Future<void> _loadSelectedTenses() async {
-    final prefs = await SharedPreferences.getInstance();
-    final selectedTenses = prefs.getStringList('selected_verb_tenses');
+    final selectedTenses = await _preferencesService.getSelectedVerbTenses();
     setState(() {
-      _selectedTenses = selectedTenses?.toSet() ?? {'présent'};
+      _selectedTenses = selectedTenses.toSet();
     });
   }
 
@@ -94,14 +93,11 @@ class _OnboardingVerbTensesScreenState
       }
     });
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('selected_verb_tenses', _selectedTenses.toList());
+    await _preferencesService.setSelectedVerbTenses(_selectedTenses.toList());
   }
 
   Future<void> _saveAndContinue() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('selected_verb_tenses', _selectedTenses.toList());
-    await _preferencesService.initializeVerbTenses();
+    await _preferencesService.setSelectedVerbTenses(_selectedTenses.toList());
 
     if (mounted) {
       Navigator.of(context).push(

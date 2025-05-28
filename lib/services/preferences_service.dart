@@ -144,8 +144,21 @@ class PreferencesService {
     _cachedHasShownHelp = value;
   }
 
+  Future<List<String>> getSelectedVerbTenses() async {
+    await _initCache();
+    return _prefs!.getStringList('selected_verb_tenses') ?? ['présent'];
+  }
+
+  Future<void> setSelectedVerbTenses(List<String> tenses) async {
+    await _initCache();
+    await _prefs!.setStringList('selected_verb_tenses', tenses);
+  }
+
   Future<void> initializeVerbTenses() async {
     await _initCache();
-    await _prefs!.setStringList('selected_verb_tenses', ['présent']);
+    final currentTenses = _prefs!.getStringList('selected_verb_tenses');
+    if (currentTenses == null || currentTenses.isEmpty) {
+      await _prefs!.setStringList('selected_verb_tenses', ['présent']);
+    }
   }
 }

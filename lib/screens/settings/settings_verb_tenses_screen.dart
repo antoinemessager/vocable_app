@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/preferences_service.dart';
 
 class SettingsVerbTensesScreen extends StatefulWidget {
   const SettingsVerbTensesScreen({super.key});
@@ -66,6 +66,7 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
   ];
 
   Set<String> _selectedTenses = {};
+  final PreferencesService _preferencesService = PreferencesService();
 
   @override
   void initState() {
@@ -74,10 +75,9 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
   }
 
   Future<void> _loadSelectedTenses() async {
-    final prefs = await SharedPreferences.getInstance();
-    final selectedTenses = prefs.getStringList('selected_verb_tenses');
+    final selectedTenses = await _preferencesService.getSelectedVerbTenses();
     setState(() {
-      _selectedTenses = selectedTenses?.toSet() ?? {'présent'};
+      _selectedTenses = selectedTenses.toSet();
     });
   }
 
@@ -90,8 +90,7 @@ class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
       }
     });
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('selected_verb_tenses', _selectedTenses.toList());
+    await _preferencesService.setSelectedVerbTenses(_selectedTenses.toList());
   }
 
   @override
