@@ -35,12 +35,12 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.grey[50],
         textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         useMaterial3: true,
-        cardTheme: CardTheme(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
+        cardTheme: ThemeData.light().cardTheme.copyWith(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
         appBarTheme: AppBarTheme(
           centerTitle: true,
           elevation: 0,
@@ -53,20 +53,21 @@ class MyApp extends StatelessWidget {
           seedColor: const Color(0xFF4169E1),
           brightness: Brightness.dark,
         ),
-        scaffoldBackgroundColor: Colors.grey[50],
+        scaffoldBackgroundColor: Colors.grey[900],
         textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         useMaterial3: true,
-        cardTheme: CardTheme(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
+        cardTheme: ThemeData.dark().cardTheme.copyWith(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              color: Colors.grey[800],
+            ),
         appBarTheme: AppBarTheme(
           centerTitle: true,
           elevation: 0,
-          backgroundColor: Colors.grey[100],
-          foregroundColor: Colors.black87,
+          backgroundColor: Colors.grey[850],
+          foregroundColor: Colors.white,
         ),
       ),
       home: isFirstLaunch ? const OnboardingScreen() : const MainScreen(),

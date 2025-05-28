@@ -11,7 +11,7 @@ class OnboardingDailyGoalScreen extends StatefulWidget {
 }
 
 class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
-  int _selectedGoal = 5;
+  int _selectedGoal = 3;
 
   @override
   void initState() {
@@ -22,7 +22,7 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _selectedGoal = prefs.getInt('daily_word_goal') ?? 5;
+      _selectedGoal = prefs.getInt('daily_word_goal') ?? 3;
     });
     await prefs.setInt('daily_word_goal', _selectedGoal);
   }
@@ -47,7 +47,7 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Objectif Quotidien',
+          'Vocabulaire',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -57,77 +57,91 @@ class _OnboardingDailyGoalScreenState extends State<OnboardingDailyGoalScreen> {
         centerTitle: false,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Combien de mots souhaites-tu apprendre chaque jour ?',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Goal Options
-                _buildGoalOption(
-                  value: 3,
-                  title: '3 mots par jour',
-                  description: 'Temps estimé : 3 minutes',
-                ),
-                const SizedBox(height: 16),
-                _buildGoalOption(
-                  value: 5,
-                  title: '5 mots par jour',
-                  description: 'Temps estimé : 5 minutes',
-                ),
-                const SizedBox(height: 16),
-                _buildGoalOption(
-                  value: 10,
-                  title: '10 mots par jour',
-                  description: 'Temps estimé : 10 minutes',
-                ),
-                const SizedBox(height: 16),
-                _buildGoalOption(
-                  value: 15,
-                  title: '15 mots par jour',
-                  description: 'Temps estimé : 15 minutes',
-                ),
-                const SizedBox(height: 32),
-                // Continue Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const OnboardingDailyVerbGoalScreen(),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Quel temps souhaites-tu passer chaque jour à apprendre du vocabulaire ?',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
                       ),
+                      const SizedBox(height: 16),
+                      _buildGoalOption(
+                        value: 2,
+                        title: '2 mots par jour',
+                        description: 'Temps estimé 2 - 3 minutes',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildGoalOption(
+                        value: 3,
+                        title: '3 mots par jour',
+                        description: 'Temps estimé 3 - 5 minutes',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildGoalOption(
+                        value: 5,
+                        title: '5 mots par jour',
+                        description: 'Temps estimé 5 - 8 minutes',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildGoalOption(
+                        value: 10,
+                        title: '10 mots par jour',
+                        description: 'Temps estimé 10 - 15 minutes',
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Tu pourras toujours modifier ton objectif quotidien en allant dans les paramètres',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const OnboardingDailyVerbGoalScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      'Continuer',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  ),
+                  child: const Text(
+                    'Continuer',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

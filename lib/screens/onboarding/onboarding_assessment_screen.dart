@@ -25,6 +25,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
   void initState() {
     super.initState();
     _loadAssessmentWords();
+    _showExplanationDialog();
   }
 
   Future<void> _loadAssessmentWords() async {
@@ -32,6 +33,71 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
     setState(() {
       _wordsByLevel = words;
     });
+  }
+
+  Future<void> _showExplanationDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasShownExplanation =
+        prefs.getBool('has_shown_assessment_explanation') ?? false;
+
+    if (!hasShownExplanation && mounted) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text(
+              'Comment ça marche ?',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '1. Regarde le mot en français',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  '2. Pense à sa traduction',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  '3. Appuie sur "Afficher la traduction" pour vérifier',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  await prefs.setBool('has_shown_assessment_explanation', true);
+                  if (mounted) {
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text(
+                  'J\'ai compris',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   void _moveToNextLevel() {

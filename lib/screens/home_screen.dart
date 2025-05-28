@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Traduis le mot affiché en espagnol dans ta tête puis clique sur "Afficher la traduction"',
+                  'Traduis en espagnol et dans ta tête le mot affiché puis clique sur "Afficher la traduction"',
                   style: TextStyle(fontSize: 14),
                 ),
               ],
@@ -154,14 +154,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.double_arrow,
                       color: Colors.grey[700]!,
                       title: 'Déjà vu',
-                      description: 'Tu connaissais déjà parfaitement le mot ?',
+                      description:
+                          'Tu connaissais déjà parfaitement le mot et tu ne veux plus jamais le revoir ?',
                     ),
                     const SizedBox(height: 8),
                     _buildHelpItem(
                       icon: Icons.check,
                       color: Colors.green[700]!,
                       title: 'Correct',
-                      description: 'Tu as eu juste ?',
+                      description:
+                          'Tu as eu juste et tu veux continuer à le réviser ?',
                     ),
                     const SizedBox(height: 8),
                     _buildHelpItem(

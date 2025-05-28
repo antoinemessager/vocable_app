@@ -11,7 +11,7 @@ class SettingsDailyGoalScreen extends StatefulWidget {
 
 class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
   int daily_word_goal = 5;
-  int _verbsPerDay = 5;
+  int _verbsPerDay = 2;
   final _prefs = SharedPreferences.getInstance();
 
   String get _estimatedTime {
@@ -38,7 +38,7 @@ class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
     final prefs = await _prefs;
     setState(() {
       daily_word_goal = prefs.getInt('daily_word_goal') ?? 5;
-      _verbsPerDay = prefs.getInt('daily_verb_goal') ?? 5;
+      _verbsPerDay = prefs.getInt('daily_verb_goal') ?? 2;
     });
   }
 

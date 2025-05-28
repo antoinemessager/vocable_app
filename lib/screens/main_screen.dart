@@ -28,7 +28,7 @@ class _MainScreenState extends State<MainScreen> {
   double _wordProgress = 0.0;
   double _verbProgress = 0.0;
   int _wordGoal = 5;
-  int _verbGoal = 5;
+  int _verbGoal = 2;
 
   @override
   void initState() {
@@ -46,7 +46,7 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _loadProgress() async {
     final prefs = await SharedPreferences.getInstance();
     final wordGoal = prefs.getInt('daily_word_goal') ?? 5;
-    final verbGoal = prefs.getInt('daily_verb_goal') ?? 5;
+    final verbGoal = prefs.getInt('daily_verb_goal') ?? 2;
 
     final wordProgress = await DatabaseService.instance.getTodayProgress();
     final verbProgress = await DatabaseService.instance.getVerbProgress();

@@ -9,93 +9,98 @@ class WelcomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: [
-                const SizedBox(height: 32),
-                // App Icon
-                SizedBox(
-                  width: 120,
-                  height: 120,
-                  child: Image.asset(
-                    'assets/icons/vocable.png',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Prêt à commencer ?',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Maîtrise le vocabulaire espagnol avec notre approche personnalisée',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Features
-                _buildFeatureItem(
-                  icon: Icons.psychology,
-                  color: Colors.blue,
-                  title: 'Apprentissage Intelligent',
-                  description: 'S\'adapte à ton niveau',
-                ),
-                const SizedBox(height: 16),
-                _buildFeatureItem(
-                  icon: Icons.trending_up,
-                  color: Colors.green,
-                  title: 'Suivi des Progrès',
-                  description: 'Fixe tes objectifs quotidiens',
-                ),
-                const SizedBox(height: 16),
-                _buildFeatureItem(
-                  icon: Icons.timer,
-                  color: Colors.purple,
-                  title: 'Répétition Espacée',
-                  description: 'Apprends efficacement',
-                ),
-                const SizedBox(height: 32),
-                // Start Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const OnboardingDailyGoalScreen(),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 32),
+                      // App Icon
+                      SizedBox(
+                        width: 120,
+                        height: 120,
+                        child: Image.asset(
+                          'assets/icons/vocable.png',
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
                       ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Prêt à commencer ?',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Maîtrise le vocabulaire et la conjugaison espagnols avec notre approche personnalisée',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Features
+                      _buildFeatureItem(
+                        icon: Icons.psychology,
+                        color: Colors.blue,
+                        title: 'Apprentissage Intelligent',
+                        description: 'S\'adapte à ton niveau',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildFeatureItem(
+                        icon: Icons.trending_up,
+                        color: Colors.green,
+                        title: 'Suivi des Progrès',
+                        description: 'Fixe tes objectifs quotidiens',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildFeatureItem(
+                        icon: Icons.timer,
+                        color: Colors.purple,
+                        title: 'Répétition Espacée',
+                        description: 'Apprends efficacement',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const OnboardingDailyGoalScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      'Commencer',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  ),
+                  child: const Text(
+                    'Commencer',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

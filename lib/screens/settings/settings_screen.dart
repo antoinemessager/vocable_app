@@ -18,7 +18,6 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final PreferencesService _preferencesService = PreferencesService();
   bool _notificationsEnabled = false;
-  bool _showTooEasyDialog = true;
 
   @override
   void initState() {
@@ -27,15 +26,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadPreferences() async {
-    //await _preferencesService.initialize();
     final bool notificationsEnabled =
         await _preferencesService.getNotificationsEnabled();
-    final prefs = await SharedPreferences.getInstance();
-    final hideDialog = prefs.getBool('hide_too_easy_dialog') ?? false;
 
     setState(() {
       _notificationsEnabled = notificationsEnabled;
-      _showTooEasyDialog = !hideDialog;
     });
   }
 
@@ -95,7 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           FutureBuilder<Map<String, int>>(
             future: SharedPreferences.getInstance().then((prefs) => {
                   'wordsPerDay': prefs.getInt('daily_word_goal') ?? 5,
-                  'verbsPerDay': prefs.getInt('daily_verb_goal') ?? 5,
+                  'verbsPerDay': prefs.getInt('daily_verb_goal') ?? 2,
                 }),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -110,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: const Text('Définis tes objectifs'),
                 subtitle: Text(
                     '${snapshot.data!['wordsPerDay']} mots et ${snapshot.data!['verbsPerDay']} verbes par jour',
-                    style: TextStyle(color: Colors.black45)),
+                    style: const TextStyle(color: Colors.black45)),
                 leading: const Icon(Icons.flag),
                 onTap: () async {
                   final result = await Navigator.push(
@@ -153,13 +148,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.quiz, color: Colors.black87),
             title: const Text('Repasser l\'évaluation',
                 style: TextStyle(color: Colors.black87)),
-            onTap: () {
-              Navigator.push(
+            subtitle: FutureBuilder<String>(
+              future: PreferencesService().getStartingLevel(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Text('Chargement...',
+                      style: TextStyle(color: Colors.black45));
+                }
+                return Text(
+                  'Niveau actuel : ${snapshot.data}',
+                  style: const TextStyle(color: Colors.black45),
+                );
+              },
+            ),
+            onTap: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SettingsAssessmentScreen(),
                 ),
               );
+              setState(() {});
             },
           ),
           ListTile(
@@ -174,16 +183,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               );
             },
-          ),
-          ListTile(
-            title: const Text('Message de confirmation',
-                style: TextStyle(color: Colors.black87)),
-            subtitle: Text(_showTooEasyDialog ? 'Activé' : 'Désactivé',
-                style: const TextStyle(color: Colors.black45)),
-            leading:
-                const Icon(Icons.warning_amber_rounded, color: Colors.black87),
-            onTap: () => TooEasySettingsDialog.show(context)
-                .then((_) => _loadPreferences()),
           ),
         ],
       ),

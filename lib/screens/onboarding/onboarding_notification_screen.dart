@@ -98,174 +98,190 @@ class _NotificationOnboardingScreenState
         ),
         centerTitle: false,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: const Icon(
-                    Icons.notifications,
-                    color: Colors.blue,
-                  ),
-                  title: const Text(
-                    'Rappels quotidiens',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
-                  trailing: Switch(
-                    value: _notificationsEnabled,
-                    onChanged: _toggleNotifications,
-                    activeColor: Colors.blue,
-                    activeTrackColor: Colors.blue[100],
-                    inactiveTrackColor: Colors.grey[300],
-                    inactiveThumbColor: Colors.grey[400],
-                    trackOutlineColor:
-                        WidgetStateProperty.all(Colors.transparent),
-                  ),
-                ),
-              ),
-              if (_notificationsEnabled) ...[
-                const SizedBox(height: 24),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.all(24),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Heure du rappel',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.notifications,
+                            color: Colors.blue,
+                          ),
+                          title: const Text(
+                            'Rappels quotidiens',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black,
+                            ),
+                          ),
+                          trailing: Switch(
+                            value: _notificationsEnabled,
+                            onChanged: _toggleNotifications,
+                            activeColor: Colors.blue,
+                            activeTrackColor: Colors.blue[100],
+                            inactiveTrackColor: Colors.grey[300],
+                            inactiveThumbColor: Colors.grey[400],
+                            trackOutlineColor:
+                                WidgetStateProperty.all(Colors.transparent),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Center(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final TimeOfDay? picked = await showTimePicker(
-                              context: context,
-                              initialTime: _selectedTime,
-                              builder: (context, child) {
-                                return Theme(
-                                  data: Theme.of(context).copyWith(
-                                    colorScheme: const ColorScheme.light(
-                                      primary: Colors.blue,
-                                      onPrimary: Colors.white,
-                                      surface: Colors.white,
-                                      onSurface: Colors.black,
-                                    ),
-                                    timePickerTheme: TimePickerThemeData(
-                                      backgroundColor: Colors.white,
-                                      hourMinuteColor:
-                                          Colors.blue.withOpacity(0.1),
-                                      hourMinuteTextColor: Colors.black,
-                                      dayPeriodColor:
-                                          Colors.blue.withOpacity(0.1),
-                                      dayPeriodTextColor: Colors.black,
-                                      dialHandColor: Colors.blue,
-                                      dialBackgroundColor:
-                                          Colors.blue.withOpacity(0.1),
-                                      dialTextColor: Colors.black,
-                                      entryModeIconColor: Colors.blue,
-                                    ),
-                                  ),
-                                  child: MediaQuery(
-                                    data: MediaQuery.of(context)
-                                        .copyWith(alwaysUse24HourFormat: true),
-                                    child: child!,
-                                  ),
-                                );
-                              },
-                            );
-                            if (picked != null) {
-                              await _updateTime(picked);
-                            }
-                          },
+                      if (_notificationsEnabled) ...[
+                        const SizedBox(height: 24),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(24),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                width: 180,
-                                height: 180,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 10,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                                child: CustomPaint(
-                                  painter: ClockPainter(
-                                    time: _selectedTime,
-                                  ),
+                              const Text(
+                                'Heure du rappel',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}',
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black,
-                                    ),
+                              Center(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    final TimeOfDay? picked =
+                                        await showTimePicker(
+                                      context: context,
+                                      initialTime: _selectedTime,
+                                      builder: (context, child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme:
+                                                const ColorScheme.light(
+                                              primary: Colors.blue,
+                                              onPrimary: Colors.white,
+                                              surface: Colors.white,
+                                              onSurface: Colors.black,
+                                            ),
+                                            timePickerTheme:
+                                                TimePickerThemeData(
+                                              backgroundColor: Colors.white,
+                                              hourMinuteColor:
+                                                  Colors.blue.withOpacity(0.1),
+                                              hourMinuteTextColor: Colors.black,
+                                              dayPeriodColor:
+                                                  Colors.blue.withOpacity(0.1),
+                                              dayPeriodTextColor: Colors.black,
+                                              dialHandColor: Colors.blue,
+                                              dialBackgroundColor:
+                                                  Colors.blue.withOpacity(0.1),
+                                              dialTextColor: Colors.black,
+                                              entryModeIconColor: Colors.blue,
+                                            ),
+                                          ),
+                                          child: MediaQuery(
+                                            data: MediaQuery.of(context)
+                                                .copyWith(
+                                                    alwaysUse24HourFormat:
+                                                        true),
+                                            child: child!,
+                                          ),
+                                        );
+                                      },
+                                    );
+                                    if (picked != null) {
+                                      await _updateTime(picked);
+                                    }
+                                  },
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width: 180,
+                                        height: 180,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withOpacity(0.05),
+                                              blurRadius: 10,
+                                              spreadRadius: 1,
+                                            ),
+                                          ],
+                                        ),
+                                        child: CustomPaint(
+                                          painter: ClockPainter(
+                                            time: _selectedTime,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}',
+                                            style: const TextStyle(
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            _selectedTime.period == DayPeriod.am
+                                                ? 'AM'
+                                                : 'PM',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    _selectedTime.period == DayPeriod.am
-                                        ? 'AM'
-                                        : 'PM',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
-              ],
-              const SizedBox(height: 24),
-              SizedBox(
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
@@ -292,9 +308,51 @@ class _NotificationOnboardingScreenState
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTimeOption({
+    required String value,
+    required String title,
+    required String description,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            description,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+        ],
       ),
     );
   }

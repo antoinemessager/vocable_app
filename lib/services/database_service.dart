@@ -852,7 +852,7 @@ class DatabaseService {
     final now = DateTime.now();
     int streak = 0;
     final prefs = await SharedPreferences.getInstance();
-    final dailyGoal = prefs.getInt('daily_verb_goal') ?? 5;
+    final dailyGoal = prefs.getInt('daily_verb_goal') ?? 2;
 
     for (int i = 0;; i++) {
       final date = now.subtract(Duration(days: i));

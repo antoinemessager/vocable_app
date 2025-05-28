@@ -50,7 +50,7 @@ class PreferencesService {
 
   Future<int> getVerbsPerDay() async {
     await _initCache();
-    _cachedVerbsPerDay ??= _prefs!.getInt(_verbsPerDayKey) ?? 5;
+    _cachedVerbsPerDay ??= _prefs!.getInt(_verbsPerDayKey) ?? 2;
     return _cachedVerbsPerDay!;
   }
 

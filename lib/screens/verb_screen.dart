@@ -28,7 +28,7 @@ class _VerbScreenState extends State<VerbScreen> {
     conjugation: '',
     nb_time_seen: 0,
   );
-  int daily_verb_goal = 5;
+  int daily_verb_goal = 2;
   double _todayProgress = 0.0;
   double _totalMasteredVerbs = 0;
   int _dayStreak = 0;
@@ -69,7 +69,7 @@ class _VerbScreenState extends State<VerbScreen> {
 
   Future<void> _loadProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    final goal = prefs.getInt('daily_verb_goal') ?? 5;
+    final goal = prefs.getInt('daily_verb_goal') ?? 2;
     final progress = await _databaseService.getVerbProgress();
     _previousProgress = await _preferencesService.getPreviousVerbProgress();
 
@@ -122,6 +122,17 @@ class _VerbScreenState extends State<VerbScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Afficher le chargement uniquement pendant l'initialisation
+    if (_currentVerb.verb.isEmpty &&
+        _todayProgress == 0.0 &&
+        _totalMasteredVerbs == 0) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     final hasCompletedDailyGoal = _todayProgress >= daily_verb_goal;
     final progressPercentage =
         ((_todayProgress / daily_verb_goal) * 100).round();
