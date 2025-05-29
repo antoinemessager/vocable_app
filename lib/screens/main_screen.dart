@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 import 'word_screen.dart';
 import 'verb_screen.dart';
 import 'settings/settings_screen.dart';
@@ -78,114 +79,151 @@ class _MainScreenState extends State<MainScreen> {
           setState(() => _currentIndex = index);
           _loadProgress();
         },
-        children: const [
-          WordScreen(),
-          VerbScreen(),
-          ProgressScreen(),
-          SettingsScreen(),
+        children: [
+          HomeScreen(
+            onPageChanged: (index) {
+              setState(() => _currentIndex = index);
+              _pageController.jumpToPage(index);
+              _loadProgress();
+            },
+          ),
+          const WordScreen(),
+          const VerbScreen(),
+          const ProgressScreen(),
+          const SettingsScreen(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.grey[200],
-        surfaceTintColor: Colors.transparent,
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
+        currentIndex: _currentIndex,
+        onTap: (index) {
           setState(() => _currentIndex = index);
           _pageController.jumpToPage(index);
           _loadProgress();
         },
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        indicatorColor: Colors.blue[100],
-        labelTextStyle: WidgetStateProperty.all(
-          const TextStyle(color: Colors.black87, fontSize: 10),
-        ),
-        destinations: [
-          NavigationDestination(
-            icon: Stack(
-              children: [
-                Icon(Icons.menu_book_outlined, color: Colors.black87),
-                if (_wordProgress < _wordGoal)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.black87,
+        selectedFontSize: 10,
+        unselectedFontSize: 10,
+        selectedLabelStyle: const TextStyle(fontSize: 10, height: 2),
+        unselectedLabelStyle: const TextStyle(fontSize: 10, height: 2),
+        items: [
+          BottomNavigationBarItem(
+            icon: Container(height: 44, child: Icon(Icons.home_outlined)),
+            activeIcon: Container(height: 44, child: Icon(Icons.home)),
+            label: 'Accueil',
+          ),
+          BottomNavigationBarItem(
+            icon: Container(
+              height: 44,
+              child: Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(Icons.menu_book_outlined),
+                    if (_wordProgress < _wordGoal)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
             ),
-            selectedIcon: Stack(
-              children: [
-                Icon(Icons.menu_book, color: Colors.black87),
-                if (_wordProgress < _wordGoal)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+            activeIcon: Container(
+              height: 44,
+              child: Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(Icons.menu_book, color: Colors.blue),
+                    if (_wordProgress < _wordGoal)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
             ),
             label: 'Vocabulaire',
           ),
-          NavigationDestination(
-            icon: Stack(
-              children: [
-                Icon(Icons.edit_note_outlined, color: Colors.black87),
-                if (_verbProgress < _verbGoal)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+          BottomNavigationBarItem(
+            icon: Container(
+              height: 44,
+              child: Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(Icons.edit_note_outlined),
+                    if (_verbProgress < _verbGoal)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
             ),
-            selectedIcon: Stack(
-              children: [
-                Icon(Icons.edit_note, color: Colors.black87),
-                if (_verbProgress < _verbGoal)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+            activeIcon: Container(
+              height: 44,
+              child: Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(Icons.edit_note, color: Colors.blue),
+                    if (_verbProgress < _verbGoal)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
             ),
             label: 'Conjugaison',
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined, color: Colors.black87),
-            selectedIcon: Icon(Icons.bar_chart, color: Colors.black87),
+          BottomNavigationBarItem(
+            icon: Container(height: 44, child: Icon(Icons.bar_chart_outlined)),
+            activeIcon: Container(height: 44, child: Icon(Icons.bar_chart)),
             label: 'Progression',
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.settings_outlined, color: Colors.black87),
-            selectedIcon: Icon(Icons.settings, color: Colors.black87),
+          BottomNavigationBarItem(
+            icon: Container(height: 44, child: Icon(Icons.settings_outlined)),
+            activeIcon: Container(height: 44, child: Icon(Icons.settings)),
             label: 'Paramètres',
           ),
         ],

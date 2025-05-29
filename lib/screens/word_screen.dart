@@ -277,12 +277,13 @@ class _WordScreenState extends State<WordScreen> {
 
   Future<void> _loadContent() async {
     try {
+      if (!mounted) return;
       setState(() {
         _isLoading = true;
       });
 
       final prefs = await SharedPreferences.getInstance();
-      daily_word_goal = prefs.getInt('daily_word_goal') ?? 5;
+      daily_word_goal = prefs.getInt('daily_word_goal') ?? 3;
       final nextWord = await DatabaseService.instance.getNextWordForReview();
       final todayProgress = await DatabaseService.instance.getTodayProgress();
       final dayStreak = await DatabaseService.instance.getDayStreak();
@@ -294,6 +295,7 @@ class _WordScreenState extends State<WordScreen> {
       final bool hasJustExceededGoal = _previousProgress < daily_word_goal &&
           todayProgress >= daily_word_goal;
 
+      if (!mounted) return;
       setState(() {
         _currentWord = nextWord;
         _todayProgress = todayProgress;
@@ -303,7 +305,6 @@ class _WordScreenState extends State<WordScreen> {
         _showGoalAchieved = false;
         if (hasJustExceededGoal) {
           _showGoalAchieved = true;
-          MainScreen.updateProgress();
         }
       });
 
@@ -312,24 +313,29 @@ class _WordScreenState extends State<WordScreen> {
       _previousProgress = todayProgress;
 
       // Afficher le premier pop-up d'aide si nécessaire
-      if (!_hasShownHelp && _currentWord != null) {
+      if (!_hasShownHelp && _currentWord != null && mounted) {
         _showFirstCardHelp();
       }
     } catch (e) {
       print('Erreur lors du chargement du contenu : $e');
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   Future<void> _getNextWord() async {
+    if (!mounted) return;
     await _loadContent();
   }
 
   void _startStarAnimation() async {
+    if (!mounted) return;
     final totalMasteredWords =
         await DatabaseService.instance.getTotalMasteredWords();
+    if (!mounted) return;
     setState(() {
       _showStarAnimation = true;
       _currentMasteredCount = totalMasteredWords;
@@ -337,6 +343,7 @@ class _WordScreenState extends State<WordScreen> {
   }
 
   void _startCalendarAnimation() {
+    if (!mounted) return;
     setState(() {
       _showCalendarAnimation = true;
       _currentStreakCount = _dayStreak;
