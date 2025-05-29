@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/preferences_service.dart';
-import '../../widgets/too_easy_settings_dialog.dart';
 import 'settings_help_center_screen.dart';
 import 'settings_daily_goal_screen.dart';
 import 'settings_notification_time_screen.dart';
