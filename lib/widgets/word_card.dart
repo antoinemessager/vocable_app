@@ -38,6 +38,7 @@ class _WordCardState extends State<WordCard> {
       final shouldMarkTooEasy = await TooEasyDialog.show(
         context,
         onTooEasy: widget.onTooEasy,
+        isVerb: false,
       );
       if (shouldMarkTooEasy != true) {
         return;

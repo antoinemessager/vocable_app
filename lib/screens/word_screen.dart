@@ -9,7 +9,6 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math' show pi;
-import '../screens/main_screen.dart';
 import 'settings/settings_help_center_screen.dart';
 
 class WordScreen extends StatefulWidget {
@@ -200,17 +199,6 @@ class _WordScreenState extends State<WordScreen> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
-                      ),
-                      child: const Text('OK'),
-                    ),
-                    TextButton(
-                      onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) =>
@@ -224,6 +212,17 @@ class _WordScreenState extends State<WordScreen> {
                             horizontal: 24, vertical: 12),
                       ),
                       child: const Text('En savoir plus'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                      ),
+                      child: const Text('OK'),
                     ),
                   ],
                 ),

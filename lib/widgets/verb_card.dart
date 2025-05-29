@@ -10,6 +10,7 @@ class VerbCard extends StatefulWidget {
   final Function(bool)? onCorrect;
   final Function(bool)? onIncorrect;
   final Function(bool)? onAlreadyKnown;
+  final VoidCallback? onShowHelp;
 
   const VerbCard({
     super.key,
@@ -18,6 +19,7 @@ class VerbCard extends StatefulWidget {
     this.onCorrect,
     this.onIncorrect,
     this.onAlreadyKnown,
+    this.onShowHelp,
   });
 
   @override
@@ -42,6 +44,7 @@ class _VerbCardState extends State<VerbCard> {
     setState(() {
       _isRevealed = true;
     });
+    widget.onShowHelp?.call();
   }
 
   Future<void> _handleTooEasy() async {
@@ -56,6 +59,7 @@ class _VerbCardState extends State<VerbCard> {
               .recordVerbProgress(widget.verb.verb_id, isTooEasy: true);
           widget.onAlreadyKnown?.call(true);
         },
+        isVerb: true,
       );
       if (shouldMarkTooEasy != true) {
         return;

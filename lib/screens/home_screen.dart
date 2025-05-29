@@ -77,9 +77,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: Colors.white,
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shadowColor: Colors.black.withOpacity(0.15),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -138,11 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Row(
                     children: [
-                      const Icon(Icons.local_fire_department,
-                          color: Colors.orange, size: 16),
+                      const Text('🔥', style: TextStyle(fontSize: 16)),
                       const SizedBox(width: 4),
                       Text(
-                        '$dayStreak jours',
+                        '$dayStreak jours de suite',
                         style: const TextStyle(
                           color: Colors.orange,
                           fontWeight: FontWeight.bold,
@@ -161,32 +164,46 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Total appris',
+                        title == 'Vocabulaire'
+                            ? 'Mots appris'
+                            : title == 'Conjugaison'
+                                ? 'Verbes appris'
+                                : 'Total appris',
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,
                         ),
                       ),
-                      Text(
-                        totalMastered.round().toString(),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                      Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 18),
+                          const SizedBox(width: 4),
+                          Text(
+                            totalMastered.round().toString(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  ElevatedButton(
-                    onPressed: onTap,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          hasCompletedGoal ? Colors.green : Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                  SizedBox(
+                    width: 140,
+                    child: ElevatedButton(
+                      onPressed: onTap,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            hasCompletedGoal ? Colors.green : Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 0, vertical: 8),
+                      ),
+                      child: Text(hasCompletedGoal
+                          ? 'Objectif atteint !'
+                          : 'Apprendre'),
                     ),
-                    child: Text(
-                        hasCompletedGoal ? 'Objectif atteint !' : 'Continuer'),
                   ),
                 ],
               ),
@@ -242,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildProgressCard(
             title: 'Conjugaison',
             icon: Icons.edit_note,
-            color: Colors.purple,
+            color: Colors.blue,
             progress: _verbProgress,
             goal: _verbGoal,
             dayStreak: _verbDayStreak,

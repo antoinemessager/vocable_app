@@ -3,17 +3,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class TooEasyDialog extends StatelessWidget {
   final VoidCallback onTooEasy;
+  final bool isVerb;
 
   const TooEasyDialog({
     super.key,
     required this.onTooEasy,
+    this.isVerb = false,
   });
 
   static Future<bool?> show(BuildContext context,
-      {required VoidCallback onTooEasy}) async {
+      {required VoidCallback onTooEasy, bool isVerb = false}) async {
     return showDialog<bool>(
       context: context,
-      builder: (context) => TooEasyDialog(onTooEasy: onTooEasy),
+      builder: (context) => TooEasyDialog(onTooEasy: onTooEasy, isVerb: isVerb),
     );
   }
 
@@ -49,7 +51,9 @@ class TooEasyDialog extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 24),
             child: Text(
-              'Si tu marques ce mot comme "déjà connu", il ne comptera pas dans ta progression et tu ne le verras plus dans tes révisions.',
+              isVerb
+                  ? 'Si tu marques ce verbe comme "déjà connu", il ne comptera pas dans ta progression et tu ne le verras plus dans tes révisions.'
+                  : 'Si tu marques ce mot comme "déjà connu", il ne comptera pas dans ta progression et tu ne le verras plus dans tes révisions.',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../main_screen.dart';
 
 class SettingsDailyGoalScreen extends StatefulWidget {
   const SettingsDailyGoalScreen({super.key});
@@ -49,6 +50,7 @@ class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
       setState(() {
         daily_word_goal = value;
       });
+      MainScreen.updateProgress();
     }
   }
 
@@ -59,6 +61,7 @@ class _SettingsDailyGoalScreenState extends State<SettingsDailyGoalScreen> {
       setState(() {
         _verbsPerDay = value;
       });
+      MainScreen.updateProgress();
     }
   }
 
