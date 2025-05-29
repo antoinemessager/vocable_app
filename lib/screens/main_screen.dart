@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'word_screen.dart';
 import 'verb_screen.dart';
 import 'settings/settings_screen.dart';
 import 'progress/progress_screen.dart';
@@ -79,7 +79,7 @@ class _MainScreenState extends State<MainScreen> {
           _loadProgress();
         },
         children: const [
-          HomeScreen(),
+          WordScreen(),
           VerbScreen(),
           ProgressScreen(),
           SettingsScreen(),

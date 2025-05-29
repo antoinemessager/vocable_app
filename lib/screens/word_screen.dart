@@ -12,14 +12,14 @@ import 'dart:math' show pi;
 import '../screens/main_screen.dart';
 import 'settings/settings_help_center_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class WordScreen extends StatefulWidget {
+  const WordScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<WordScreen> createState() => _WordScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _WordScreenState extends State<WordScreen> {
   WordPair? _currentWord;
   bool _isLoading = true;
   double _todayProgress = 0.0;
