@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/database_service.dart';
+import '../../services/database_service.dart';
 import 'cefr_level_screen.dart';
 import 'verb_level_screen.dart';
 
@@ -47,7 +47,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   Future<void> _loadStats() async {
     setState(() => _isLoading = true);
 
-    final stats = await Future.wait([
+    final stats = await Future.wait<dynamic>([
       DatabaseService.instance.getDayStreak(),
       DatabaseService.instance.getVerbDayStreak(),
       DatabaseService.instance.getCEFRProgress(),

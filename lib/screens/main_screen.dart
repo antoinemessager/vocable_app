@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'verb_screen.dart';
 import 'settings/settings_screen.dart';
-import 'progress_screen.dart';
+import 'progress/progress_screen.dart';
 import '../services/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

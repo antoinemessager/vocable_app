@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/database_service.dart';
+import '../../services/database_service.dart';
 
 class VerbLevelScreen extends StatefulWidget {
   final String tense;
@@ -438,11 +438,24 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
-            child: Text(
-              'Liste des verbes',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Liste des verbes',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Clique sur un verbe pour voir sa conjugaison',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
                   ),
+                ),
+              ],
             ),
           ),
           ..._verbs.map((verb) {
