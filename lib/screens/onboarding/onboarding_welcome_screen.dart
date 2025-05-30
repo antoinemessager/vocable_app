@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'onboarding_daily_goal_screen.dart';
+import 'onboarding_daily_word_goal_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -78,7 +78,8 @@ class WelcomeScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const OnboardingDailyGoalScreen(),
+                        builder: (context) =>
+                            const OnboardingDailyWordGoalScreen(),
                       ),
                     );
                   },

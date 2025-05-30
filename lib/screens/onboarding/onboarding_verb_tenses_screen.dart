@@ -42,10 +42,6 @@ class _OnboardingVerbTensesScreenState
       'level': 'B2',
     },
     {
-      'name': 'subjonctif passé',
-      'level': 'B2',
-    },
-    {
       'name': 'impératif',
       'level': 'B2',
     },
@@ -54,16 +50,20 @@ class _OnboardingVerbTensesScreenState
       'level': 'B2',
     },
     {
+      'name': 'subjonctif passé',
+      'level': 'C1',
+    },
+    {
       'name': 'plus que parfait',
-      'level': 'B2',
+      'level': 'C1',
     },
     {
       'name': 'futur antérieur',
-      'level': 'B2',
+      'level': 'C1',
     },
     {
       'name': 'conditionnel passé',
-      'level': 'B2',
+      'level': 'C1',
     },
   ];
 

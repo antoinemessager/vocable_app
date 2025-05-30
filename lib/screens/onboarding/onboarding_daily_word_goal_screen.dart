@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'onboarding_verb_tenses_screen.dart';
+import 'onboarding_daily_verb_goal_screen.dart';
 
-class OnboardingDailyVerbGoalScreen extends StatefulWidget {
-  const OnboardingDailyVerbGoalScreen({super.key});
+class OnboardingDailyWordGoalScreen extends StatefulWidget {
+  const OnboardingDailyWordGoalScreen({super.key});
 
   @override
-  State<OnboardingDailyVerbGoalScreen> createState() =>
-      _OnboardingDailyVerbGoalScreenState();
+  State<OnboardingDailyWordGoalScreen> createState() =>
+      _OnboardingDailyWordGoalScreenState();
 }
 
-class _OnboardingDailyVerbGoalScreenState
-    extends State<OnboardingDailyVerbGoalScreen> {
-  final List<int> _choices = [1, 2, 3, 5];
-  int _selectedGoal = 2;
+class _OnboardingDailyWordGoalScreenState
+    extends State<OnboardingDailyWordGoalScreen> {
+  final List<int> _choices = [2, 3, 5, 10];
+  int _selectedGoal = 3;
 
   @override
   void initState() {
@@ -24,13 +24,13 @@ class _OnboardingDailyVerbGoalScreenState
   Future<void> _loadGoal() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _selectedGoal = prefs.getInt('daily_verb_goal') ?? 2;
+      _selectedGoal = prefs.getInt('daily_word_goal') ?? 3;
     });
   }
 
   Future<void> _saveGoal(int goal) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('daily_verb_goal', goal);
+    await prefs.setInt('daily_word_goal', goal);
     setState(() {
       _selectedGoal = goal;
     });
@@ -48,7 +48,7 @@ class _OnboardingDailyVerbGoalScreenState
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Conjugaison',
+          'Vocabulaire',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -68,7 +68,7 @@ class _OnboardingDailyVerbGoalScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Quel temps souhaites-tu passer chaque jour à travailler tes conjugaisons ?',
+                        'Quel temps souhaites-tu passer chaque jour à apprendre du vocabulaire ?',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
@@ -131,7 +131,7 @@ class _OnboardingDailyVerbGoalScreenState
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '$choice verbes par jour',
+                                          '$choice mots par jour',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -139,7 +139,7 @@ class _OnboardingDailyVerbGoalScreenState
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Temps estimé ${choice * 2} - ${choice * 3} minutes',
+                                          'Temps estimé ${choice * 1} - ${(choice * 1.5).toInt()} minutes',
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: Colors.grey[600],
@@ -174,7 +174,7 @@ class _OnboardingDailyVerbGoalScreenState
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) =>
-                            const OnboardingVerbTensesScreen(),
+                            const OnboardingDailyVerbGoalScreen(),
                       ),
                     );
                   },
