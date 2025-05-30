@@ -420,6 +420,7 @@ class _WordScreenState extends State<WordScreen> {
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: () {
+                        _startCalendarAnimation();
                         _getNextWord();
                       },
                       style: FilledButton.styleFrom(

@@ -428,9 +428,8 @@ class _VerbScreenState extends State<VerbScreen> {
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: () {
+                        _startCalendarAnimation();
                         _loadRandomVerb();
-                        _loadProgress();
-                        _loadStats();
                       },
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.white,

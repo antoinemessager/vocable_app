@@ -19,15 +19,6 @@ class DatabaseService {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'vocable.db');
 
-    // Vérifier si c'est le premier lancement
-    final prefs = await SharedPreferences.getInstance();
-    final isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
-
-    if (isFirstLaunch) {
-      // Supprimer la base de données existante uniquement lors du premier lancement
-      await databaseFactory.deleteDatabase(path);
-    }
-
     // Créer une nouvelle base de données
     _database = await _initDB('vocable.db');
     return _database!;
@@ -39,8 +30,16 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // Increment version to force database recreation
       onCreate: _createDB,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        // Drop all tables and recreate them
+        await db.execute('DROP TABLE IF EXISTS user_progress_verb');
+        await db.execute('DROP TABLE IF EXISTS user_progress');
+        await db.execute('DROP TABLE IF EXISTS verb');
+        await db.execute('DROP TABLE IF EXISTS vocabulary');
+        await _createDB(db, newVersion);
+      },
     );
   }
 

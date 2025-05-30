@@ -213,7 +213,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(12),
-        height: 95,
+        height: 102,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),

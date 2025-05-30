@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'word_screen.dart';
-import 'verb_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int) onPageChanged;
