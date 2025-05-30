@@ -626,19 +626,21 @@ class DatabaseService {
           FROM user_progress
           WHERE timestamp < ?
           GROUP BY word_id
+          HAVING COUNT(*) >= 2
       ), LatestInfo AS (
       SELECT 
           up.word_id,
           up.box_level,
+          CASE WHEN ec.nb_entries=2 AND up.box_level=5 THEN 1 ELSE up.box_level END AS new_box_level,
           up.timestamp,
-          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
           ec.nb_entries
       FROM user_progress up
-      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.word_id = ec.word_id
+      JOIN EntryCounts ec 
+        ON up.word_id = ec.word_id
+        AND up.timestamp = ec.max_timestamp
       )
-      SELECT coalesce(sum(box_level), 0) as learned_words
+      SELECT coalesce(sum(new_box_level), 0) as learned_words
       FROM LatestInfo 
-      where rn=1 and (box_level!=5 or nb_entries>2)
     ''', [startDate.toIso8601String()]);
 
     // Get the number of words learned before end date
@@ -651,19 +653,21 @@ class DatabaseService {
           FROM user_progress
           WHERE timestamp < ?
           GROUP BY word_id
+          HAVING COUNT(*) >= 2
       ), LatestInfo AS (
       SELECT 
           up.word_id,
           up.box_level,
+          CASE WHEN ec.nb_entries=2 AND up.box_level=5 THEN 1 ELSE up.box_level END AS new_box_level,
           up.timestamp,
-          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
           ec.nb_entries
       FROM user_progress up
-      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.word_id = ec.word_id
+      JOIN EntryCounts ec 
+        ON up.word_id = ec.word_id
+        AND up.timestamp = ec.max_timestamp
       )
-      SELECT coalesce(sum(box_level), 0) as learned_words
+      SELECT coalesce(sum(new_box_level), 0) as learned_words
       FROM LatestInfo 
-      where rn=1 and (box_level!=5 or nb_entries>2)
     ''', [endDate.toIso8601String()]);
 
     final int startCount = wordsBeforeStart.first['learned_words'] as int;
@@ -731,65 +735,9 @@ class DatabaseService {
   }
 
   Future<double> getVerbProgress() async {
-    final db = await database;
-
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
-
-    // Get the number of verbs learned before start of day
-    final verbsBeforeStart = await db.rawQuery('''
-      WITH EntryCounts AS (
-          SELECT 
-            verb_id, 
-            COUNT(*) AS nb_entries, 
-            MAX(timestamp) AS max_timestamp
-          FROM user_progress_verb
-          WHERE timestamp < ?
-          GROUP BY verb_id
-      ), LatestInfo AS (
-      SELECT 
-          up.verb_id,
-          up.box_level,
-          up.timestamp,
-          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
-          ec.nb_entries
-      FROM user_progress_verb up
-      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.verb_id = ec.verb_id
-      )
-      SELECT coalesce(sum(box_level), 0) as learned_verbs
-      FROM LatestInfo 
-      where rn=1 and (box_level!=5 or nb_entries>2)
-    ''', [startOfDay.toIso8601String()]);
-
-    // Get the number of verbs learned before now
-    final verbsBeforeNow = await db.rawQuery('''
-      WITH EntryCounts AS (
-          SELECT 
-            verb_id, 
-            COUNT(*) AS nb_entries, 
-            MAX(timestamp) AS max_timestamp
-          FROM user_progress_verb
-          WHERE timestamp < ?
-          GROUP BY verb_id
-      ), LatestInfo AS (
-      SELECT 
-          up.verb_id,
-          up.box_level,
-          up.timestamp,
-          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
-          ec.nb_entries
-      FROM user_progress_verb up
-      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.verb_id = ec.verb_id
-      )
-      SELECT coalesce(sum(box_level), 0) as learned_verbs
-      FROM LatestInfo 
-      where rn=1 and (box_level!=5 or nb_entries>2)
-    ''', [now.toIso8601String()]);
-
-    final int startCount = verbsBeforeStart.first['learned_verbs'] as int;
-    final int nowCount = verbsBeforeNow.first['learned_verbs'] as int;
-
-    return (nowCount - startCount).toDouble() / 5;
+    return getVerbProgressBetweenDates(startOfDay, now);
   }
 
   Future<void> recordVerbProgress(int verbId,
@@ -885,19 +833,21 @@ class DatabaseService {
           FROM user_progress_verb
           WHERE timestamp < ?
           GROUP BY verb_id
+          HAVING COUNT(*) >= 2
       ), LatestInfo AS (
       SELECT 
           up.verb_id,
           up.box_level,
+          CASE WHEN ec.nb_entries=2 AND up.box_level=5 THEN 1 ELSE up.box_level END AS new_box_level,
           up.timestamp,
-          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
           ec.nb_entries
       FROM user_progress_verb up
-      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.verb_id = ec.verb_id
+      JOIN EntryCounts ec 
+        ON up.verb_id = ec.verb_id
+        AND up.timestamp = ec.max_timestamp
       )
-      SELECT coalesce(sum(box_level), 0) as learned_verbs
+      SELECT coalesce(sum(new_box_level), 0) as learned_verbs
       FROM LatestInfo 
-      where rn=1 and (box_level!=5 or nb_entries>2)
     ''', [startDate.toIso8601String()]);
 
     // Get the number of verbs learned before end date
@@ -910,19 +860,21 @@ class DatabaseService {
           FROM user_progress_verb
           WHERE timestamp < ?
           GROUP BY verb_id
+          HAVING COUNT(*) >= 2
       ), LatestInfo AS (
       SELECT 
           up.verb_id,
           up.box_level,
+          CASE WHEN ec.nb_entries=2 AND up.box_level=5 THEN 1 ELSE up.box_level END AS new_box_level,
           up.timestamp,
-          CASE WHEN up.timestamp = ec.max_timestamp THEN 1 ELSE 2 END AS rn,
           ec.nb_entries
       FROM user_progress_verb up
-      JOIN (select * from EntryCounts where nb_entries>1) ec ON up.verb_id = ec.verb_id
+      JOIN EntryCounts ec 
+        ON up.verb_id = ec.verb_id
+        AND up.timestamp = ec.max_timestamp
       )
-      SELECT coalesce(sum(box_level), 0) as learned_verbs
+      SELECT coalesce(sum(new_box_level), 0) as learned_verbs
       FROM LatestInfo 
-      where rn=1 and (box_level!=5 or nb_entries>2)
     ''', [endDate.toIso8601String()]);
 
     final int startCount = verbsBeforeStart.first['learned_verbs'] as int;

@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math' show pi;
 import 'settings/settings_help_center_screen.dart';
+import 'main_screen.dart';
 
 class WordScreen extends StatefulWidget {
   const WordScreen({super.key});
@@ -37,6 +38,7 @@ class _WordScreenState extends State<WordScreen> {
   bool _showCalendarAnimation = false;
   int _currentStreakCount = 0;
   late ConfettiController _confettiController;
+  bool _isGoalReached = false;
 
   @override
   void initState() {
@@ -305,6 +307,7 @@ class _WordScreenState extends State<WordScreen> {
         if (hasJustExceededGoal) {
           _showGoalAchieved = true;
         }
+        _isGoalReached = todayProgress >= daily_word_goal;
       });
 
       // Sauvegarder la nouvelle valeur de progression
@@ -387,20 +390,50 @@ class _WordScreenState extends State<WordScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _showGoalAchieved = false;
-                      });
-                      _startCalendarAnimation();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () {
+                        MainScreen.updateProgress();
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => const MainScreen(),
+                          ),
+                        );
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(_isGoalReached
+                          ? 'Retour à l\'accueil'
+                          : 'Continuer à apprendre'),
                     ),
-                    child: const Text('Continuer à apprendre'),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () {
+                        _getNextWord();
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(color: Colors.blue),
+                        ),
+                      ),
+                      child: const Text('Continuer à apprendre'),
+                    ),
                   ),
                 ],
               ),
