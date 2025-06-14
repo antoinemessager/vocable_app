@@ -114,7 +114,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
           spans.add(TextSpan(
             text: auxiliary.substring(1, auxiliary.length - 1),
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.blue,
               fontWeight: FontWeight.bold,
             ),
@@ -123,7 +123,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
           spans.add(TextSpan(
             text: auxiliary,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.black,
               fontWeight: FontWeight.normal,
             ),
@@ -139,7 +139,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
             spans.add(TextSpan(
               text: participle.substring(lastIndex, match.start),
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 color: Colors.black,
                 fontWeight: FontWeight.normal,
               ),
@@ -150,7 +150,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
           spans.add(TextSpan(
             text: match.group(1),
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.blue,
               fontWeight: FontWeight.bold,
             ),
@@ -164,7 +164,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
           spans.add(TextSpan(
             text: participle.substring(lastIndex),
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.black,
               fontWeight: FontWeight.normal,
             ),
@@ -179,7 +179,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
           spans.add(TextSpan(
             text: text.substring(lastIndex, match.start),
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.black,
               fontWeight: FontWeight.normal,
             ),
@@ -190,7 +190,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
         spans.add(TextSpan(
           text: match.group(1),
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             color: Colors.blue,
             fontWeight: FontWeight.bold,
           ),
@@ -204,7 +204,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
         spans.add(TextSpan(
           text: text.substring(lastIndex),
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             color: Colors.black,
             fontWeight: FontWeight.normal,
           ),
@@ -348,6 +348,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
                 verb,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w600,
+                      fontSize: 24,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -357,17 +358,20 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontStyle: FontStyle.italic,
                       color: Colors.grey[600],
+                      fontSize: 16,
                     ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
               _buildConjugationTable(conjugation),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text(
                   'Fermer',
-                  style: TextStyle(color: Colors.blue),
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ],

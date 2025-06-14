@@ -228,7 +228,7 @@ class _WordCardState extends State<WordCard> {
                                               : 20),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'Incorrect',
+                                        'Je me suis trompé',
                                         style: TextStyle(
                                             fontSize: constraints.maxWidth < 350
                                                 ? 11
@@ -265,7 +265,7 @@ class _WordCardState extends State<WordCard> {
                                               : 20),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'Correct',
+                                        'Je savais',
                                         style: TextStyle(
                                             fontSize: constraints.maxWidth < 350
                                                 ? 11
@@ -307,7 +307,7 @@ class _WordCardState extends State<WordCard> {
                                                 : 20),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Déjà connu',
+                                          'Trop facile (ne plus réviser)',
                                           style: TextStyle(
                                               fontSize:
                                                   constraints.maxWidth < 350

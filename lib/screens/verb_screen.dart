@@ -43,6 +43,8 @@ class _VerbScreenState extends State<VerbScreen> {
   double _previousProgress = 0.0;
   bool _hasShownHelp = false;
   bool _hasShownFirstPopup = false;
+  bool _isLoading = true;
+  bool _isGoalReached = false;
 
   @override
   void initState() {
@@ -92,6 +94,7 @@ class _VerbScreenState extends State<VerbScreen> {
         if (hasJustExceededGoal) {
           MainScreen.updateProgress();
         }
+        _isGoalReached = progress >= daily_verb_goal;
       });
     }
 

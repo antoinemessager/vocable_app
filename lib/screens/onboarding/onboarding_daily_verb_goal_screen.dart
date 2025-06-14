@@ -170,7 +170,9 @@ class _OnboardingDailyVerbGoalScreenState
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await _saveGoal(_selectedGoal);
+                    if (!mounted) return;
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) =>

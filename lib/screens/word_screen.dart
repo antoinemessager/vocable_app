@@ -154,15 +154,15 @@ class _WordScreenState extends State<WordScreen> {
                     _buildHelpItem(
                       icon: Icons.double_arrow,
                       color: Colors.grey[700]!,
-                      title: 'Déjà vu',
+                      title: 'Trop facile (ne plus réviser)',
                       description:
-                          'Tu connaissais déjà parfaitement le mot et tu ne veux plus jamais le revoir ?',
+                          'Tu connaissais déjà parfaitement le mot et tu n\'as pas besoin de le réviser?',
                     ),
                     const SizedBox(height: 8),
                     _buildHelpItem(
                       icon: Icons.check,
                       color: Colors.green[700]!,
-                      title: 'Correct',
+                      title: 'Je savais',
                       description:
                           'Tu as eu juste et tu veux continuer à le réviser ?',
                     ),
@@ -170,7 +170,7 @@ class _WordScreenState extends State<WordScreen> {
                     _buildHelpItem(
                       icon: Icons.close,
                       color: Colors.red[700]!,
-                      title: 'Incorrect',
+                      title: 'Je me suis trompé',
                       description: 'Tu t\'es trompé ?',
                     ),
                     const SizedBox(height: 16),
@@ -306,6 +306,7 @@ class _WordScreenState extends State<WordScreen> {
         _showGoalAchieved = false;
         if (hasJustExceededGoal) {
           _showGoalAchieved = true;
+          MainScreen.updateProgress();
         }
         _isGoalReached = todayProgress >= daily_word_goal;
       });

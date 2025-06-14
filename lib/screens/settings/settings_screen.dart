@@ -88,7 +88,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           FutureBuilder<Map<String, int>>(
             future: SharedPreferences.getInstance().then((prefs) => {
-                  'wordsPerDay': prefs.getInt('daily_word_goal') ?? 5,
+                  'wordsPerDay': prefs.getInt('daily_word_goal') ?? 3,
                   'verbsPerDay': prefs.getInt('daily_verb_goal') ?? 2,
                 }),
             builder: (context, snapshot) {

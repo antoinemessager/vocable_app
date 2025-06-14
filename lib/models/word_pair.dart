@@ -5,6 +5,7 @@ class WordPair {
   final String es_sentence;
   final String fr_sentence;
   final int nb_time_seen;
+  final double distance;
 
   WordPair({
     required this.word_id,
@@ -13,6 +14,7 @@ class WordPair {
     required this.es_sentence,
     required this.fr_sentence,
     this.nb_time_seen = 0,
+    this.distance = 1.0,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class WordPair {
       'french_context': fr_sentence,
       'spanish_context': es_sentence,
       'nb_time_seen': nb_time_seen,
+      'distance': distance,
     };
   }
 
@@ -33,6 +36,7 @@ class WordPair {
       word_fr: json['fr_word'] ?? 'ERROR',
       es_sentence: json['es_sentence'] ?? '',
       fr_sentence: json['fr_sentence'] ?? '',
+      distance: (json['distance'] as num?)?.toDouble() ?? 1.0,
     );
   }
 }

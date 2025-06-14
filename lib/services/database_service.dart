@@ -16,8 +16,6 @@ class DatabaseService {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'vocable.db');
 
     // Créer une nouvelle base de données
     _database = await _initDB('vocable.db');
@@ -51,7 +49,8 @@ class DatabaseService {
         french_word TEXT NOT NULL,
         spanish_word TEXT NOT NULL,
         french_context TEXT NOT NULL,
-        spanish_context TEXT NOT NULL
+        spanish_context TEXT NOT NULL,
+        distance REAL NOT NULL DEFAULT 1.0
       )
     ''');
 
@@ -100,6 +99,7 @@ class DatabaseService {
         'spanish_word': pair.word_es,
         'french_context': pair.fr_sentence,
         'spanish_context': pair.es_sentence,
+        'distance': pair.distance ?? 1.0,
       });
     }
 
@@ -175,11 +175,12 @@ class DatabaseService {
     for (var entry in jsonData) {
       wordPairs.add(
         WordPair(
-          word_id: entry['id'] as int,
-          word_es: entry['mot_esp'] as String,
-          word_fr: entry['mot_fr'] as String,
-          es_sentence: entry['phrase_esp'] as String,
-          fr_sentence: entry['phrase_fr'] as String,
+          word_id: entry['id'] as int? ?? 0,
+          word_es: entry['mot_esp'] as String? ?? '',
+          word_fr: entry['mot_fr'] as String? ?? '',
+          es_sentence: entry['phrase_esp'] as String? ?? '',
+          fr_sentence: entry['phrase_fr'] as String? ?? '',
+          distance: (entry['distance'] as num?)?.toDouble() ?? 1.0,
         ),
       );
     }
@@ -592,6 +593,7 @@ class DatabaseService {
           WHERE v.id BETWEEN ? AND ?
           AND LENGTH(v.french_word) >= 3
           AND LENGTH(v.spanish_word) >= 3
+          AND v.distance > 0.8
         ORDER BY RANDOM()
         LIMIT 10
         )
