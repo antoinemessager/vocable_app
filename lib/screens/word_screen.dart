@@ -154,7 +154,7 @@ class _WordScreenState extends State<WordScreen> {
                     _buildHelpItem(
                       icon: Icons.double_arrow,
                       color: Colors.grey[700]!,
-                      title: 'Trop facile (ne plus réviser)',
+                      title: 'Trop facile',
                       description:
                           'Tu connaissais déjà parfaitement le mot et tu n\'as pas besoin de le réviser?',
                     ),

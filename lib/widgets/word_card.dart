@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/word_pair.dart';
+import '../utils/style_utils.dart';
 import 'too_easy_dialog.dart';
 
 class WordCard extends StatefulWidget {
@@ -54,25 +55,28 @@ class _WordCardState extends State<WordCard> {
       builder: (context, constraints) {
         final textSpan = TextSpan(
           text: widget.word.word_fr,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                height: 1.2,
-              ),
+          style: StyleUtils.getAdaptiveTextStyle(
+            context,
+            baseSize: StyleUtils.headlineMedium,
+            baseLineHeight: StyleUtils.lineHeightNormal,
+            fontWeight: FontWeight.w600,
+          ),
         );
         final textPainter = TextPainter(
           text: textSpan,
           textDirection: TextDirection.ltr,
           maxLines: 2,
         );
-        textPainter.layout(
-            maxWidth: constraints.maxWidth - 80); // 32 pour le padding
-        // Calculer la hauteur d'une seule ligne
+        textPainter.layout(maxWidth: constraints.maxWidth - 80);
+
         final singleLineTextSpan = TextSpan(
           text: 'Test',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                height: 1.2,
-              ),
+          style: StyleUtils.getAdaptiveTextStyle(
+            context,
+            baseSize: StyleUtils.headlineMedium,
+            baseLineHeight: StyleUtils.lineHeightNormal,
+            fontWeight: FontWeight.w600,
+          ),
         );
         final singleLinePainter = TextPainter(
           text: singleLineTextSpan,
@@ -82,7 +86,6 @@ class _WordCardState extends State<WordCard> {
         singleLinePainter.layout(maxWidth: constraints.maxWidth - 32);
         final singleLineHeight = singleLinePainter.height;
 
-        // Le texte a besoin de deux lignes si sa hauteur est supérieure à la hauteur d'une ligne
         final needsTwoLines = textPainter.height > singleLineHeight * 1.2;
 
         return Card(
@@ -107,13 +110,12 @@ class _WordCardState extends State<WordCard> {
                         right: 0,
                         child: Text(
                           widget.word.word_fr,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                height: 1.2,
-                              ),
+                          style: StyleUtils.getAdaptiveTextStyle(
+                            context,
+                            baseSize: StyleUtils.headlineMedium,
+                            baseLineHeight: StyleUtils.lineHeightNormal,
+                            fontWeight: FontWeight.w600,
+                          ),
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -140,7 +142,15 @@ class _WordCardState extends State<WordCard> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Afficher la traduction'),
+                      child: Text(
+                        'Afficher la traduction',
+                        style: StyleUtils.getAdaptiveTextStyle(
+                          context,
+                          baseSize: StyleUtils.bodyMedium,
+                          baseLineHeight: StyleUtils.lineHeightNormal,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ] else ...[
@@ -152,10 +162,13 @@ class _WordCardState extends State<WordCard> {
                   ),
                   Text(
                     widget.word.word_es,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue,
-                        ),
+                    style: StyleUtils.getAdaptiveTextStyle(
+                      context,
+                      baseSize: StyleUtils.headlineMedium,
+                      baseLineHeight: StyleUtils.lineHeightNormal,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.blue,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -171,24 +184,24 @@ class _WordCardState extends State<WordCard> {
                         children: [
                           Text(
                             '"${widget.word.es_sentence}"',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  fontStyle: FontStyle.italic,
-                                ),
+                            style: StyleUtils.getAdaptiveTextStyle(
+                              context,
+                              baseSize: StyleUtils.bodyMedium,
+                              baseLineHeight: StyleUtils.lineHeightNormal,
+                              fontStyle: FontStyle.italic,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                           if (widget.word.fr_sentence.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text(
                               widget.word.fr_sentence,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
+                              style: StyleUtils.getAdaptiveTextStyle(
+                                context,
+                                baseSize: StyleUtils.bodyMedium,
+                                baseLineHeight: StyleUtils.lineHeightNormal,
+                                color: Colors.grey[600],
+                              ),
                               textAlign: TextAlign.center,
                             ),
                           ],

@@ -575,6 +575,7 @@ class DatabaseService {
       'A2': {'start': 251, 'end': 750},
       'B1': {'start': 751, 'end': 1500},
       'B2': {'start': 1501, 'end': 2750},
+      'C1': {'start': 2751, 'end': 5000},
     };
 
     Map<String, List<Map<String, String>>> result = {};

@@ -198,9 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 0, vertical: 8),
                       ),
-                      child: Text(hasCompletedGoal
-                          ? 'Objectif atteint !'
-                          : 'Apprendre'),
+                      child: Text(hasCompletedGoal ? 'Continuer' : 'Apprendre'),
                     ),
                   ),
                 ],

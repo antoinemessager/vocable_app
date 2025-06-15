@@ -49,8 +49,11 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
       case 'B2':
         nextLevel = 'C1';
         break;
+      case 'C1':
+        nextLevel = 'C2';
+        break;
       default:
-        nextLevel = 'C1';
+        nextLevel = 'C2';
     }
 
     setState(() {
@@ -89,11 +92,13 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
           // Si l'utilisateur a répondu "No" une fois ou "I've seen it before" deux fois
           _finalLevel = _currentLevel;
           _showConclusionAndFinish();
-        } else if (_currentLevel == 'B2') {
-          _finalLevel = 'C1';
+        } else if (_currentLevel == 'C1') {
+          // Si on est à C1 et que l'utilisateur a bien réussi, on passe à C2
+          _finalLevel = 'C2';
           _showConclusionAndFinish();
         } else {
-          // Sinon, on passe au niveau suivant
+          // Pour les autres niveaux, on continue normalement
+
           _moveToNextLevel();
           _showTranslation = false;
         }
@@ -172,6 +177,19 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
               ],
             ),
           ),
+        ),
+      );
+    }
+
+    // Vérifier si le niveau actuel existe dans _wordsByLevel
+    if (!_wordsByLevel.containsKey(_currentLevel) ||
+        _wordsByLevel[_currentLevel] == null ||
+        _wordsByLevel[_currentLevel]!.isEmpty) {
+      // Si le niveau n'existe pas ou est vide, passer au niveau suivant
+      _moveToNextLevel();
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
         ),
       );
     }
