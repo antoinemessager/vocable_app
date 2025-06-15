@@ -42,9 +42,9 @@ class _StarAnimationState extends State<StarAnimation>
 
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-          tween: Tween<double>(begin: 2.0, end: 2.5), weight: 0.5),
+          tween: Tween<double>(begin: 1.0, end: 5.0), weight: 0.5),
       TweenSequenceItem(
-          tween: Tween<double>(begin: 2.5, end: 1.0), weight: 0.5),
+          tween: Tween<double>(begin: 5.0, end: 1.0), weight: 0.5),
     ]).animate(
       CurvedAnimation(
         parent: _controller,

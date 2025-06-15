@@ -989,6 +989,15 @@ class DatabaseService {
       SELECT * FROM Pool50 ORDER BY RANDOM() LIMIT 1;
     ''', selectedTenses);
 
+    final List<Map<String, dynamic>> result2 = await db.rawQuery('''
+      select
+        *,
+        0 as box_level,
+        0 as nb_time_seen
+      from verb
+      where id=1
+    ''');
+
     if (result.isEmpty) {
       return Verb(
         verb_id: 0,
@@ -998,6 +1007,6 @@ class DatabaseService {
         nb_time_seen: 0,
       );
     }
-    return Verb.fromMap(result.first);
+    return Verb.fromMap(result2.first);
   }
 }
