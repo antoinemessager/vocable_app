@@ -12,7 +12,7 @@ void main() async {
 
   // Check if it's first launch using a new key
   final prefs = await SharedPreferences.getInstance();
-  final isFirstLaunch = prefs.getBool('is_first_launch_v2') ?? true;
+  final isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
 
   if (isFirstLaunch) {
     // Supprimer la base de données existante lors du premier lancement
@@ -23,11 +23,6 @@ void main() async {
 
   // Initialize database
   await DatabaseService.instance.database;
-
-  // Mettre is_first_launch à false après l'initialisation de la base de données
-  if (isFirstLaunch) {
-    await prefs.setBool('is_first_launch_v2', false);
-  }
 
   runApp(MyApp(isFirstLaunch: isFirstLaunch));
 }

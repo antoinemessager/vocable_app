@@ -25,7 +25,7 @@ class OnboardingAssessmentIntroScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Super !',
+                        'Détermine ton niveau!',
                         style: Theme.of(context)
                             .textTheme
                             .headlineMedium
