@@ -209,26 +209,146 @@ class _VerbCardState extends State<VerbCard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
-                  height: 40,
-                  child: Text(
-                    widget.verb.verb,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+                // En-tête stylisé : verbe, temps et personne
+                Column(
+                  children: [
+                    Text(
+                      widget.verb.verb.toUpperCase(),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: 28,
+                              ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 6),
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            _capitalize(widget.verb.tense),
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
-                    textAlign: TextAlign.center,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'je (yo)',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 5),
+                // Phrase d'exemple stylisée
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50], // bleu très clair
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border(
+                      left: BorderSide(
+                        color: Colors.blue.shade300,
+                        width: 5,
+                      ),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '"',
+                            style: TextStyle(
+                              fontSize: 24,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                              height: 1,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                      color: Colors.black87,
+                                      fontSize: 15,
+                                    ),
+                                children: [
+                                  const TextSpan(text: '(Yo) '),
+                                  WidgetSpan(
+                                    alignment: PlaceholderAlignment.middle,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.yellow[200],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Text(
+                                        '...',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const TextSpan(text: ' un ingeniero'),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Text(
+                          'Je suis un ingénieur',
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  widget.verb.tense,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontStyle: FontStyle.italic,
-                        color: Colors.grey[600],
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
                 if (!_isRevealed) ...[
                   SizedBox(
                     width: double.infinity,
@@ -447,16 +567,16 @@ class _VerbCardState extends State<VerbCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (conjugations.length == 5) ...[
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 4),
-                        child: Text(
-                          '-',
-                          style: TextStyle(fontSize: 18),
+                    // Première personne du singulier encadrée
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.blue, width: 2),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 6, horizontal: 8),
                         child: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
@@ -464,27 +584,18 @@ class _VerbCardState extends State<VerbCard> {
                           ),
                         ),
                       ),
+                    ),
+                    // Les autres personnes (2e et 3e)
+                    for (int i = 1; i < (conjugations.length == 5 ? 2 : 3); i++)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
                         child: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
-                            children: _parseConjugation(conjugations[1]),
+                            children: _parseConjugation(conjugations[i]),
                           ),
                         ),
                       ),
-                    ] else ...[
-                      for (int i = 0; i < 3; i++)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              children: _parseConjugation(conjugations[i]),
-                            ),
-                          ),
-                        ),
-                    ],
                   ],
                 ),
               ),
@@ -513,5 +624,10 @@ class _VerbCardState extends State<VerbCard> {
         ),
       ],
     );
+  }
+
+  String _capitalize(String input) {
+    if (input.isEmpty) return input;
+    return input[0].toUpperCase() + input.substring(1);
   }
 }
