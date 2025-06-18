@@ -484,7 +484,7 @@ class _VerbScreenState extends State<VerbScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 24),
+                  margin: const EdgeInsets.only(bottom: 12),
                   child: Column(
                     children: [
                       Row(
@@ -525,7 +525,7 @@ class _VerbScreenState extends State<VerbScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       Container(
                         height: 16,
                         decoration: BoxDecoration(
@@ -596,121 +596,156 @@ class _VerbScreenState extends State<VerbScreen> {
                           ],
                         ),
                       )
-                    : SingleChildScrollView(
-                        child: VerbCard(
-                          verb: _currentVerb,
-                          onCorrect: (isCorrect) async {
-                            final totalMastered =
-                                await _databaseService.getTotalMasteredVerbs();
-                            if (totalMastered.toInt() >
-                                _totalMasteredVerbs.toInt()) {
-                              _startStarAnimation();
-                            }
-                            await _loadRandomVerb();
-                            await _loadProgress();
-                            await _loadStats();
-                          },
-                          onIncorrect: (isCorrect) async {
-                            await _loadRandomVerb();
-                            await _loadProgress();
-                            await _loadStats();
-                          },
-                          onAlreadyKnown: (isTooEasy) async {
-                            await _loadRandomVerb();
-                            await _loadProgress();
-                            await _loadStats();
-                          },
-                          onShowHelp: _showAnswerHelp,
-                        ),
-                      ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      key: _masteredKey,
-                      width: 120,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 28),
-                          const SizedBox(height: 4),
-                          Text(
-                            _totalMasteredVerbs.toInt().toString(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey[800],
-                                ),
-                          ),
-                          Text(
-                            'Appris',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[600],
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: constraints.maxHeight,
+                              ),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    children: [
+                                      VerbCard(
+                                        verb: _currentVerb,
+                                        onCorrect: (isCorrect) async {
+                                          final totalMastered =
+                                              await _databaseService
+                                                  .getTotalMasteredVerbs();
+                                          if (totalMastered.toInt() >
+                                              _totalMasteredVerbs.toInt()) {
+                                            _startStarAnimation();
+                                          }
+                                          await _loadRandomVerb();
+                                          await _loadProgress();
+                                          await _loadStats();
+                                        },
+                                        onIncorrect: (isCorrect) async {
+                                          await _loadRandomVerb();
+                                          await _loadProgress();
+                                          await _loadStats();
+                                        },
+                                        onAlreadyKnown: (isTooEasy) async {
+                                          await _loadRandomVerb();
+                                          await _loadProgress();
+                                          await _loadStats();
+                                        },
+                                        onShowHelp: _showAnswerHelp,
+                                      ),
+                                    ],
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 12),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Container(
+                                          key: _masteredKey,
+                                          width: 120,
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.3),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              const Icon(Icons.star,
+                                                  color: Colors.amber,
+                                                  size: 28),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                _totalMasteredVerbs
+                                                    .toInt()
+                                                    .toString(),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleLarge
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.grey[800],
+                                                    ),
+                                              ),
+                                              Text(
+                                                'Appris',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall
+                                                    ?.copyWith(
+                                                      color: Colors.grey[600],
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          key: _streakKey,
+                                          width: 120,
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.3),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              const Icon(Icons.calendar_today,
+                                                  color: Colors.blue, size: 28),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                _dayStreak.toString(),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleLarge
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.grey[800],
+                                                    ),
+                                              ),
+                                              Text(
+                                                'Jours',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall
+                                                    ?.copyWith(
+                                                      color: Colors.grey[600],
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                          ),
-                        ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                    Container(
-                      key: _streakKey,
-                      width: 120,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.calendar_today,
-                              color: Colors.blue, size: 28),
-                          const SizedBox(height: 4),
-                          Text(
-                            _dayStreak.toString(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey[800],
-                                ),
-                          ),
-                          Text(
-                            'Jours',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[600],
-                                    ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ],
           ),

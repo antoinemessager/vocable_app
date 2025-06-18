@@ -534,7 +534,7 @@ class _WordScreenState extends State<WordScreen> {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 20),
                                 child: Container(
-                                  margin: const EdgeInsets.only(bottom: 24),
+                                  margin: const EdgeInsets.only(bottom: 12),
                                   child: Column(
                                     children: [
                                       Row(
@@ -580,7 +580,7 @@ class _WordScreenState extends State<WordScreen> {
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 16),
+                                      const SizedBox(height: 8),
                                       Container(
                                         height: 16,
                                         decoration: BoxDecoration(
