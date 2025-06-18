@@ -175,34 +175,70 @@ class _WordCardState extends State<WordCard> {
                   if (widget.word.es_sentence.isNotEmpty) ...[
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 14, horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border(
+                          left: BorderSide(
+                            color: Colors.blue.shade300,
+                            width: 5,
+                          ),
+                        ),
                       ),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '"${widget.word.es_sentence}"',
-                            style: StyleUtils.getAdaptiveTextStyle(
-                              context,
-                              baseSize: StyleUtils.bodyMedium,
-                              baseLineHeight: StyleUtils.lineHeightNormal,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            textAlign: TextAlign.center,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                '" ',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1,
+                                ),
+                              ),
+                              Expanded(
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black87,
+                                    ),
+                                    children: [
+                                      TextSpan(text: widget.word.es_sentence),
+                                      const TextSpan(
+                                        text: '"',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.blue,
+                                          fontWeight: FontWeight.bold,
+                                          height: 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           if (widget.word.fr_sentence.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              widget.word.fr_sentence,
-                              style: StyleUtils.getAdaptiveTextStyle(
-                                context,
-                                baseSize: StyleUtils.bodyMedium,
-                                baseLineHeight: StyleUtils.lineHeightNormal,
-                                color: Colors.grey[600],
+                            const SizedBox(height: 6),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: Text(
+                                widget.word.fr_sentence,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontStyle: FontStyle.italic,
+                                  color: Colors.grey,
+                                ),
                               ),
-                              textAlign: TextAlign.center,
                             ),
                           ],
                         ],

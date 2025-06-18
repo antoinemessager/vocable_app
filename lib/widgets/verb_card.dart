@@ -212,15 +212,22 @@ class _VerbCardState extends State<VerbCard> {
                 // En-tête stylisé : verbe, temps et personne
                 Column(
                   children: [
-                    Text(
-                      widget.verb.verb.toUpperCase(),
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                fontSize: 28,
-                              ),
-                      textAlign: TextAlign.center,
+                    GestureDetector(
+                      onTap: () {
+                        _showTranslationPopup();
+                      },
+                      child: Text(
+                        widget.verb.verb.toUpperCase(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 28,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                     const SizedBox(height: 5),
                     Row(
@@ -287,15 +294,14 @@ class _VerbCardState extends State<VerbCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            '"',
+                            '" ',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 20,
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
                               height: 1,
                             ),
                           ),
-                          const SizedBox(width: 4),
                           Expanded(
                             child: RichText(
                               text: TextSpan(
@@ -314,20 +320,35 @@ class _VerbCardState extends State<VerbCard> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: Colors.yellow[200],
+                                        color: _isRevealed
+                                            ? Colors.yellow[200]
+                                            : Colors.yellow[200],
                                         borderRadius: BorderRadius.circular(4),
                                       ),
-                                      child: const Text(
-                                        '...',
+                                      child: Text(
+                                        _isRevealed
+                                            ? _getFirstPersonConjugation()
+                                            : '...',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,
-                                          color: Colors.black87,
+                                          color: _isRevealed
+                                              ? Colors.blue
+                                              : Colors.black87,
                                         ),
                                       ),
                                     ),
                                   ),
                                   const TextSpan(text: ' un ingeniero'),
+                                  const TextSpan(
+                                    text: ' "',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -569,14 +590,14 @@ class _VerbCardState extends State<VerbCard> {
                   children: [
                     // Première personne du singulier encadrée
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 0),
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue, width: 2),
                           borderRadius: BorderRadius.circular(8),
+                          color: Colors.yellow[200],
                         ),
                         padding: const EdgeInsets.symmetric(
-                            vertical: 6, horizontal: 8),
+                            vertical: 2, horizontal: 8),
                         child: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
@@ -629,5 +650,113 @@ class _VerbCardState extends State<VerbCard> {
   String _capitalize(String input) {
     if (input.isEmpty) return input;
     return input[0].toUpperCase() + input.substring(1);
+  }
+
+  String _getFirstPersonConjugation() {
+    if (widget.verb.conjugation.isEmpty) return '...';
+
+    final conjugations =
+        widget.verb.conjugation.split(',').map((line) => line.trim()).toList();
+    if (conjugations.isEmpty) return '...';
+
+    // Prendre la première conjugaison (première personne du singulier)
+    String firstConjugation = conjugations[0];
+
+    // Nettoyer les étoiles si présentes
+    firstConjugation = firstConjugation.replaceAll('*', '');
+
+    return firstConjugation.isEmpty ? '...' : firstConjugation;
+  }
+
+  void _showTranslationPopup() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        contentPadding: const EdgeInsets.all(20),
+        content: Container(
+          constraints: const BoxConstraints(
+            maxWidth: 200,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Traduction',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _getVerbTranslation(widget.verb.verb),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Fermer',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getVerbTranslation(String verb) {
+    // Dictionnaire simple de traductions pour les verbes courants
+    final translations = {
+      'ser': 'être',
+      'estar': 'être',
+      'tener': 'avoir',
+      'hacer': 'faire',
+      'ir': 'aller',
+      'venir': 'venir',
+      'ver': 'voir',
+      'saber': 'savoir',
+      'poder': 'pouvoir',
+      'deber': 'devoir',
+      'querer': 'vouloir',
+      'dar': 'donner',
+      'decir': 'dire',
+      'hablar': 'parler',
+      'comer': 'manger',
+      'beber': 'boire',
+      'dormir': 'dormir',
+      'vivir': 'vivir',
+      'trabajar': 'travailler',
+      'estudiar': 'étudier',
+    };
+
+    return translations[verb.toLowerCase()] ?? 'Traduction non disponible';
   }
 }
