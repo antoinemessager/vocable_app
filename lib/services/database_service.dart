@@ -68,10 +68,15 @@ class DatabaseService {
     await db.execute('''
       CREATE TABLE verb (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        verb TEXT NOT NULL,
-        tense TEXT NOT NULL,
-        conjugation TEXT NOT NULL,
-        UNIQUE(verb, tense)
+        verbes TEXT NOT NULL,
+        temps TEXT NOT NULL,
+        traduction TEXT NOT NULL,
+        conjugaison_complete TEXT NOT NULL,
+        conjugaison TEXT NOT NULL,
+        personne TEXT NOT NULL,
+        phrase_es TEXT NOT NULL,
+        phrase_fr TEXT NOT NULL,
+        UNIQUE(verbes, temps, personne)
       )
     ''');
 
@@ -113,36 +118,21 @@ class DatabaseService {
     }
 
     // Insert verbs
-    for (var verb in verbs) {
-      final verbText = verb['verb'] as String;
-
-      // Insert each tense as a separate row
-      final tenses = {
-        'présent': verb['present'],
-        'passé composé': verb['passe_compose'],
-        'futur': verb['futur'],
-        'futur antérieur': verb['futur_anterieur'],
-        'imparfait': verb['imparfait'],
-        'plus que parfait': verb['plus_que_parfait'],
-        'passé simple': verb['passe_simple'],
-        'conditionnel présent': verb['conditionnel_present'],
-        'conditionnel passé': verb['conditionnel_passe'],
-        'subjonctif présent': verb['subjonctif_present'],
-        'subjonctif passé': verb['subjonctif_passe'],
-        'impératif': verb['imperatif'],
-        'impératif négatif': verb['imperatif_negatif'],
-      };
-
-      for (var entry in tenses.entries) {
-        // Ne pas insérer si la conjugaison est vide ou null
-        if (entry.value != null && entry.value.toString().isNotEmpty) {
-          batch.insert('verb', {
-            'verb': verbText,
-            'tense': entry.key,
-            'conjugation': entry.value,
-          });
-        }
+    if (verbs.isNotEmpty) {
+      for (var verb in verbs) {
+        batch.insert('verb', {
+          'verbes': verb['verbes'] as String,
+          'temps': verb['temps'] as String,
+          'traduction': verb['traduction'] as String,
+          'conjugaison_complete': verb['conjugaison_complete'] as String,
+          'conjugaison': verb['conjugaison'] as String,
+          'personne': verb['personne'] as String,
+          'phrase_es': verb['phrase_es'] as String,
+          'phrase_fr': verb['phrase_fr'] as String,
+        });
       }
+    } else {
+      print('Aucun verbe chargé depuis le fichier JSON');
     }
 
     // Commit the batch to insert all data
@@ -150,18 +140,20 @@ class DatabaseService {
 
     // Now that all verbs are inserted, initialize user_progress_verb
     final List<Map<String, dynamic>> insertedVerbs = await db.query('verb');
-    final progressBatch = db.batch();
+    if (insertedVerbs.isNotEmpty) {
+      final progressBatch = db.batch();
 
-    for (var verb in insertedVerbs) {
-      progressBatch.insert('user_progress_verb', {
-        'verb_id': verb['id'],
-        'box_level': 0,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+      for (var verb in insertedVerbs) {
+        progressBatch.insert('user_progress_verb', {
+          'verb_id': verb['id'],
+          'box_level': 0,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+      }
+
+      // Commit the progress batch
+      await progressBatch.commit(noResult: true);
     }
-
-    // Commit the progress batch
-    await progressBatch.commit(noResult: true);
   }
 
   Future<List<WordPair>> readJsonFromAssets() async {
@@ -191,90 +183,36 @@ class DatabaseService {
   }
 
   Future<List<Map<String, dynamic>>> readVerbsFromAssets() async {
-    final String jsonString = await rootBundle.loadString(
-      'assets/verbes.json',
-    );
+    try {
+      final String jsonString = await rootBundle.loadString(
+        'assets/verbes.json',
+      );
 
-    final List<dynamic> jsonData = jsonDecode(jsonString);
-    final Map<String, Map<String, dynamic>> verbMap = {};
+      final List<dynamic> jsonData = jsonDecode(jsonString);
+      List<Map<String, dynamic>> verbs = [];
 
-    // First pass: group conjugations by verb
-    for (var entry in jsonData) {
-      final verb = entry['Verbes'] as String;
-      final tense = entry['Temps'] as String;
-      final conjugation = entry['Conjugaison'] as String;
-
-      // Find or create verb entry
-      if (!verbMap.containsKey(verb)) {
-        verbMap[verb] = {
-          'verb': verb,
-          'present': '',
-          'passe_compose': '',
-          'futur': '',
-          'futur_anterieur': '',
-          'imparfait': '',
-          'plus_que_parfait': '',
-          'passe_simple': '',
-          'conditionnel_present': '',
-          'conditionnel_passe': '',
-          'subjonctif_present': '',
-          'subjonctif_passe': '',
-          'imperatif': '',
-          'imperatif_negatif': '',
-        };
+      for (var entry in jsonData) {
+        if (entry is Map<String, dynamic>) {
+          verbs.add({
+            'verbes': entry['verbes'] as String? ?? '',
+            'temps': entry['temps'] as String? ?? '',
+            'traduction': entry['traduction'] as String? ?? '',
+            'conjugaison_complete':
+                entry['conjugaison_complete'] as String? ?? '',
+            'conjugaison': entry['conjugaison'] as String? ?? '',
+            'personne': entry['personne'] as String? ?? '',
+            'phrase_es': entry['phrase_es'] as String? ?? '',
+            'phrase_fr': entry['phrase_fr'] as String? ?? '',
+          });
+        }
       }
 
-      // Map tense names to database fields
-      String fieldName;
-      switch (tense) {
-        case 'Présent':
-          fieldName = 'present';
-          break;
-        case 'Passé Composé':
-          fieldName = 'passe_compose';
-          break;
-        case 'Futur':
-          fieldName = 'futur';
-          break;
-        case 'Futur Antérieur':
-          fieldName = 'futur_anterieur';
-          break;
-        case 'Imparfait':
-          fieldName = 'imparfait';
-          break;
-        case 'Plus que parfait':
-          fieldName = 'plus_que_parfait';
-          break;
-        case 'Passé Simple':
-          fieldName = 'passe_simple';
-          break;
-        case 'Conditionnel Présent':
-          fieldName = 'conditionnel_present';
-          break;
-        case 'Conditionnel Passé':
-          fieldName = 'conditionnel_passe';
-          break;
-        case 'Subjonctif Présent':
-          fieldName = 'subjonctif_present';
-          break;
-        case 'Subjonctif Passé':
-          fieldName = 'subjonctif_passe';
-          break;
-        case 'Impératif':
-          fieldName = 'imperatif';
-          break;
-        case 'Imperatif negatif':
-          fieldName = 'imperatif_negatif';
-          break;
-        default:
-          continue; // Skip unknown tenses
-      }
-
-      verbMap[verb]![fieldName] = conjugation;
+      return verbs;
+    } catch (e) {
+      print('Erreur lors de la lecture du fichier verbes.json: $e');
+      // Retourner une liste vide en cas d'erreur
+      return [];
     }
-
-    // Convert map to list
-    return verbMap.values.toList();
   }
 
   // Record a new progress entry
@@ -889,29 +827,46 @@ class DatabaseService {
     final db = await database;
     final Map<String, double> progress = {};
 
-    // Pour chaque temps verbal
+    // Pour chaque temps verbal (avec les noms exacts du JSON)
     final tenses = [
-      'présent',
-      'futur',
-      'passé composé',
-      'imparfait',
-      'passé simple',
-      'conditionnel présent',
-      'subjonctif présent',
-      'subjonctif passé',
-      'impératif',
-      'impératif négatif',
-      'plus que parfait',
-      'futur antérieur',
-      'conditionnel passé',
+      'Présent',
+      'Futur',
+      'Passé Composé',
+      'Imparfait',
+      'Passé Simple',
+      'Conditionnel Présent',
+      'Subjonctif Présent',
+      'Subjonctif Passé',
+      'Impératif',
+      'Impératif négatif',
+      'Plus que parfait',
+      'Futur Antérieur',
+      'Conditionnel Passé',
     ];
+
+    // Mapping des temps sans accents vers les temps avec accents
+    final Map<String, String> tenseMapping = {
+      'Présent': 'Présent',
+      'Passé Composé': 'Passé Composé',
+      'Futur': 'Futur',
+      'Futur Antérieur': 'Futur Antérieur',
+      'Imparfait': 'Imparfait',
+      'Plus que parfait': 'Plus que parfait',
+      'Passé Simple': 'Passé Simple',
+      'Conditionnel Présent': 'Conditionnel Présent',
+      'Conditionnel Passé': 'Conditionnel Passé',
+      'Subjonctif Présent': 'Subjonctif Présent',
+      'Subjonctif Passé': 'Subjonctif Passé',
+      'Impératif': 'Impératif',
+      'Impératif négatif': 'Impératif négatif',
+    };
 
     for (var tense in tenses) {
       // Récupérer le nombre total de verbes pour ce temps
       final totalResult = await db.rawQuery('''
         SELECT COUNT(*) as total
         FROM verb
-        WHERE tense = ?
+        WHERE temps = ?
       ''', [tense]);
 
       final total = totalResult.first['total'] as int;
@@ -930,7 +885,7 @@ class DatabaseService {
           SELECT sum(box_level)/5 as mastered
           FROM verb v
           JOIN LatestProgress lp ON v.id = lp.verb_id
-          WHERE v.tense = ?
+          WHERE v.temps = ?
         ''', [tense]);
 
         final mastered = masteredResult.first['mastered'] as int;
@@ -947,8 +902,10 @@ class DatabaseService {
     final db = await database;
     final prefs = await SharedPreferences.getInstance();
     final selectedTenses =
-        prefs.getStringList('selected_verb_tenses') ?? ['présent'];
+        prefs.getStringList('selected_verb_tenses') ?? ['Présent'];
 
+    print(selectedTenses);
+    // Les temps sélectionnés correspondent maintenant directement aux temps dans le JSON
     final List<Map<String, dynamic>> result = await db.rawQuery('''
       WITH LatestProgress AS (
         SELECT
@@ -979,7 +936,7 @@ class DatabaseService {
           COALESCE(up.nb_time_seen, 0) as nb_time_seen
         FROM verb v
         LEFT JOIN UsableVerbs up ON v.id = up.verb_id
-        WHERE v.tense IN (${List.filled(selectedTenses.length, '?').join(',')})
+        WHERE v.temps IN (${List.filled(selectedTenses.length, '?').join(',')})
           AND (up.verb_id IS NOT NULL OR NOT EXISTS (
             SELECT 1 FROM user_progress_verb up2 WHERE up2.verb_id = v.id
           ))
@@ -989,11 +946,57 @@ class DatabaseService {
       SELECT * FROM Pool50 ORDER BY RANDOM() LIMIT 1;
     ''', selectedTenses);
 
-    final List<Map<String, dynamic>> result2 = await db.rawQuery('''
-      select
-        *,
-        0 as box_level,
-        0 as nb_time_seen
+    if (result.isEmpty) {
+      return Verb(
+        verb_id: 0,
+        verbes: '',
+        temps: '',
+        traduction: '',
+        conjugaison_complete: '',
+        conjugaison: '',
+        personne: '',
+        phrase_es: '',
+        phrase_fr: '',
+        nb_time_seen: 0,
+      );
+    }
+    return Verb.fromMap(result.first);
+  }
+
+  Future<int> insertVerb(Verb verb) async {
+    final db = await database;
+    return await db.insert('verb', {
+      'verbes': verb.verbes,
+      'temps': verb.temps,
+      'traduction': verb.traduction,
+      'conjugaison_complete': verb.conjugaison_complete,
+      'conjugaison': verb.conjugaison,
+      'personne': verb.personne,
+      'phrase_es': verb.phrase_es,
+      'phrase_fr': verb.phrase_fr,
+    });
+  }
+
+  Future<void> insertVerbs(List<Map<String, dynamic>> verbs) async {
+    final db = await database;
+    for (var verbData in verbs) {
+      await db.insert('verb', {
+        'verbes': verbData['verbes'],
+        'temps': verbData['temps'],
+        'traduction': verbData['traduction'],
+        'conjugaison_complete': verbData['conjugaison_complete'],
+        'conjugaison': verbData['conjugaison'],
+        'personne': verbData['personne'],
+        'phrase_es': verbData['phrase_es'],
+        'phrase_fr': verbData['phrase_fr'],
+      });
+    }
+  }
+
+  Future<Verb> getFirstVerb() async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      select *
       from verb
       where id=1
     ''');
@@ -1001,12 +1004,17 @@ class DatabaseService {
     if (result.isEmpty) {
       return Verb(
         verb_id: 0,
-        verb: '',
-        tense: '',
-        conjugation: '',
+        verbes: '',
+        temps: '',
+        traduction: '',
+        conjugaison_complete: '',
+        conjugaison: '',
+        personne: '',
+        phrase_es: '',
+        phrase_fr: '',
         nb_time_seen: 0,
       );
     }
-    return Verb.fromMap(result2.first);
+    return Verb.fromMap(result.first);
   }
 }

@@ -24,9 +24,14 @@ class _VerbScreenState extends State<VerbScreen> {
   late ConfettiController _confettiController;
   Verb _currentVerb = Verb(
     verb_id: 0,
-    verb: '',
-    tense: '',
-    conjugation: '',
+    verbes: '',
+    temps: '',
+    traduction: '',
+    conjugaison_complete: '',
+    conjugaison: '',
+    personne: '',
+    phrase_es: '',
+    phrase_fr: '',
     nb_time_seen: 0,
   );
   int daily_verb_goal = 2;
@@ -65,11 +70,11 @@ class _VerbScreenState extends State<VerbScreen> {
 
   Future<void> _loadRandomVerb() async {
     final verb = await _databaseService.getRandomVerb();
-
+    print(verb.toMap());
     if (mounted) {
       setState(() {
         _currentVerb = verb;
-        if (!_hasShownHelp && _currentVerb.verb.isNotEmpty && mounted) {
+        if (!_hasShownHelp && _currentVerb.verbes.isNotEmpty && mounted) {
           _showFirstCardHelp();
         }
       });
@@ -354,7 +359,7 @@ class _VerbScreenState extends State<VerbScreen> {
   @override
   Widget build(BuildContext context) {
     // Afficher le chargement uniquement pendant l'initialisation
-    if (_currentVerb.verb.isEmpty &&
+    if (_currentVerb.verbes.isEmpty &&
         _todayProgress == 0.0 &&
         _totalMasteredVerbs == 0) {
       return const Scaffold(
@@ -558,7 +563,7 @@ class _VerbScreenState extends State<VerbScreen> {
                 ),
               ),
               Expanded(
-                child: _currentVerb.verb.isEmpty
+                child: _currentVerb.verbes.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,

@@ -32,8 +32,8 @@ class _VerbCardState extends State<VerbCard> {
   @override
   void didUpdateWidget(VerbCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.verb.verb != widget.verb.verb ||
-        oldWidget.verb.tense != widget.verb.tense) {
+    if (oldWidget.verb.verbes != widget.verb.verbes ||
+        oldWidget.verb.temps != widget.verb.temps) {
       setState(() {
         _isRevealed = false;
       });
@@ -217,7 +217,7 @@ class _VerbCardState extends State<VerbCard> {
                         _showTranslationPopup();
                       },
                       child: Text(
-                        widget.verb.verb.toUpperCase(),
+                        widget.verb.verbes.toUpperCase(),
                         style: Theme.of(context)
                             .textTheme
                             .headlineMedium
@@ -242,7 +242,7 @@ class _VerbCardState extends State<VerbCard> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            _capitalize(widget.verb.tense),
+                            _capitalize(widget.verb.temps),
                             style: const TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.w600,
@@ -540,7 +540,7 @@ class _VerbCardState extends State<VerbCard> {
   }
 
   Widget _buildConjugationTable() {
-    if (widget.verb.conjugation.isEmpty) {
+    if (widget.verb.conjugaison_complete.isEmpty) {
       return const Center(
         child: Text(
           'Aucune conjugaison disponible',
@@ -549,8 +549,10 @@ class _VerbCardState extends State<VerbCard> {
       );
     }
 
-    final conjugations =
-        widget.verb.conjugation.split(',').map((line) => line.trim()).toList();
+    final conjugations = widget.verb.conjugaison_complete
+        .split(',')
+        .map((line) => line.trim())
+        .toList();
 
     if (conjugations.length != 6 && conjugations.length != 5) {
       return const Center(
@@ -653,10 +655,12 @@ class _VerbCardState extends State<VerbCard> {
   }
 
   String _getFirstPersonConjugation() {
-    if (widget.verb.conjugation.isEmpty) return '...';
+    if (widget.verb.conjugaison_complete.isEmpty) return '...';
 
-    final conjugations =
-        widget.verb.conjugation.split(',').map((line) => line.trim()).toList();
+    final conjugations = widget.verb.conjugaison_complete
+        .split(',')
+        .map((line) => line.trim())
+        .toList();
     if (conjugations.isEmpty) return '...';
 
     // Prendre la première conjugaison (première personne du singulier)
@@ -693,7 +697,7 @@ class _VerbCardState extends State<VerbCard> {
               ),
               const SizedBox(height: 12),
               Text(
-                _getVerbTranslation(widget.verb.verb),
+                _getVerbTranslation(widget.verb.verbes),
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
