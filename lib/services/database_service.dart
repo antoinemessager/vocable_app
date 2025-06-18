@@ -262,4 +262,9 @@ class DatabaseService {
   Future<Verb> getFirstVerb() async {
     return await VerbDatabaseService.instance.getFirstVerb();
   }
+
+  Future<List<Map<String, dynamic>>> getVerbsForTenseProgress(
+      String tense) async {
+    return await VerbDatabaseService.instance.getVerbsForTenseProgress(tense);
+  }
 }

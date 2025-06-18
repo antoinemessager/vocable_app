@@ -383,4 +383,62 @@ class VerbDatabaseService {
     }
     return Verb.fromMap(result.first);
   }
+
+  Future<List<Map<String, dynamic>>> getVerbsForTenseProgress(
+      String tense) async {
+    final db = await database;
+    final List<Map<String, dynamic>> results = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT 
+          verb_id,
+          box_level,
+          MAX(timestamp) as latest_timestamp
+        FROM user_progress_verb
+        GROUP BY verb_id
+      ), TenseProgress AS (
+        SELECT 
+          v.id as verb_id,
+          v.verbes as verb,
+          v.conjugaison_complete as conjugation_complete,
+          v.traduction,
+          COALESCE(lp.box_level, 0) as box_level
+        FROM verb v
+        LEFT JOIN LatestProgress lp ON v.id = lp.verb_id
+        WHERE v.temps = ?
+      )
+      select 
+        verb,
+        conjugation_complete,
+        traduction,
+        sum(box_level) as total_level,
+        count(*) as count
+      from TenseProgress
+      group by verb, conjugation_complete, traduction
+      ORDER BY verb
+    ''', [tense]);
+
+    // Traiter directement les résultats de la requête
+    final List<Map<String, dynamic>> processedVerbs = [];
+    for (var result in results) {
+      final verbName = result['verb'] as String;
+      final conjugationComplete =
+          result['conjugation_complete'] as String? ?? '';
+      final traduction = result['traduction'] as String? ?? '';
+      final totalLevel = result['total_level'] as int;
+      final count = result['count'] as int;
+
+      // Calculer le pourcentage selon la formule : total_level/5/count
+      final percentage = count > 0 ? (totalLevel / 5 / count) : 0.0;
+
+      processedVerbs.add({
+        'verb': verbName,
+        'conjugation_complete': conjugationComplete,
+        'traduction': traduction,
+        'percentage': percentage,
+        'count': count,
+      });
+    }
+
+    return processedVerbs;
+  }
 }

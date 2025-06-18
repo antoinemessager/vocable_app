@@ -12,55 +12,55 @@ class SettingsVerbTensesScreen extends StatefulWidget {
 class _SettingsVerbTensesScreenState extends State<SettingsVerbTensesScreen> {
   final List<Map<String, dynamic>> _tenses = [
     {
-      'name': 'présent',
+      'name': 'Présent',
       'level': 'A1',
     },
     {
-      'name': 'futur',
+      'name': 'Futur',
       'level': 'A2',
     },
     {
-      'name': 'passé composé',
+      'name': 'Passé Composé',
       'level': 'A2',
     },
     {
-      'name': 'imparfait',
+      'name': 'Imparfait',
       'level': 'B1',
     },
     {
-      'name': 'passé simple',
+      'name': 'Passé Simple',
       'level': 'B1',
     },
     {
-      'name': 'conditionnel présent',
+      'name': 'Conditionnel Présent',
       'level': 'B1',
     },
     {
-      'name': 'subjonctif présent',
+      'name': 'Subjonctif Présent',
       'level': 'B2',
     },
     {
-      'name': 'impératif',
+      'name': 'Impératif',
       'level': 'B2',
     },
     {
-      'name': 'impératif négatif',
+      'name': 'Impératif négatif',
       'level': 'B2',
     },
     {
-      'name': 'subjonctif passé',
+      'name': 'Subjonctif Passé',
       'level': 'C1',
     },
     {
-      'name': 'plus que parfait',
+      'name': 'Plus que parfait',
       'level': 'C1',
     },
     {
-      'name': 'futur antérieur',
+      'name': 'Futur Antérieur',
       'level': 'C1',
     },
     {
-      'name': 'conditionnel passé',
+      'name': 'Conditionnel Passé',
       'level': 'C1',
     },
   ];

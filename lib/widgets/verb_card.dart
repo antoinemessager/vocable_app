@@ -34,7 +34,8 @@ class _VerbCardState extends State<VerbCard> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.verb.verbes != widget.verb.verbes ||
-        oldWidget.verb.temps != widget.verb.temps) {
+        oldWidget.verb.temps != widget.verb.temps ||
+        oldWidget.verb.personne != widget.verb.personne) {
       setState(() {
         _isRevealed = false;
       });
@@ -236,24 +237,7 @@ class _VerbCardState extends State<VerbCard> {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 6),
-                          margin: const EdgeInsets.only(right: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            widget.verb.temps,
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 6),
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.grey[50],
                             borderRadius: BorderRadius.circular(20),
@@ -263,8 +247,29 @@ class _VerbCardState extends State<VerbCard> {
                             style: const TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                              fontSize: 15,
                             ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          constraints: const BoxConstraints(maxWidth: 140),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            widget.verb.temps,
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],

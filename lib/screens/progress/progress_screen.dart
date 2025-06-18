@@ -59,7 +59,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
           stats[2] as Map<String, double>? ?? {};
       final Map<String, Map<String, int>> tenseProgress =
           stats[3] as Map<String, Map<String, int>>? ?? {};
-      print(tenseProgress);
+
       setState(() {
         _dayStreak = stats[0] as int? ?? 0;
         _verbDayStreak = stats[1] as int? ?? 0;

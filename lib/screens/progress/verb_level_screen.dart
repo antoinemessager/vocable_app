@@ -24,112 +24,28 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
   @override
   void initState() {
     super.initState();
-    _loadVerbs();
+    _loadVerbsForTense();
   }
 
-  Future<void> _loadVerbs() async {
-    final db = await DatabaseService.instance.database;
-    final List<Map<String, dynamic>> results = await db.rawQuery('''
-      WITH LatestProgress AS (
-        SELECT 
-          verb_id,
-          box_level,
-          MAX(timestamp) as latest_timestamp
-        FROM user_progress_verb
-        GROUP BY verb_id
-      )
-      SELECT 
-        v.id as verb_id,
-        v.verbes as verb,
-        v.conjugaison_complete as conjugation_complete,
-        COALESCE(lp.box_level, 0) as box_level
-      FROM verb v
-      LEFT JOIN LatestProgress lp ON v.id = lp.verb_id
-      WHERE v.temps = ?
-      ORDER BY v.verbes
-    ''', [widget.tense]);
-
-    // Regrouper les verbes par nom et calculer la progression moyenne
-    final Map<String, Map<String, dynamic>> groupedVerbs = {};
-
-    for (var result in results) {
-      final verbName = result['verb'] as String;
-      final boxLevel = result['box_level'] as int;
-      final conjugationComplete = result['conjugation_complete'] as String;
-
-      if (!groupedVerbs.containsKey(verbName)) {
-        groupedVerbs[verbName] = {
-          'verb': verbName,
-          'conjugation_complete': conjugationComplete,
-          'box_levels': [],
-          'total_level': 0,
-          'count': 0,
-        };
-      }
-
-      groupedVerbs[verbName]!['box_levels'].add(boxLevel);
-      groupedVerbs[verbName]!['total_level'] += boxLevel;
-      groupedVerbs[verbName]!['count'] += 1;
-    }
-
-    // Calculer la progression moyenne pour chaque verbe
-    final List<Map<String, dynamic>> processedVerbs = [];
-    for (var entry in groupedVerbs.entries) {
-      final verbData = entry.value;
-      final count = verbData['count'] as int;
-      final totalLevel = verbData['total_level'] as int;
-      final averageLevel = count > 0 ? (totalLevel / count).round() : 0;
-
-      processedVerbs.add({
-        'verb': verbData['verb'],
-        'conjugation_complete': verbData['conjugation_complete'],
-        'box_level': averageLevel,
-        'count': count,
-      });
-    }
+  Future<void> _loadVerbsForTense() async {
+    final verbs =
+        await DatabaseService.instance.getVerbsForTenseProgress(widget.tense);
 
     setState(() {
-      _verbs = processedVerbs;
+      _verbs = verbs;
       _isLoading = false;
     });
   }
 
-  String _getLevelText(int boxLevel) {
-    if (boxLevel > 5) return '100%';
+  String _getLevelText(double percentage) {
+    if (percentage >= 1.0) return '100%';
 
-    switch (boxLevel) {
-      case 0:
-        return '0%';
-      case 1:
-        return '20%';
-      case 2:
-        return '40%';
-      case 3:
-        return '60%';
-      case 4:
-        return '80%';
-      case 5:
-        return '100%';
-      default:
-        return '0%';
-    }
+    return '${(percentage * 100).round()}%';
   }
 
-  Color _getLevelColor(int boxLevel) {
-    if (boxLevel > 5) return Colors.green;
-    switch (boxLevel) {
-      case 0:
-        return Colors.grey;
-      case 1:
-      case 2:
-      case 3:
-      case 4:
-        return Colors.blue;
-      case 5:
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
+  Color _getLevelColor(double percentage) {
+    if (percentage >= 1.0) return Colors.green;
+    return Colors.blue;
   }
 
   List<TextSpan> _parseConjugation(String text) {
@@ -371,7 +287,8 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
     );
   }
 
-  void _showConjugationDialog(String verb, String conjugation) {
+  void _showConjugationDialog(
+      String verb, String conjugation, String traduction) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -393,7 +310,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
               ),
               const SizedBox(height: 2),
               Text(
-                widget.tense,
+                traduction,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontStyle: FontStyle.italic,
                       color: Colors.grey[600],
@@ -502,13 +419,14 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
             ),
           ),
           ..._verbs.map((verb) {
-            final boxLevel = verb['box_level'] as int;
+            final percentage = verb['percentage'] as double;
             final count = verb['count'] as int;
-            final color = _getLevelColor(boxLevel);
+            final color = _getLevelColor(percentage);
             return InkWell(
               onTap: () => _showConjugationDialog(
                 verb['verb'] as String,
                 verb['conjugation_complete'] as String,
+                verb['traduction'] as String,
               ),
               child: Container(
                 margin: const EdgeInsets.only(bottom: 8),
@@ -541,18 +459,11 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
                                   fontSize: 14,
                                 ),
                               ),
-                              Text(
-                                '$count personne${count > 1 ? 's' : ''}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
-                                ),
-                              ),
                             ],
                           ),
                         ),
                         Text(
-                          _getLevelText(boxLevel),
+                          _getLevelText(percentage),
                           style: TextStyle(
                             color: color,
                             fontWeight: FontWeight.bold,
@@ -565,7 +476,7 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
-                        value: boxLevel / 5,
+                        value: percentage,
                         backgroundColor: Colors.grey[200],
                         valueColor: AlwaysStoppedAnimation<Color>(color),
                         minHeight: 4,
