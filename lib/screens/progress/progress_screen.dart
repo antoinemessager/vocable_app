@@ -22,19 +22,19 @@ class _ProgressScreenState extends State<ProgressScreen> {
     'C2': {'total': 5000, 'current': 0},
   };
   final Map<String, Map<String, dynamic>> _tenseProgress = {
-    'présent': {'total': 100, 'current': 0},
-    'futur': {'total': 100, 'current': 0},
-    'passé composé': {'total': 100, 'current': 0},
-    'imparfait': {'total': 100, 'current': 0},
-    'passé simple': {'total': 100, 'current': 0},
-    'conditionnel présent': {'total': 100, 'current': 0},
-    'subjonctif présent': {'total': 100, 'current': 0},
-    'subjonctif passé': {'total': 100, 'current': 0},
-    'impératif': {'total': 100, 'current': 0},
-    'impératif négatif': {'total': 100, 'current': 0},
-    'plus que parfait': {'total': 100, 'current': 0},
-    'futur antérieur': {'total': 100, 'current': 0},
-    'conditionnel passé': {'total': 100, 'current': 0},
+    'Présent': {'total': 100, 'current': 0},
+    'Futur': {'total': 100, 'current': 0},
+    'Passé Composé': {'total': 100, 'current': 0},
+    'Imparfait': {'total': 100, 'current': 0},
+    'Passé Simple': {'total': 100, 'current': 0},
+    'Conditionnel Présent': {'total': 100, 'current': 0},
+    'Subjonctif Présent': {'total': 100, 'current': 0},
+    'Subjonctif Passé': {'total': 100, 'current': 0},
+    'Impératif': {'total': 100, 'current': 0},
+    'Impératif négatif': {'total': 100, 'current': 0},
+    'Plus que parfait': {'total': 100, 'current': 0},
+    'Futur Antérieur': {'total': 100, 'current': 0},
+    'Conditionnel Passé': {'total': 100, 'current': 0},
   };
   bool _isLoading = true;
 
@@ -47,34 +47,53 @@ class _ProgressScreenState extends State<ProgressScreen> {
   Future<void> _loadStats() async {
     setState(() => _isLoading = true);
 
-    final stats = await Future.wait<dynamic>([
-      DatabaseService.instance.getDayStreak(),
-      DatabaseService.instance.getVerbDayStreak(),
-      DatabaseService.instance.getCEFRProgress(),
-      DatabaseService.instance.getTenseProgress(),
-    ]);
+    try {
+      final stats = await Future.wait<dynamic>([
+        DatabaseService.instance.getDayStreak(),
+        DatabaseService.instance.getVerbDayStreak(),
+        DatabaseService.instance.getCEFRProgress(),
+        DatabaseService.instance.getTenseProgress(),
+      ]);
 
-    final Map<String, double> cefrPercentages = stats[2] as Map<String, double>;
-    final Map<String, double> tensePercentages =
-        stats[3] as Map<String, double>;
+      final Map<String, double> cefrPercentages =
+          stats[2] as Map<String, double>? ?? {};
+      final Map<String, Map<String, int>> tenseProgress =
+          stats[3] as Map<String, Map<String, int>>? ?? {};
+      print(tenseProgress);
+      setState(() {
+        _dayStreak = stats[0] as int? ?? 0;
+        _verbDayStreak = stats[1] as int? ?? 0;
 
-    setState(() {
-      _dayStreak = stats[0] as int;
-      _verbDayStreak = stats[1] as int;
+        _cefrProgress['A1']!['current'] =
+            ((cefrPercentages['A1'] ?? 0.0) * 250).round();
+        _cefrProgress['A2']!['current'] =
+            ((cefrPercentages['A2'] ?? 0.0) * 500).round();
+        _cefrProgress['B1']!['current'] =
+            ((cefrPercentages['B1'] ?? 0.0) * 750).round();
+        _cefrProgress['B2']!['current'] =
+            ((cefrPercentages['B2'] ?? 0.0) * 1250).round();
+        _cefrProgress['C1']!['current'] =
+            ((cefrPercentages['C1'] ?? 0.0) * 2250).round();
+        _cefrProgress['C2']!['current'] =
+            ((cefrPercentages['C2'] ?? 0.0) * 5000).round();
 
-      _cefrProgress['A1']!['current'] = (cefrPercentages['A1']! * 250).round();
-      _cefrProgress['A2']!['current'] = (cefrPercentages['A2']! * 500).round();
-      _cefrProgress['B1']!['current'] = (cefrPercentages['B1']! * 750).round();
-      _cefrProgress['B2']!['current'] = (cefrPercentages['B2']! * 1250).round();
-      _cefrProgress['C1']!['current'] = (cefrPercentages['C1']! * 2250).round();
-      _cefrProgress['C2']!['current'] = (cefrPercentages['C2']! * 5000).round();
+        // Mettre à jour les progrès des temps avec les nouvelles données
+        for (var entry in tenseProgress.entries) {
+          if (_tenseProgress.containsKey(entry.key)) {
+            final tenseData = entry.value;
+            _tenseProgress[entry.key]!['current'] = tenseData['mastered'] ?? 0;
+            _tenseProgress[entry.key]!['total'] = tenseData['total'] ?? 0;
+          }
+        }
 
-      for (var entry in tensePercentages.entries) {
-        _tenseProgress[entry.key]!['current'] = (entry.value * 100).round();
-      }
-
-      _isLoading = false;
-    });
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading stats: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Widget _buildHeader() {
@@ -159,13 +178,13 @@ class _ProgressScreenState extends State<ProgressScreen> {
               Expanded(
                 child: Column(
                   children: [
-                    'présent',
-                    'imparfait',
-                    'subjonctif présent',
-                    'plus que parfait',
-                    'conditionnel passé',
-                    'impératif négatif',
-                    'futur antérieur',
+                    'Présent',
+                    'Imparfait',
+                    'Subjonctif Présent',
+                    'Plus que parfait',
+                    'Conditionnel Passé',
+                    'Impératif négatif',
+                    'Futur Antérieur',
                   ].map((tense) => _buildTenseProgressItem(tense)).toList(),
                 ),
               ),
@@ -174,12 +193,12 @@ class _ProgressScreenState extends State<ProgressScreen> {
               Expanded(
                 child: Column(
                   children: [
-                    'futur',
-                    'passé composé',
-                    'passé simple',
-                    'conditionnel présent',
-                    'subjonctif passé',
-                    'impératif',
+                    'Futur',
+                    'Passé Composé',
+                    'Passé Simple',
+                    'Conditionnel Présent',
+                    'Subjonctif Passé',
+                    'Impératif',
                   ].map((tense) => _buildTenseProgressItem(tense)).toList(),
                 ),
               ),
@@ -195,7 +214,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final current = progress['current'] as int;
     final total = progress['total'] as int;
     final color = _getTenseColor(tense);
-    final percentage = (current / total * 100).round();
+    final percentage = total > 0 ? (current / total * 100).round() : 0;
 
     return InkWell(
       onTap: () {
@@ -257,7 +276,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
-                value: current / total,
+                value: total > 0 ? current / total : 0.0,
                 backgroundColor: Colors.grey[200],
                 valueColor: AlwaysStoppedAnimation<Color>(color),
                 minHeight: 8,
@@ -265,7 +284,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              '$current/$total verbes',
+              '$current/$total conjugaisons',
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 12,

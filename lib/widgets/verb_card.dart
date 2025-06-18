@@ -93,7 +93,7 @@ class _VerbCardState extends State<VerbCard> {
           spans.add(TextSpan(
             text: auxiliary.substring(1, auxiliary.length - 1),
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.blue,
               fontWeight: FontWeight.bold,
             ),
@@ -102,7 +102,7 @@ class _VerbCardState extends State<VerbCard> {
           spans.add(TextSpan(
             text: auxiliary,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.black,
               fontWeight: FontWeight.normal,
             ),
@@ -118,7 +118,7 @@ class _VerbCardState extends State<VerbCard> {
             spans.add(TextSpan(
               text: participle.substring(lastIndex, match.start),
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 color: Colors.black,
                 fontWeight: FontWeight.normal,
               ),
@@ -129,7 +129,7 @@ class _VerbCardState extends State<VerbCard> {
           spans.add(TextSpan(
             text: match.group(1),
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.blue,
               fontWeight: FontWeight.bold,
             ),
@@ -143,7 +143,7 @@ class _VerbCardState extends State<VerbCard> {
           spans.add(TextSpan(
             text: participle.substring(lastIndex),
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.black,
               fontWeight: FontWeight.normal,
             ),
@@ -158,7 +158,7 @@ class _VerbCardState extends State<VerbCard> {
           spans.add(TextSpan(
             text: text.substring(lastIndex, match.start),
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.black,
               fontWeight: FontWeight.normal,
             ),
@@ -169,7 +169,7 @@ class _VerbCardState extends State<VerbCard> {
         spans.add(TextSpan(
           text: match.group(1),
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             color: Colors.blue,
             fontWeight: FontWeight.bold,
           ),
@@ -183,7 +183,7 @@ class _VerbCardState extends State<VerbCard> {
         spans.add(TextSpan(
           text: text.substring(lastIndex),
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             color: Colors.black,
             fontWeight: FontWeight.normal,
           ),
@@ -356,7 +356,7 @@ class _VerbCardState extends State<VerbCard> {
                   ),
                 ] else ...[
                   _buildConjugationTable(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
                   IntrinsicHeight(
                     child: Column(
                       children: [
@@ -543,17 +543,12 @@ class _VerbCardState extends State<VerbCard> {
       children: [
         Container(
           width: double.infinity,
-          height: 1,
-          color: Colors.grey[300],
-          margin: const EdgeInsets.symmetric(vertical: 12),
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
+                flex: 5,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -569,7 +564,7 @@ class _VerbCardState extends State<VerbCard> {
                                 : Colors.transparent,
                           ),
                           padding: const EdgeInsets.symmetric(
-                              vertical: 2, horizontal: 8),
+                              vertical: 2, horizontal: 4),
                           child: RichText(
                             textAlign: TextAlign.center,
                             text: TextSpan(
@@ -581,8 +576,9 @@ class _VerbCardState extends State<VerbCard> {
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8),
               Expanded(
+                flex: 5,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -600,7 +596,7 @@ class _VerbCardState extends State<VerbCard> {
                                 : Colors.transparent,
                           ),
                           padding: const EdgeInsets.symmetric(
-                              vertical: 2, horizontal: 8),
+                              vertical: 2, horizontal: 4),
                           child: RichText(
                             textAlign: TextAlign.center,
                             text: TextSpan(

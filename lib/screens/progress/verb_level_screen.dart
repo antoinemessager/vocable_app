@@ -40,17 +40,56 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
       )
       SELECT 
         v.id as verb_id,
-        v.verb,
-        v.conjugation,
+        v.verbes as verb,
+        v.conjugaison_complete as conjugation_complete,
         COALESCE(lp.box_level, 0) as box_level
       FROM verb v
       LEFT JOIN LatestProgress lp ON v.id = lp.verb_id
-      WHERE v.tense = ?
-      ORDER BY v.verb
+      WHERE v.temps = ?
+      ORDER BY v.verbes
     ''', [widget.tense]);
 
+    // Regrouper les verbes par nom et calculer la progression moyenne
+    final Map<String, Map<String, dynamic>> groupedVerbs = {};
+
+    for (var result in results) {
+      final verbName = result['verb'] as String;
+      final boxLevel = result['box_level'] as int;
+      final conjugationComplete = result['conjugation_complete'] as String;
+
+      if (!groupedVerbs.containsKey(verbName)) {
+        groupedVerbs[verbName] = {
+          'verb': verbName,
+          'conjugation_complete': conjugationComplete,
+          'box_levels': [],
+          'total_level': 0,
+          'count': 0,
+        };
+      }
+
+      groupedVerbs[verbName]!['box_levels'].add(boxLevel);
+      groupedVerbs[verbName]!['total_level'] += boxLevel;
+      groupedVerbs[verbName]!['count'] += 1;
+    }
+
+    // Calculer la progression moyenne pour chaque verbe
+    final List<Map<String, dynamic>> processedVerbs = [];
+    for (var entry in groupedVerbs.entries) {
+      final verbData = entry.value;
+      final count = verbData['count'] as int;
+      final totalLevel = verbData['total_level'] as int;
+      final averageLevel = count > 0 ? (totalLevel / count).round() : 0;
+
+      processedVerbs.add({
+        'verb': verbData['verb'],
+        'conjugation_complete': verbData['conjugation_complete'],
+        'box_level': averageLevel,
+        'count': count,
+      });
+    }
+
     setState(() {
-      _verbs = results;
+      _verbs = processedVerbs;
       _isLoading = false;
     });
   }
@@ -464,11 +503,12 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
           ),
           ..._verbs.map((verb) {
             final boxLevel = verb['box_level'] as int;
+            final count = verb['count'] as int;
             final color = _getLevelColor(boxLevel);
             return InkWell(
               onTap: () => _showConjugationDialog(
                 verb['verb'] as String,
-                verb['conjugation'] as String,
+                verb['conjugation_complete'] as String,
               ),
               child: Container(
                 margin: const EdgeInsets.only(bottom: 8),
@@ -490,11 +530,25 @@ class _VerbLevelScreenState extends State<VerbLevelScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          verb['verb'] as String,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                verb['verb'] as String,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                '$count personne${count > 1 ? 's' : ''}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Text(
