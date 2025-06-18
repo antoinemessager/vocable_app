@@ -671,7 +671,67 @@ class DatabaseService {
   }
 
   Future<Verb> getRandomVerb() async {
-    return getNextVerbForReview();
+    final db = await database;
+    final prefs = await SharedPreferences.getInstance();
+    final selectedTenses =
+        prefs.getStringList('selected_verb_tenses') ?? ['Présent'];
+
+    // Les temps sélectionnés correspondent maintenant directement aux temps dans le JSON
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+      WITH LatestProgress AS (
+        SELECT
+          verb_id,
+          box_level,
+          MAX(timestamp) AS latest_timestamp,
+          CASE
+            WHEN box_level = 1 THEN datetime(timestamp, '+1 hour')
+            WHEN box_level = 2 THEN datetime(timestamp, '+1 day')
+            WHEN box_level = 3 THEN datetime(timestamp, '+3 days')
+            WHEN box_level = 4 THEN datetime(timestamp, '+7 days')
+            WHEN box_level = 5 THEN datetime(timestamp, '+10 years')
+            ELSE timestamp
+          END AS min_timestamp,
+          COUNT(*) AS nb_time_seen
+        FROM user_progress_verb
+        GROUP BY verb_id
+      ), UsableVerbs AS (
+        SELECT
+          lp.*
+        FROM LatestProgress lp
+        WHERE datetime('now') >= lp.min_timestamp
+          OR lp.box_level = 0
+      ), Pool50 AS (
+        SELECT
+          v.*,
+          COALESCE(up.box_level, 0) as box_level,
+          COALESCE(up.nb_time_seen, 0) as nb_time_seen
+        FROM verb v
+        LEFT JOIN UsableVerbs up ON v.id = up.verb_id
+        WHERE v.temps IN (${List.filled(selectedTenses.length, '?').join(',')})
+          AND (up.verb_id IS NOT NULL OR NOT EXISTS (
+            SELECT 1 FROM user_progress_verb up2 WHERE up2.verb_id = v.id
+          ))
+        ORDER BY v.id
+        LIMIT 50
+      )
+      SELECT * FROM Pool50 ORDER BY RANDOM() LIMIT 1;
+    ''', selectedTenses);
+
+    if (result.isEmpty) {
+      return Verb(
+        verb_id: 0,
+        verbes: '',
+        temps: '',
+        traduction: '',
+        conjugaison_complete: '',
+        conjugaison: '',
+        personne: '',
+        phrase_es: '',
+        phrase_fr: '',
+        nb_time_seen: 0,
+      );
+    }
+    return Verb.fromMap(result.first);
   }
 
   Future<double> getVerbProgress() async {
@@ -844,23 +904,6 @@ class DatabaseService {
       'Conditionnel Passé',
     ];
 
-    // Mapping des temps sans accents vers les temps avec accents
-    final Map<String, String> tenseMapping = {
-      'Présent': 'Présent',
-      'Passé Composé': 'Passé Composé',
-      'Futur': 'Futur',
-      'Futur Antérieur': 'Futur Antérieur',
-      'Imparfait': 'Imparfait',
-      'Plus que parfait': 'Plus que parfait',
-      'Passé Simple': 'Passé Simple',
-      'Conditionnel Présent': 'Conditionnel Présent',
-      'Conditionnel Passé': 'Conditionnel Passé',
-      'Subjonctif Présent': 'Subjonctif Présent',
-      'Subjonctif Passé': 'Subjonctif Passé',
-      'Impératif': 'Impératif',
-      'Impératif négatif': 'Impératif négatif',
-    };
-
     for (var tense in tenses) {
       // Récupérer le nombre total de verbes pour ce temps
       final totalResult = await db.rawQuery('''
@@ -896,71 +939,6 @@ class DatabaseService {
     }
 
     return progress;
-  }
-
-  Future<Verb> getNextVerbForReview() async {
-    final db = await database;
-    final prefs = await SharedPreferences.getInstance();
-    final selectedTenses =
-        prefs.getStringList('selected_verb_tenses') ?? ['Présent'];
-
-    print(selectedTenses);
-    // Les temps sélectionnés correspondent maintenant directement aux temps dans le JSON
-    final List<Map<String, dynamic>> result = await db.rawQuery('''
-      WITH LatestProgress AS (
-        SELECT
-          verb_id,
-          box_level,
-          MAX(timestamp) AS latest_timestamp,
-          CASE
-            WHEN box_level = 1 THEN datetime(timestamp, '+1 hour')
-            WHEN box_level = 2 THEN datetime(timestamp, '+1 day')
-            WHEN box_level = 3 THEN datetime(timestamp, '+3 days')
-            WHEN box_level = 4 THEN datetime(timestamp, '+7 days')
-            WHEN box_level = 5 THEN datetime(timestamp, '+10 years')
-            ELSE timestamp
-          END AS min_timestamp,
-          COUNT(*) AS nb_time_seen
-        FROM user_progress_verb
-        GROUP BY verb_id
-      ), UsableVerbs AS (
-        SELECT
-          lp.*
-        FROM LatestProgress lp
-        WHERE datetime('now') >= lp.min_timestamp
-          OR lp.box_level = 0
-      ), Pool50 AS (
-        SELECT
-          v.*,
-          COALESCE(up.box_level, 0) as box_level,
-          COALESCE(up.nb_time_seen, 0) as nb_time_seen
-        FROM verb v
-        LEFT JOIN UsableVerbs up ON v.id = up.verb_id
-        WHERE v.temps IN (${List.filled(selectedTenses.length, '?').join(',')})
-          AND (up.verb_id IS NOT NULL OR NOT EXISTS (
-            SELECT 1 FROM user_progress_verb up2 WHERE up2.verb_id = v.id
-          ))
-        ORDER BY v.id
-        LIMIT 50
-      )
-      SELECT * FROM Pool50 ORDER BY RANDOM() LIMIT 1;
-    ''', selectedTenses);
-
-    if (result.isEmpty) {
-      return Verb(
-        verb_id: 0,
-        verbes: '',
-        temps: '',
-        traduction: '',
-        conjugaison_complete: '',
-        conjugaison: '',
-        personne: '',
-        phrase_es: '',
-        phrase_fr: '',
-        nb_time_seen: 0,
-      );
-    }
-    return Verb.fromMap(result.first);
   }
 
   Future<int> insertVerb(Verb verb) async {

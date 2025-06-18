@@ -70,7 +70,6 @@ class _VerbScreenState extends State<VerbScreen> {
 
   Future<void> _loadRandomVerb() async {
     final verb = await _databaseService.getRandomVerb();
-    print(verb.toMap());
     if (mounted) {
       setState(() {
         _currentVerb = verb;
